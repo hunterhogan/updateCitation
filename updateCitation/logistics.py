@@ -48,7 +48,6 @@ def writeCitation(nexusCitation: CitationNexus, pathFilenameCitationSSOT: pathli
             - It filters out empty lists from the citation data.
         """
 
-
     # NOTE embarrassingly hacky process to follow
     parameterIndent= 2
     parameterLineWidth = 60
@@ -81,6 +80,7 @@ def writeCitation(nexusCitation: CitationNexus, pathFilenameCitationSSOT: pathli
 
 def updateHere(pathRoot: Union[str, os.PathLike[Any]]):
     """Updates citation files based on package metadata and release information.
+
         This function orchestrates the update of citation files within a repository.
         It gathers metadata from the pyproject.toml file, adds information from
         GitHub and PyPI releases, and writes the updated citation data to both
@@ -110,7 +110,3 @@ def updateHere(pathRoot: Union[str, os.PathLike[Any]]):
     nexusCitation = addPyPIrelease(nexusCitation)
 
     writeCitation(nexusCitation, pathFilenameCitationSSOT, pathFilenameCitationDOTcffRepo)
-
-if __name__ == '__main__':
-    pathRepoRoot = pathlib.Path(__file__).parent.parent
-    updateHere(pathRepoRoot)

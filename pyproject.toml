@@ -21,7 +21,7 @@ dependencies = [
     "pygithub",
     "ruamel.yaml",
     "tomli",]
-description = ""
+description = "Automatically update citation files (CITATION.cff) in a GitHub repository from `pyproject.toml`, GitHub releases, and PyPI releases."
 keywords = ["citation", "cff", "doi", "github", "zenodo"]
 license = { 'text' = "CC-BY-NC-4.0" }
 name = "updateCitation"

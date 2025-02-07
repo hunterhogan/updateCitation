@@ -1,4 +1,3 @@
-from .constants import GITHUB_API_VERSION_HEADER # CAPSLOCK != immutable
 from .variables import CitationNexus, projectURLTargets, filenameCitationDOTcff
 
 from .pyprojectDOTtoml import get_pyprojectDOTtoml, add_pyprojectDOTtoml
