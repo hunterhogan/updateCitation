@@ -6,3 +6,5 @@ from .pypa import addPyPAMetadata
 from .nexusCitation import getNexusCitation
 from .github import addGitHubRelease
 from .pypi import addPyPIrelease
+
+from .logistics import updateHere

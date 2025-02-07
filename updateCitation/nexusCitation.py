@@ -6,6 +6,17 @@ import cffconvert
 import pathlib
 
 def getNexusCitation(pathFilenameCitationSSOT: pathlib.Path) -> CitationNexus:
+    """Given a path to a citation file, return a CitationNexus object.
+        The citation file is expected to be in a format that can be parsed by
+        `cffconvert.cli.create_citation.create_citation()`. This function
+        ensures convergence with the CFF ecosystem by using `create_citation`
+        and its internal `_parse()` method.
+        Parameters:
+            pathFilenameCitationSSOT (pathlib.Path): Path to the citation file.
+        Returns:
+            CitationNexus: A CitationNexus object populated with data from the
+                citation file.
+        """
 
     # `cffconvert.cli.create_citation.create_citation()` is PAINFULLY mundane, but a major problem
     # in the CFF ecosystem is divergence. Therefore, I will use this function so that my code
