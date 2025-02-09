@@ -1,6 +1,12 @@
-from .variables import CitationNexus, projectURLTargets, filenameCitationDOTcffDEFAULT
+from .variables import (
+    CitationNexus,
+    filename_pyprojectDOTtomlDEFAULT,
+    filenameCitationDOTcffDEFAULT,
+    projectURLTargets,
+    subPathCitationsDEFAULT,
+)
 
-from .pyprojectDOTtoml import get_pyprojectDOTtoml, add_pyprojectDOTtoml
+from .pyprojectDOTtoml import add_pyprojectDOTtoml
 from .pypa import addPyPAMetadata
 from .citationFileFormat import addCitation
 from .github import addGitHubRelease

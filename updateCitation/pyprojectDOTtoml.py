@@ -1,5 +1,5 @@
 from typing import Any, Dict
-from updateCitation import CitationNexus
+from updateCitation import CitationNexus, filename_pyprojectDOTtomlDEFAULT
 import pathlib
 import tomli
 
@@ -12,11 +12,7 @@ def get_pyprojectDOTtoml(pathRepoRoot: pathlib.Path) -> Dict[str, Any]:
         Returns:
             Dict[str, Any]: Contents of the pyproject.toml file.
     """
-    tomlHARDCODED = "pyproject.toml" # I can't decide if this is a HARDCODED value (which I want to avoid)
-    # or implementing the specification https://packaging.python.org/en/latest/specifications/pyproject-toml/
-    # If implementing, I might still provide a way to override the filename, but the approach is different than
-    # declaring HARDCODED! BAD! BOO! HISS!
-    pathFilenamePackageSSOT = pathRepoRoot / tomlHARDCODED
+    pathFilenamePackageSSOT = pathRepoRoot / filename_pyprojectDOTtomlDEFAULT
     tomlPackageData: Dict[str, Any] = tomli.loads(pathFilenamePackageSSOT.read_text())['project']
     return tomlPackageData
 

@@ -4,7 +4,11 @@ import attrs
 cffDASHversionDEFAULT = '1.2.0'
 
 filenameCitationDOTcffDEFAULT = 'CITATION.cff'
-
+filename_pyprojectDOTtomlDEFAULT = "pyproject.toml" # I can't decide if this is a HARDCODED value (which I want to avoid)
+# or implementing the specification https://packaging.python.org/en/latest/specifications/pyproject-toml/
+# If implementing, I might still provide a way to override the filename, but the approach is different than
+# declaring HARDCODED! BAD! BOO! HISS!
+subPathCitationsDEFAULT = "citations"
 messageDEFAULT = "Cite this software with the metadata in this file."
 
 projectURLTargets: Set[str] = {"homepage", "license", "repository"}
@@ -55,8 +59,8 @@ class CitationNexus:
 
     def setInStone(self, prophet: str) -> "CitationNexus":
         """I would like this method to accomplish the following:
-        - for each field listed in the case, protect the field from being changed
         - if a field in the case is in `fieldsRequired`, confirm the field is not None
+        - for each field listed in the case, protect the field from being changed
 
         Validation of the `CitationNexus` object will be done in the `writeCitation` function
         by the appropriate package and function."""

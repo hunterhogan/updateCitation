@@ -1,12 +1,15 @@
 from cffconvert.cli.create_citation import create_citation
 from typing import Any, Union
-from updateCitation import add_pyprojectDOTtoml
-from updateCitation import addCitation
-from updateCitation import addGitHubRelease
-from updateCitation import addPyPAMetadata
-from updateCitation import addPyPIrelease
-from updateCitation import CitationNexus
-from updateCitation import filenameCitationDOTcffDEFAULT
+from updateCitation import (
+    add_pyprojectDOTtoml,
+    addCitation,
+    addGitHubRelease,
+    addPyPAMetadata,
+    addPyPIrelease,
+    CitationNexus,
+    filenameCitationDOTcffDEFAULT,
+    subPathCitationsDEFAULT,
+)
 import attrs
 import cffconvert
 import os
@@ -16,6 +19,9 @@ import ruamel.yaml
 """
 How to automate citation updates:
 - The `pyproject.toml` file is the source of truth for the package metadata, so configuration information for updateCitation will be in there.
+    - At the moment, only `pathRoot` is configurable.
+    - But, hypothetically, anything marked with "DEFAULT" could be easily changed to a configuration option.
+    - Furthermore, the `CitationNexus` object could be modified so that the SSOT for each field is configurable.
 - Create an installable package for updateCitation.
 - Create a GitHub Action that runs updateCitation.
 
@@ -93,50 +99,6 @@ def updateHere(pathRoot: Union[str, os.PathLike[Any], None] = None) -> None:
         """
     pathRepoRoot = pathlib.Path(pathRoot) if pathRoot else pathlib.Path.cwd()
 
-    """
-    Idea that just popped into my head:
-    I tend to separate getData and addData into different functions.
-    I don't have a consistent mechanism for "enforceRequiredData", however.
-    I could create an abstract function that enforces all required data.
-    Parameters include:
-        the identifier/path of the required data field
-        the current data state
-        perhaps: the SSOT for that data
-    The function would enforce the data requirement.
-    The flow of this package consistently returns to a central function (this one).
-    So, if the SSOT of packageName is tomlPackageData, immediately after tomlPackageData
-    is populated, I call `enforceRequiredData` and it will fail or not.
-    If I change the SSOT for packageName, then I would call `enforceRequiredData` at a different time.
-    Ok, I see a potential problem: I must move the call to `enforceRequiredData` depending on the SSOT,
-    but if i want the SSOT to be a user-configurable option, I can't redesign the flow. I might, however,
-    call `enforceRequiredData` after each step that loads data. `enforceRequiredData` would have access to
-    the table that specifies the SSOT for each data field. It would know which step just completed and it would
-    enforce the appropriate requirements.
-    That might work but it requires a bunch of infrastructure that I don't have.
-
-    Deepseek: essentially suggested modifying my "addData" step to a "schema-driven validation" paradigm.
-    Don't just add the data to a data structure, but add it to a schema. The schema includes required fields
-    and schema-driven seems to mean that enforcement is baked into the process. `Pydantic` specifically mentioned
-    and I've been running across that package a lot lately.
-
-    I think `attrs`, which I am using for the first time, and Pydantic are similar tools. I think `attrs` has
-    mechanisms for implementing this scheme-driven idea.
-
-    I could add a `enforceRequiredData` method to the class. Actually, the currently unsuccessful `setInStone`
-    method has half of the information necessary for the `enforceRequiredData` method: it lists the SSOT for each
-    field. If I added information about which fields are required, then my idea for `enforceRequiredData` would be
-    realized. I added the `setInStone` call to the end of each "addData" step.
-
-    AH! and because `get_pyprojectDOTtoml` and `add_pyprojectDOTtoml` are currently separated, that is why
-    I am testing packageName here instead of in `add_pyprojectDOTtoml`.
-
-    I segregated the two steps during creation because I wasn't sure what information I would get from `addPyPAMetadata`,
-    so I waited to design/run `add_pyprojectDOTtoml`, but now that I know, I can change the flow so get and add are the same
-    step.
-
-    Ok, this idea might not be the best idea, but it fits with my current style and it fits very well with my current code,
-    so it is easy to implement. I will try it and see how it goes.
-    """
     nexusCitation = CitationNexus()
 
     nexusCitation, tomlPackageData = add_pyprojectDOTtoml(nexusCitation, pathRepoRoot)
@@ -145,7 +107,8 @@ def updateHere(pathRoot: Union[str, os.PathLike[Any], None] = None) -> None:
         # TODO learn how to change the field from `str | None` to `str` after the field is populated
         # especially for a required field
         raise ValueError("Package name is required.")
-    pathCitations = pathRepoRoot / nexusCitation.title / 'citations'
+
+    pathCitations = pathRepoRoot / nexusCitation.title / subPathCitationsDEFAULT
     pathFilenameCitationSSOT = pathCitations / filenameCitationDOTcffDEFAULT
     pathFilenameCitationDOTcffRepo = pathRepoRoot / filenameCitationDOTcffDEFAULT
 
