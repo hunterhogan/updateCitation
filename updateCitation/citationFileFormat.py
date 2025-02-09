@@ -5,7 +5,7 @@ import attrs
 import cffconvert
 import pathlib
 
-def getNexusCitation(pathFilenameCitationSSOT: pathlib.Path) -> CitationNexus:
+def addCitation(nexusCitation: CitationNexus, pathFilenameCitationSSOT: pathlib.Path) -> CitationNexus:
     """Given a path to a citation file, return a CitationNexus object.
         The citation file is expected to be in a format that can be parsed by
         `cffconvert.cli.create_citation.create_citation()`. This function
@@ -25,11 +25,8 @@ def getNexusCitation(pathFilenameCitationSSOT: pathlib.Path) -> CitationNexus:
     # `._parse()` is a yaml loader: use it for convergence
     cffobj: Dict[Any, Any] = citationObject._parse()
 
-    nexusCitation = CitationNexus(
-        cffDASHversion=cffobj["cff-version"],
-        message=cffobj["message"],
-    )
-
+    # This step is designed to prevent deleting fields that are populated in the current CFF file,
+    # but for whatever reason do not get added to the CitationNexus object.
     Z0Z_list: List[attrs.Attribute] = list(attrs.fields(type(nexusCitation)))
     for Z0Z_field in Z0Z_list:
         cffobjKeyName: str = Z0Z_field.name.replace("DASH", "-")
