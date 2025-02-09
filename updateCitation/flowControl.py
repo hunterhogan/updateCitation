@@ -34,7 +34,7 @@ Projected flow during a GitHub action to update a citation:
     - I don't have logic for updating the `commit` field yet, but I guess I will use the hash from the commit just before the special commit.
 """
 
-def updateHere(pathRoot: Union[str, os.PathLike[Any], None] = None) -> None:
+def here(pathRoot: Union[str, os.PathLike[Any], None] = None) -> None:
     """Updates citation files based on package metadata and release information.
 
         This function orchestrates the update of citation files within a repository.
