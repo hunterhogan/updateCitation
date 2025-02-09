@@ -1,5 +1,6 @@
 from .variables import (
     CitationNexus,
+    CitationNexusFieldsFrozen,
     filename_pyprojectDOTtomlDEFAULT,
     filenameCitationDOTcffDEFAULT,
     projectURLTargets,

@@ -63,10 +63,6 @@ def addPyPAMetadata(nexusCitation: CitationNexus, tomlPackageData: Dict[str, Any
 
     metadata: PyPAMetadata = getPyPAMetadata(tomlPackageData)
 
-    if not metadata.name:
-        raise ValueError("Metadata name is required.")
-
-    nexusCitation.title = metadata.name
     if metadata.version: nexusCitation.version = str(metadata.version)
     if metadata.keywords: nexusCitation.keywords = metadata.keywords
     if metadata.license_expression: nexusCitation.license = metadata.license_expression

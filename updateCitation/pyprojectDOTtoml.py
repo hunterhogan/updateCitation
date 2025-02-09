@@ -28,24 +28,16 @@ def add_pyprojectDOTtoml(nexusCitation: CitationNexus, pathRepoRoot: pathlib.Pat
     tomlPackageData = get_pyprojectDOTtoml(pathRepoRoot)
 
     packageName: str = tomlPackageData.get("name", None)
-    if not packageName:
-        raise ValueError("Package name is required.")
     nexusCitation.title = packageName
 
-    listAuthors = tomlPackageData.get("authors", None)
-    if not listAuthors:
-        raise ValueError("Authors are required.")
-    else:
-        listPersons = []
-        for person in listAuthors:
-            listPersons.append(Z0Z_ImaNotValidatingNoNames(person))
-            nexusCitation.authors = listPersons
-
-    if tomlPackageData.get("maintainers", None):
-        listPersons = []
-        for person in tomlPackageData["maintainers"]:
-            listPersons.append(Z0Z_ImaNotValidatingNoNames(person))
-            nexusCitation.contact = listPersons
+    mapNexusCitation2pyprojectDOTtoml = [("authors", "authors"), ("contact", "maintainers")]
+    for keyNexusCitation, key_pyprojectDOTtoml in mapNexusCitation2pyprojectDOTtoml:
+        listPersonsTOML = tomlPackageData.get(key_pyprojectDOTtoml, None)
+        if listPersonsTOML:
+            listPersonsCFF = []
+            for person in listPersonsTOML:
+                listPersonsCFF.append(Z0Z_ImaNotValidatingNoNames(person))
+            setattr(nexusCitation, keyNexusCitation, listPersonsCFF)
 
     nexusCitation = nexusCitation.setInStone("pyprojectDOTtoml")
     return nexusCitation, tomlPackageData

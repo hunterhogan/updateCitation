@@ -1,5 +1,5 @@
 from cffconvert.cli.create_citation import create_citation
-from updateCitation import CitationNexus
+from updateCitation import CitationNexus, CitationNexusFieldsFrozen
 from typing import Any, Dict, List
 import attrs
 import cffconvert
@@ -29,6 +29,8 @@ def addCitation(nexusCitation: CitationNexus, pathFilenameCitationSSOT: pathlib.
     # but for whatever reason do not get added to the CitationNexus object.
     Z0Z_list: List[attrs.Attribute] = list(attrs.fields(type(nexusCitation)))
     for Z0Z_field in Z0Z_list:
+        if Z0Z_field.name in CitationNexusFieldsFrozen:
+            continue
         cffobjKeyName: str = Z0Z_field.name.replace("DASH", "-")
         cffobjValue = cffobj.get(cffobjKeyName)
         if cffobjValue: # An empty list will be False
