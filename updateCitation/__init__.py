@@ -8,8 +8,8 @@ from .variables import (
 )
 
 from .pyprojectDOTtoml import add_pyprojectDOTtoml
+from .citationFileFormat import addCitation, writeCitation
 from .pypa import addPyPAMetadata
-from .citationFileFormat import addCitation
 from .github import addGitHubRelease
 from .pypi import addPyPIrelease
 
