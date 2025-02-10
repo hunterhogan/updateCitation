@@ -78,5 +78,5 @@ def addPyPAMetadata(nexusCitation: CitationNexus, tomlPackageData: Dict[str, Any
             if url:
                 setattr(nexusCitation, Z0Z_lookup[urlTarget], url)
 
-    nexusCitation.setInStone("PyPA")
+    # nexusCitation.setInStone("PyPA")
     return nexusCitation

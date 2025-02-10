@@ -13,7 +13,7 @@ A tool to automatically update citation files (CITATION.cff) in a repository bas
 ## Installation
 
 ```bash
-pip install updateCitation@git+https://github.com/hunterhogan/updateCitation.git
+pip install updateCitation
 ```
 
 ## Usage
@@ -44,4 +44,4 @@ Configuration is managed through the `pyproject.toml` file. Ensure that the `[pr
 - `license`: The license information for the package.
 - `urls`: Links to the project homepage, repository, and other relevant URLs.
 
-[![CC-BY-NC-4.0]([CC-BY-NC-4.0.svg](https://github.com/hunterhogan/updateCitation/blob/main/CC-BY-NC-4.0.svg))](https://creativecommons.org/licenses/by-nc/4.0/)
+[![CC-BY-NC-4.0](https://github.com/hunterhogan/updateCitation/blob/main/CC-BY-NC-4.0.svg)](https://creativecommons.org/licenses/by-nc/4.0/)

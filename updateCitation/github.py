@@ -72,5 +72,5 @@ def addGitHubRelease(nexusCitation: CitationNexus) -> CitationNexus:
     if repositoryDASHcodeValue:
         nexusCitation.repositoryDASHcode = repositoryDASHcodeValue
 
-    nexusCitation.setInStone("GitHub")
+    # nexusCitation.setInStone("GitHub")
     return nexusCitation
