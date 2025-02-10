@@ -1,7 +1,7 @@
-from updateCitation import CitationNexus
+from github import Auth, Github
 from typing import Any, Dict
+from updateCitation import CitationNexus
 import os
-from github import Github, Auth
 import warnings
 
 def getGitHubRelease(nexusCitation: CitationNexus) -> Dict[str, Any]:
@@ -71,6 +71,6 @@ def addGitHubRelease(nexusCitation: CitationNexus) -> CitationNexus:
     repositoryDASHcodeValue = gitHubReleaseData.get("repositoryDASHcode")
     if repositoryDASHcodeValue:
         nexusCitation.repositoryDASHcode = repositoryDASHcodeValue
-    nexusCitation = nexusCitation.setInStone("GitHub")
 
+    nexusCitation.setInStone("GitHub")
     return nexusCitation

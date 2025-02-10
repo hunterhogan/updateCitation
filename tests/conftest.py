@@ -1,10 +1,25 @@
 """SSOT for Pytest."""
 from typing import Generator, Any, Type, Callable
 import pathlib
-import shutil
+from updateCitation import (
+    add_pyprojectDOTtoml,
+    addCitation,
+    addGitHubRelease,
+    addPyPAMetadata,
+    addPyPIrelease,
+    CitationNexus,
+    flowControl,
+    getSettingsPackage,
+    SettingsPackage,
+)
+from updateCitation.github import getGitHubRelease
+from updateCitation.pypa import getPyPAMetadata
+from updateCitation.pypi import getPyPIrelease
+from updateCitation.pyprojectDOTtoml import get_pyprojectDOTtoml
+from updateCitation.variables import cffDASHversionDEFAULT, CitationNexusFieldsRequired, messageDEFAULT
 import pytest
+import shutil
 import uuid
-import ruamel.yaml
 
 # SSOT for test data paths and filenames
 pathDataSamples = pathlib.Path("tests/dataSamples")
@@ -37,6 +52,16 @@ def pathFilenameTmpTesting(request: pytest.FixtureRequest) -> pathlib.Path:
     pathFilenameTmp = pathlib.Path(pathTmpRoot, uuidString[0:-8], uuidString[-8:None] + extension)
     pathFilenameTmp.parent.mkdir(parents=True, exist_ok=False)
     return pathFilenameTmp
+
+@pytest.fixture
+def nexusCitationTesting(request: pytest.FixtureRequest) -> CitationNexus:
+    """Return a CitationNexus object with the specified attributes."""
+    try:
+        attributes = request.param
+    except AttributeError:
+        attributes = {}
+
+    return CitationNexus(**attributes)
 
 @pytest.fixture
 def citationAlphaDOTcff() -> pathlib.Path:

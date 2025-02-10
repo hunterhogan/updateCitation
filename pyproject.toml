@@ -37,8 +37,7 @@ report = { exclude_lines = [
     "if __name__ == \"__main__\":",
 ], ignore_errors = false }
 run = { branch = true, concurrency = [
-    "multiprocessing",
-    "thread",
+    "multiprocessing"
 ], data_file = "tests/coverage/.coverage", omit = [
     "tests/*",
 ], parallel = true, source = [
@@ -47,7 +46,7 @@ run = { branch = true, concurrency = [
 xml = { output = "tests/coverage/coverage.xml" }
 
 [tool.pytest.ini_options]
-addopts = ["--color=yes", "-n 4"]
+addopts = ["--color=yes", "-n 6"]
 testpaths = ["tests"]
 
 [tool.setuptools.packages.find]

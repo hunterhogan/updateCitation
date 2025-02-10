@@ -29,10 +29,7 @@ CitationNexusFieldsFrozen: Set[str] = set()
 
 @attrs.define()
 class CitationNexus:
-    """
-    - one-to-one correlation with `cffconvert.lib.cff_1_2_x.citation` class Citation_1_2_x.cffobj
-    """
-
+    """one-to-one correlation with `cffconvert.lib.cff_1_2_x.citation` class Citation_1_2_x.cffobj"""
     abstract: str | None = None
     authors: List[Dict[str, str]] = attrs.field(factory=list)
     cffDASHversion: str = cffDASHversionDEFAULT
@@ -63,7 +60,7 @@ class CitationNexus:
             return
         super().__setattr__(name, value)
 
-    def setInStone(self, prophet: str) -> "CitationNexus":
+    def setInStone(self, prophet: str) -> None:
         """
         Confirm that required fields are not None and freeze fields specified by the context.
         Parameters:
@@ -92,4 +89,3 @@ class CitationNexus:
                 raise ValueError(f"Field {fieldName} is required but not provided.")
 
         CitationNexusFieldsFrozen.update(fieldsSSOT)
-        return self

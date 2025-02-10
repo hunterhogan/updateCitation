@@ -49,5 +49,5 @@ def add_pyprojectDOTtoml(nexusCitation: CitationNexus, truth: SettingsPackage) -
                 listPersonsCFF.append(Z0Z_ImaNotValidatingNoNames(person))
             setattr(nexusCitation, keyNexusCitation, listPersonsCFF)
 
-    nexusCitation = nexusCitation.setInStone("pyprojectDOTtoml")
+    nexusCitation.setInStone("pyprojectDOTtoml")
     return nexusCitation, truth
