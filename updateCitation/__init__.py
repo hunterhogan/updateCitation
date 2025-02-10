@@ -2,12 +2,12 @@ from .variables import (
     CitationNexus,
     CitationNexusFieldsFrozen,
     filename_pyprojectDOTtomlDEFAULT,
-    filenameCitationDOTcffDEFAULT,
+    mapNexusCitation2pyprojectDOTtoml,
     projectURLTargets,
-    subPathCitationsDEFAULT,
+    SettingsPackage,
 )
 
-from .pyprojectDOTtoml import add_pyprojectDOTtoml
+from .pyprojectDOTtoml import add_pyprojectDOTtoml, getSettingsPackage
 from .citationFileFormat import addCitation, writeCitation
 from .pypa import addPyPAMetadata
 from .github import addGitHubRelease

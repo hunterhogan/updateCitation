@@ -1,9 +1,21 @@
-from typing import Any, Dict
-from updateCitation import CitationNexus, filename_pyprojectDOTtomlDEFAULT
+from typing import Any, Dict, Tuple
+from updateCitation import (
+    CitationNexus,
+    mapNexusCitation2pyprojectDOTtoml,
+    SettingsPackage,
+    )
 import pathlib
 import tomli
 
-def get_pyprojectDOTtoml(pathRepoRoot: pathlib.Path) -> Dict[str, Any]:
+def getSettingsPackage(pathFilename: pathlib.Path) -> SettingsPackage:
+    Z0Z_tomlSherpa = tomli.loads(pathFilename.read_text())
+    Z0Z_SettingsPackage: Dict[str, Any] = {}
+    if Z0Z_tomlSherpa.get("tool", None):
+        Z0Z_SettingsPackage = Z0Z_tomlSherpa["tool"].get("updateCitation", {})
+    truth = SettingsPackage(**Z0Z_SettingsPackage, pathFilenamePackageSSOT=pathFilename)
+    return truth
+
+def get_pyprojectDOTtoml(truth: SettingsPackage) -> SettingsPackage:
     """Given the path to the root of the repository, return the contents of the pyproject.toml file.
 
         Parameters:
@@ -12,11 +24,10 @@ def get_pyprojectDOTtoml(pathRepoRoot: pathlib.Path) -> Dict[str, Any]:
         Returns:
             Dict[str, Any]: Contents of the pyproject.toml file.
     """
-    pathFilenamePackageSSOT = pathRepoRoot / filename_pyprojectDOTtomlDEFAULT
-    tomlPackageData: Dict[str, Any] = tomli.loads(pathFilenamePackageSSOT.read_text())['project']
-    return tomlPackageData
+    truth.tomlPackageData = tomli.loads(truth.pathFilenamePackageSSOT.read_text())['project']
+    return truth
 
-def add_pyprojectDOTtoml(nexusCitation: CitationNexus, pathRepoRoot: pathlib.Path) -> tuple[CitationNexus, Dict[str, Any]]:
+def add_pyprojectDOTtoml(nexusCitation: CitationNexus, truth: SettingsPackage) -> Tuple[CitationNexus, SettingsPackage]:
     def Z0Z_ImaNotValidatingNoNames(person: Dict[str, str]) -> Dict[str, str]:
         cffPerson: Dict[str, str] = {}
         if person.get('name', None):
@@ -25,14 +36,13 @@ def add_pyprojectDOTtoml(nexusCitation: CitationNexus, pathRepoRoot: pathlib.Pat
             cffPerson['email'] = person['email']
         return cffPerson
 
-    tomlPackageData = get_pyprojectDOTtoml(pathRepoRoot)
+    truth = get_pyprojectDOTtoml(truth)
 
-    packageName: str = tomlPackageData.get("name", None)
+    packageName: str = truth.tomlPackageData.get("name", None)
     nexusCitation.title = packageName
 
-    mapNexusCitation2pyprojectDOTtoml = [("authors", "authors"), ("contact", "maintainers")]
     for keyNexusCitation, key_pyprojectDOTtoml in mapNexusCitation2pyprojectDOTtoml:
-        listPersonsTOML = tomlPackageData.get(key_pyprojectDOTtoml, None)
+        listPersonsTOML = truth.tomlPackageData.get(key_pyprojectDOTtoml, None)
         if listPersonsTOML:
             listPersonsCFF = []
             for person in listPersonsTOML:
@@ -40,4 +50,4 @@ def add_pyprojectDOTtoml(nexusCitation: CitationNexus, pathRepoRoot: pathlib.Pat
             setattr(nexusCitation, keyNexusCitation, listPersonsCFF)
 
     nexusCitation = nexusCitation.setInStone("pyprojectDOTtoml")
-    return nexusCitation, tomlPackageData
+    return nexusCitation, truth

@@ -1,15 +1,23 @@
 from typing import Any, Dict, List, Set
 import attrs
 import inspect
+import pathlib
 import warnings
 
 cffDASHversionDEFAULT = '1.2.0'
 filename_pyprojectDOTtomlDEFAULT = "pyproject.toml"
-filenameCitationDOTcffDEFAULT = 'CITATION.cff'
+mapNexusCitation2pyprojectDOTtoml = [("authors", "authors"), ("contact", "maintainers")]
 messageDEFAULT = "Cite this software with the metadata in this file."
-subPathCitationsDEFAULT = "citations"
-
 projectURLTargets: Set[str] = {"homepage", "license", "repository"}
+
+# I bit off more than I can chew right now.
+@attrs.define(slots=False)
+class SettingsPackage:
+    pathFilenamePackageSSOT: pathlib.Path
+
+    pathRepository: pathlib.Path = pathlib.Path.cwd()
+    filenameCitationDOTcff: str = 'CITATION.cff'
+    tomlPackageData: Dict[str, Any] = attrs.field(factory=dict)
 
 CitationNexusFieldsRequired: Set[str] = {"authors", "cffDASHversion", "message", "title"}
 """ `fieldsRequired` could be dynamically loaded through the following:
@@ -18,6 +26,7 @@ cffstr = "cff-version: 1.2.0"; citationObject = Citation(cffstr); schemaDOTjson 
 # get "required": list of fields; # Convert '-' to 'DASH' in field names """
 
 CitationNexusFieldsFrozen: Set[str] = set()
+
 @attrs.define()
 class CitationNexus:
     """
