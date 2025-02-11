@@ -27,7 +27,11 @@ def dummy_addPyPAMetadata(nexusCitation: CitationNexus, tomlPackageData: dict) -
     callOrder.append("addPyPAMetadata")
     return nexusCitation
 
-def dummy_addGitHubRelease(nexusCitation: CitationNexus) -> CitationNexus:
+def dummy_addGitHubSettings(truth: SettingsPackage) -> SettingsPackage:
+    callOrder.append("addGitHubSettings")
+    return truth
+
+def dummy_addGitHubRelease(nexusCitation: CitationNexus, truth: SettingsPackage) -> CitationNexus:
     callOrder.append("addGitHubRelease")
     return nexusCitation
 
@@ -35,9 +39,13 @@ def dummy_addPyPIrelease(nexusCitation: CitationNexus) -> CitationNexus:
     callOrder.append("addPyPIrelease")
     return nexusCitation
 
-def dummy_writeCitation(nexusCitation: CitationNexus, pathFilenameCitationSSOT, pathFilenameCitationDOTcffRepository) -> None:
+def dummy_writeCitation(nexusCitation: CitationNexus, pathFilenameCitationSSOT, pathFilenameCitationDOTcffRepository) -> bool:
     callOrder.append("writeCitation")
-    return
+    return True
+
+def dummy_gittyUpGitPushGitHub(truth: SettingsPackage, nexusCitation: CitationNexus, pathFilenameCitationSSOT, pathFilenameCitationDOTcffRepository) -> bool:
+    callOrder.append("gittyUpGitPushGitHub")
+    return True
 
 @pytest.fixture
 def validTomlTmpFile(tmp_path: pathlib.Path) -> pathlib.Path:
@@ -77,9 +85,11 @@ def test_here_valid(validTomlTmpFile: pathlib.Path, monkeypatch: pytest.MonkeyPa
     monkeypatch.setattr(flowControl, "add_pyprojectDOTtoml", dummy_add_pyprojectDOTtoml)
     monkeypatch.setattr(flowControl, "addCitation", dummy_addCitation)
     monkeypatch.setattr(flowControl, "addPyPAMetadata", dummy_addPyPAMetadata)
+    monkeypatch.setattr(flowControl, "addGitHubSettings", dummy_addGitHubSettings)
     monkeypatch.setattr(flowControl, "addGitHubRelease", dummy_addGitHubRelease)
     monkeypatch.setattr(flowControl, "addPyPIrelease", dummy_addPyPIrelease)
     monkeypatch.setattr(flowControl, "writeCitation", dummy_writeCitation)
+    monkeypatch.setattr(flowControl, "gittyUpGitPushGitHub", dummy_gittyUpGitPushGitHub)
 
     # Call here() with our valid temporary pyproject.toml.
     flowControl.here(validTomlTmpFile)
@@ -89,9 +99,11 @@ def test_here_valid(validTomlTmpFile: pathlib.Path, monkeypatch: pytest.MonkeyPa
         "add_pyprojectDOTtoml",
         "addCitation",
         "addPyPAMetadata",
+        "addGitHubSettings",
         "addGitHubRelease",
         "addPyPIrelease",
-        "writeCitation"
+        "writeCitation",
+        "gittyUpGitPushGitHub"
     ]
     assert callOrder == expectedOrder
 
