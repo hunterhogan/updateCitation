@@ -24,19 +24,13 @@ def addGitHubSettings(truth: SettingsPackage) -> SettingsPackage:
 
         try:
             userGitHub = githubClient.get_user()
+            ImaGitUserEmail = f"{userGitHub.id}+{userGitHub.login}@users.noreply.github.com"
         except github.GithubException:
-            userGitHub = None
+            ImaGitUserEmail = None
 
-        environmentActor = os.environ.get("GITHUB_ACTOR")
-        ImaGitUserEmail = (
-            f"{userGitHub.id}+{userGitHub.login}@users.noreply.github.com"
-            if userGitHub and userGitHub.id and userGitHub.login
-            else f"{environmentActor}@users.noreply.github.com"
-            if environmentActor
-            else None
-        )
-
-        truth.gitUserEmail = ImaGitUserEmail or gitUserEmailFALLBACK
+        githubActor = os.environ.get("GITHUB_ACTOR")
+        Z0Z_email = f"{githubActor}@users.noreply.github.com" if githubActor else None
+        truth.gitUserEmail = ImaGitUserEmail or Z0Z_email or gitUserEmailFALLBACK
 
         githubClient.close()
 
