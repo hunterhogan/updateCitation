@@ -5,9 +5,11 @@ from updateCitation import (
     add_pyprojectDOTtoml,
     addCitation,
     addGitHubRelease,
+    addGitHubSettings,
     addPyPAMetadata,
     addPyPIrelease,
     CitationNexus,
+    filename_pyprojectDOTtomlDEFAULT,
     flowControl,
     getSettingsPackage,
     SettingsPackage,
@@ -66,6 +68,19 @@ def nexusCitationTesting(request: pytest.FixtureRequest) -> CitationNexus:
 @pytest.fixture
 def citationAlphaDOTcff() -> pathlib.Path:
     return pathFilenameCitationAlphaDOTcff
+
+"""
+Section: Pytest fixtures for testing the updateCitation package"""
+
+@pytest.fixture
+def settingsPackageTesting() -> SettingsPackage:
+    return SettingsPackage(
+        pathFilenamePackageSSOT= pathDataSamples / filename_pyprojectDOTtomlDEFAULT,
+        GITHUB_TOKEN="FAKE_TOKEN",
+        gitUserEmail="test@example.com",
+        gitUserName="TestUserName",
+        gitCommitMessage="TestCommitMessage",
+    )
 
 """
 Section: Standardized assert statements and failure messages"""

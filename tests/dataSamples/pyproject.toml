@@ -1,0 +1,74 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+authors = [{ name = "Hunter Hogan", email = "HunterHogan@pm.me" }]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Framework :: Pytest",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Software Development :: Documentation",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",]
+dependencies = [
+    "attrs",
+    "cffconvert",
+    "httpx",
+    "packaging",
+    "pygithub",
+    "ruamel.yaml",
+    "tomli",]
+description = "Automatically update citation files (CITATION.cff) in a GitHub repository from `pyproject.toml`, GitHub releases, and PyPI releases."
+keywords = [
+    "academic-software",
+    "automation",
+    "cff",
+    "citation-files",
+    "citation",
+    "doi",
+    "github",
+    "metadata",
+    "research-software",
+    "zenodo",]
+license = { 'text' = "CC-BY-NC-4.0" }
+name = "updateCitation"
+optional-dependencies = { testing = ["pytest-cov", "pytest-xdist", "pytest"] }
+readme = { file = "README.md", content-type = "text/markdown" }
+requires-python = ">=3.10"
+urls = { Donate = "https://www.patreon.com/integrated", Homepage = "https://github.com/hunterhogan/updateCitation", Repository = "https://github.com/hunterhogan/updateCitation.git" }
+version = "0.0.2"
+
+[tool.coverage]
+report = { exclude_lines = [
+    "if TYPE_CHECKING:",
+    "if __name__ == \"__main__\":",
+], ignore_errors = false }
+run = { branch = true, concurrency = [
+    "multiprocessing",
+], data_file = "tests/coverage/.coverage", omit = [
+    "tests/*",
+], parallel = true, source = [
+    ".",] }
+xml = { output = "tests/coverage/coverage.xml" }
+
+[tool.pytest.ini_options]
+log_auto_indent = ["On"]
+addopts = ["--color=yes", "-n 6"]
+testpaths = ["tests"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+
+# [tool.updateCitation]
