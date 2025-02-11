@@ -3,10 +3,12 @@ from updateCitation import (
     add_pyprojectDOTtoml,
     addCitation,
     addGitHubRelease,
+    addGitHubSettings,
     addPyPAMetadata,
     addPyPIrelease,
     CitationNexus,
     filename_pyprojectDOTtomlDEFAULT,
+    gittyUpGitPushGitHub,
     getSettingsPackage,
     SettingsPackage,
     writeCitation,
@@ -71,7 +73,11 @@ def here(pathFilename_pyprojectDOTtoml: Union[str, os.PathLike[Any], None] = Non
 
     nexusCitation = addCitation(nexusCitation, pathFilenameCitationSSOT)
     nexusCitation = addPyPAMetadata(nexusCitation, truth.tomlPackageData)
-    nexusCitation = addGitHubRelease(nexusCitation)
+    truth = addGitHubSettings(truth)
+    nexusCitation = addGitHubRelease(nexusCitation, truth)
     nexusCitation = addPyPIrelease(nexusCitation)
 
-    writeCitation(nexusCitation, pathFilenameCitationSSOT, pathFilenameCitationDOTcffRepository)
+    validationStatus = writeCitation(nexusCitation, pathFilenameCitationSSOT, pathFilenameCitationDOTcffRepository)
+
+    if validationStatus and truth.gitPushFromGitHubAction:
+        gitStatus = gittyUpGitPushGitHub(truth, nexusCitation, pathFilenameCitationSSOT, pathFilenameCitationDOTcffRepository)

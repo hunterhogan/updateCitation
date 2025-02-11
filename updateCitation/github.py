@@ -1,10 +1,67 @@
-from github import Auth, Github
-from typing import Any, Dict
-from updateCitation import CitationNexus
+from contextlib import contextmanager
+from typing import Any, Dict, Generator, Optional, Union
+from updateCitation import (
+    CitationNexus,
+    compareVersions,
+    FREAKOUT,
+    formatDateCFF,
+    gitUserEmailFALLBACK,
+    SettingsPackage,
+)
+import datetime
+import github
+import github.Repository
 import os
+import pathlib
 import warnings
 
-def getGitHubRelease(nexusCitation: CitationNexus) -> Dict[str, Any]:
+def addGitHubSettings(truth: SettingsPackage) -> SettingsPackage:
+    truth.GITHUB_TOKEN = truth.GITHUB_TOKEN or os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
+
+    if not truth.gitUserEmail:
+        githubAuth = github.Auth.Token(truth.GITHUB_TOKEN) if truth.GITHUB_TOKEN else None
+        githubClient = github.Github(auth=githubAuth)
+
+        userGitHub = githubClient.get_user()
+        ImaGitUserEmail = (f"{userGitHub.id}+{userGitHub.login}@users.noreply.github.com" if userGitHub and userGitHub.id and userGitHub.login else None)
+
+        truth.gitUserEmail = ImaGitUserEmail or gitUserEmailFALLBACK
+
+        githubClient.close()
+
+    return truth
+
+@contextmanager
+def GitHubRepository(nexusCitation: CitationNexus, truth: SettingsPackage) -> Generator[github.Repository.Repository, Any, None]:
+    if not nexusCitation.repository:
+        raise FREAKOUT
+
+    githubAuth = github.Auth.Token(truth.GITHUB_TOKEN) if truth.GITHUB_TOKEN else None
+    githubClient = github.Github(auth=githubAuth)
+
+    full_name_or_id: str = nexusCitation.repository.replace("https://github.com/", "").replace(".git", "")
+    githubRepository = githubClient.get_repo(full_name_or_id)
+    try:
+        yield githubRepository
+    finally:
+        githubClient.close()
+
+def gittyUpGitPushGitHub(truth: SettingsPackage, nexusCitation: CitationNexus, pathFilenameCitationSSOT: pathlib.Path, pathFilenameCitationDOTcffRepository: pathlib.Path):
+    environmentIsGitHubAction = bool(os.environ.get("GITHUB_ACTIONS") and os.environ.get("GITHUB_WORKFLOW"))
+    if not environmentIsGitHubAction or not nexusCitation.repository:
+        return
+
+    import subprocess
+
+    subprocess.run(["git", "config", "user.name", truth.gitUserName])
+    subprocess.run(["git", "config", "user.email", truth.gitUserEmail])
+
+    subprocess.run(["git", "add", str(pathFilenameCitationSSOT), str(pathFilenameCitationDOTcffRepository)])
+    commitResult = subprocess.run(["git", "commit", "-m", truth.gitCommitMessage])
+    if commitResult.returncode == 0:
+        subprocess.run(["git", "push", "origin", "HEAD"])
+
+def getGitHubRelease(nexusCitation: CitationNexus, truth: SettingsPackage):
     """Retrieves the latest release information from a GitHub repository.
         Parameters:
             nexusCitation (CitationNexus): A CitationNexus object containing
@@ -18,35 +75,47 @@ def getGitHubRelease(nexusCitation: CitationNexus) -> Dict[str, Any]:
     if not nexusCitation.repository:
         return {}
 
-    githubClient = None
     try:
-        # Initialize GitHub client with optional authentication
-        token = os.environ.get("GITHUB_TOKEN")
-        githubClient = Github(auth=Auth.Token(token)) if token else Github()
+        # latestRelease.tag_name == nexusCitation.version
+        if not nexusCitation.version:
+            raise FREAKOUT
 
-        repoFullName = nexusCitation.repository.replace("https://github.com/", "").replace(".git", "")
-        repo = githubClient.get_repo(repoFullName)
+        # Using context management to ensure the client closes automatically.
+        with GitHubRepository(nexusCitation, truth) as githubRepository:
+            latestRelease = githubRepository.get_latest_release()
 
-        latestRelease = repo.get_latest_release()
+        urlRelease = latestRelease.html_url
 
-        return {
-            "dateDASHreleased": latestRelease.published_at.strftime("%Y-%m-%d"),
+        dictionaryRelease = {
+            # "commit": ????,
+            "dateDASHreleased": latestRelease.published_at.strftime(formatDateCFF),
             "identifiers": [{
                 "type": "url",
-                "value": latestRelease.html_url,
-                "description": f"The URL for {nexusCitation.title} {nexusCitation.version}."
-            }] if latestRelease.html_url else [],
-            "repositoryDASHcode": latestRelease.html_url,
+                "value": urlRelease,
+                "description": f"The URL for {nexusCitation.title} {latestRelease.tag_name}."
+            }] if urlRelease else [],
+            "repositoryDASHcode": urlRelease,
         }
 
-    except Exception as ERRORmessage:
-        warnings.warn(f"Failed to get GitHub release info: {ERRORmessage}")
-        return {}
-    finally:
-        if githubClient:
-            githubClient.close()
+        if compareVersions(latestRelease.tag_name, nexusCitation.version) == -1:
+            dictionaryReleaseHypothetical = {
+                "dateDASHreleased": datetime.datetime.now().strftime(formatDateCFF),
+                "identifiers": [{
+                    "type": "url",
+                    "value": urlRelease.replace(latestRelease.tag_name, nexusCitation.version),
+                    "description": f"The URL for {nexusCitation.title} {nexusCitation.version}."
+                }] if urlRelease else [],
+                "repositoryDASHcode": urlRelease.replace(latestRelease.tag_name, nexusCitation.version),
+            }
+            dictionaryRelease.update(dictionaryReleaseHypothetical)
 
-def addGitHubRelease(nexusCitation: CitationNexus) -> CitationNexus:
+        return dictionaryRelease
+
+    except Exception:
+        warnings.warn(f"Failed to get GitHub release information. {str(Exception)}", UserWarning)
+        return {}
+
+def addGitHubRelease(nexusCitation: CitationNexus, truth: SettingsPackage) -> CitationNexus:
     """Adds GitHub release information to a CitationNexus object.
         Parameters:
             nexusCitation (CitationNexus): The CitationNexus object to update.
@@ -54,23 +123,23 @@ def addGitHubRelease(nexusCitation: CitationNexus) -> CitationNexus:
             CitationNexus: The updated CitationNexus object with GitHub release information.
     """
 
-    gitHubReleaseData = getGitHubRelease(nexusCitation)
+    gitHubReleaseData = getGitHubRelease(nexusCitation, truth)
 
-    commitValue = gitHubReleaseData.get("commit")
-    if commitValue:
-        nexusCitation.commit = commitValue
+    commitSherpa = gitHubReleaseData.get("commit")
+    if commitSherpa:
+        nexusCitation.commit = commitSherpa
 
-    dateDASHreleasedValue = gitHubReleaseData.get("dateDASHreleased")
-    if dateDASHreleasedValue:
-        nexusCitation.dateDASHreleased = dateDASHreleasedValue
+    dateDASHreleasedSherpa = gitHubReleaseData.get("dateDASHreleased")
+    if dateDASHreleasedSherpa:
+        nexusCitation.dateDASHreleased = dateDASHreleasedSherpa
 
-    identifiersValue = gitHubReleaseData.get("identifiers")
-    if identifiersValue:
-        nexusCitation.identifiers = identifiersValue
+    identifiersSherpa = gitHubReleaseData.get("identifiers")
+    if identifiersSherpa:
+        nexusCitation.identifiers = identifiersSherpa
 
-    repositoryDASHcodeValue = gitHubReleaseData.get("repositoryDASHcode")
-    if repositoryDASHcodeValue:
-        nexusCitation.repositoryDASHcode = repositoryDASHcodeValue
+    repositoryDASHcodeSherpa = gitHubReleaseData.get("repositoryDASHcode")
+    if repositoryDASHcodeSherpa:
+        nexusCitation.repositoryDASHcode = repositoryDASHcodeSherpa
 
     # nexusCitation.setInStone("GitHub")
     return nexusCitation

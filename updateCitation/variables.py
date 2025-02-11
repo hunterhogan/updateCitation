@@ -5,7 +5,8 @@ import pathlib
 import warnings
 
 cffDASHversionDEFAULT = '1.2.0'
-filename_pyprojectDOTtomlDEFAULT = "pyproject.toml"
+filename_pyprojectDOTtomlDEFAULT = 'pyproject.toml'
+gitUserEmailFALLBACK = 'gitUserEmail'
 mapNexusCitation2pyprojectDOTtoml = [("authors", "authors"), ("contact", "maintainers")]
 messageDEFAULT = "Cite this software with the metadata in this file."
 projectURLTargets: Set[str] = {"homepage", "license", "repository"}
@@ -14,10 +15,17 @@ projectURLTargets: Set[str] = {"homepage", "license", "repository"}
 @attrs.define(slots=False)
 class SettingsPackage:
     pathFilenamePackageSSOT: pathlib.Path
-
     pathRepository: pathlib.Path = pathlib.Path.cwd()
     filenameCitationDOTcff: str = 'CITATION.cff'
     tomlPackageData: Dict[str, Any] = attrs.field(factory=dict)
+
+    gitCommitMessage: str = "Update citations [skip ci]"
+    gitUserName: str = "updateCitation"
+    gitUserEmail: str = ""
+    gitPushFromGitHubAction: bool = True
+    # gitPushFromOtherEnvironments_why_where_NotImplemented: bool = False
+
+    GITHUB_TOKEN: str | None = None
 
 CitationNexusFieldsRequired: Set[str] = {"authors", "cffDASHversion", "message", "title"}
 """ `fieldsRequired` could be dynamically loaded through the following:
@@ -89,3 +97,20 @@ class CitationNexus:
                 raise ValueError(f"Field {fieldName} is required but not provided.")
 
         CitationNexusFieldsFrozen.update(fieldsSSOT)
+
+"""
+"date": {
+    "$comment": "Note to tool implementers: it is necessary to cast YAML 'date' objects to string objects when validating against this schema.",
+    "examples": [
+        "1900-01-01",
+        "2020-12-31"
+    ],
+    "format": "date",
+    "pattern": "^[0-9]{4}-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$",
+    "type": "string"
+},
+"""
+formatDateCFF = "%Y-%m-%d"
+
+class FREAKOUT(Exception):
+    pass

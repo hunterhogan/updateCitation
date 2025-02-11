@@ -6,6 +6,26 @@ import packaging.metadata
 import packaging.utils
 import packaging.version
 
+def compareVersions(comparand: str, comparator: str) -> int:
+    """
+    Compares two version strings using packaging.version.Version.
+    Parameters:
+        comparand (str): The version string to compare.
+        comparator (str): The version string to compare against.
+    Returns:
+        int: -1 if `comparand` is less than `comparator`, 0 if they are equal, and 1 if `comparand` is greater than `comparator`.
+    """
+    versionComparand = packaging.version.Version(comparand)
+    versionComparator = packaging.version.Version(comparator)
+    if versionComparand < versionComparator:
+        return -1
+    elif versionComparand > versionComparator:
+        return 1
+    elif versionComparand == versionComparator:
+        return 0
+    else:
+        return 3153
+
 def getPyPAMetadata(packageData: Dict[str, Any]) -> PyPAMetadata:
     """
     Retrieves and formats package metadata from a dictionary into a PyPAMetadata object.

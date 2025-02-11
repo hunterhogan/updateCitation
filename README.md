@@ -1,14 +1,15 @@
 # updateCitation
 
-A tool to automatically update citation files (CITATION.cff) in a repository based on metadata from `pyproject.toml`, GitHub releases, and PyPI releases.
+updateCitation is a Python tool that automates the maintenance of citation metadata in software projects. It helps researchers and developers ensure their work is properly citeable while maintaining consistent metadata across different platforms.
 
-## Features
+## Key Features
 
-- Automatically updates `CITATION.cff` files.
-- Extracts metadata from `pyproject.toml`.
-- Retrieves release information from GitHub.
-- Fetches package information from PyPI.
-- Ensures citation files are up-to-date with the latest project information.
+- Automatic generation and updates of CITATION.cff files
+- Seamless integration with Python package metadata from pyproject.toml
+- Synchronization with GitHub release information
+- Integration with PyPI package metadata
+- Validation of citation metadata format
+- GitHub Actions support for automated updates
 
 ## Installation
 
@@ -18,30 +19,58 @@ pip install updateCitation
 
 ## Usage
 
-Run `updateCitation` from the root of your repository:
+The simplest way to use updateCitation is to run it from your repository root:
 
 ```python
-from updateCitation import updateHere
-updateHere(path/to/repo)
+import updateCitation
+updateCitation.here()
 ```
 
-This will:
+For custom pyproject.toml locations:
 
-1. Read the `pyproject.toml` file for project metadata.
-2. Fetch the latest release information from GitHub.
-3. Retrieve package information from PyPI.
-4. Update the `CITATION.cff` file in your repository.
+```python
+updateCitation.here("path/to/pyproject.toml")
+```
+
+## GitHub Actions Integration
+
+updateCitation provides a GitHub Action that automatically updates your citation metadata on each push. To enable this:
+
+1. Create `.github/workflows/updateCitation.yml` in your repository
+2. Copy the provided workflow configuration
+3. Commit and push to activate automated citation updates
 
 ## Configuration
 
-Configuration is managed through the `pyproject.toml` file. Ensure that the `[project]` section contains accurate and up-to-date information about your project, including:
+updateCitation primarily uses your project's `pyproject.toml` file for configuration. Essential fields include:
 
-- `name`: The name of the package.
-- `version`: The current version of the package.
-- `authors`: A list of authors and their associated email addresses.
-- `description`: A short description of the package.
-- `keywords`: A list of keywords associated with the package.
-- `license`: The license information for the package.
-- `urls`: Links to the project homepage, repository, and other relevant URLs.
+### Required Fields
+
+- `name`: Package name
+- `version`: Current version
+- `authors`: List of authors with names and emails
+
+### Recommended Fields
+
+- `description`: Project description
+- `keywords`: Search keywords
+- `license`: License information
+- `urls`: Project URLs (homepage, repository, etc.)
+
+### Optional Tool Settings
+
+You can customize updateCitation's behavior in the `[tool.updateCitation]` section of pyproject.toml.
+
+## Documentation
+
+For detailed documentation, examples, and best practices, visit our [GitHub repository](https://github.com/hunterhogan/updateCitation).
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit pull requests.
+
+## License
+
+This project is licensed under CC-BY-NC-4.0. See the LICENSE file for details.
 
 [![CC-BY-NC-4.0](https://github.com/hunterhogan/updateCitation/blob/main/CC-BY-NC-4.0.svg)](https://creativecommons.org/licenses/by-nc/4.0/)

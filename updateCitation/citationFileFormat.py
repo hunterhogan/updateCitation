@@ -40,7 +40,7 @@ def addCitation(nexusCitation: CitationNexus, pathFilenameCitationSSOT: pathlib.
     # nexusCitation.setInStone("Citation")
     return nexusCitation
 
-def writeCitation(nexusCitation: CitationNexus, pathFilenameCitationSSOT: pathlib.Path, pathFilenameCitationDOTcffRepo: pathlib.Path):
+def writeCitation(nexusCitation: CitationNexus, pathFilenameCitationSSOT: pathlib.Path, pathFilenameCitationDOTcffRepo: pathlib.Path) -> bool:
     """Writes citation information to YAML files.
         This function takes a CitationNexus object and writes its data to two YAML files:
         one for single source of truth (SSOT) and another for a repository's .cff file.
@@ -49,6 +49,8 @@ def writeCitation(nexusCitation: CitationNexus, pathFilenameCitationSSOT: pathli
             nexusCitation (CitationNexus): An object containing citation metadata.
             pathFilenameCitationSSOT (pathlib.Path): Path to the SSOT YAML file.
             pathFilenameCitationDOTcffRepo (pathlib.Path): Path to the .cff YAML file in the repository.
+        Returns:
+            validationStatus: True/False depending on whether the citation object is valid.
         Raises:
             ValidationError: If the generated citation object fails validation.
         Notes:
@@ -81,8 +83,12 @@ def writeCitation(nexusCitation: CitationNexus, pathFilenameCitationSSOT: pathli
     writeStream(pathFilenameForValidation)
 
     citationObject: cffconvert.Citation = create_citation(infile=pathFilenameForValidation, url=None)
+
+    pathFilenameForValidation.unlink()
+
     if citationObject.validate() is None:
         writeStream(pathFilenameCitationSSOT)
         writeStream(pathFilenameCitationDOTcffRepo)
+        return True
 
-    pathFilenameForValidation.unlink()
+    return False
