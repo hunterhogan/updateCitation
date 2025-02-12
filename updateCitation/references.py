@@ -4,30 +4,30 @@ import bibtex2cff
 import bibtex2cff.convert_cff
 
 def getBibtex(pathFilename: pathlib.Path):
-    """Convert a BibTeX file into a CFF reference entry.
+	"""Convert a BibTeX file into a CFF reference entry.
 
-    Args:
-        pathFilename: Path to a BibTeX file.
+	Args:
+		pathFilename: Path to a BibTeX file.
 
-    Returns:
-        A dictionary containing the CFF reference data.
-    """
-    return bibtex2cff.convert_cff.CFFDefinitionUpdate(str(pathFilename)).get_definition
+	Returns:
+		A dictionary containing the CFF reference data.
+	"""
+	return bibtex2cff.convert_cff.CFFDefinitionUpdate(str(pathFilename)).get_definition
 
 def addReferences(nexusCitation: CitationNexus) -> CitationNexus:
-    pathFilenameExampleBibTeX = pathlib.Path('/apps/mapFolding/citations/Lunnon.bibtex')
-    """
+	pathFilenameExampleBibTeX = pathlib.Path('/apps/mapFolding/citations/Lunnon.bibtex')
+	"""
 bibtex2cff:
 KeyError: 'article'
 srsly?
-    """
-    # pathFilenameExampleBibTeX = pathlib.Path('/apps/mapFolding/citations/jOEIS.bibtex')
-    """
+	"""
+	# pathFilenameExampleBibTeX = pathlib.Path('/apps/mapFolding/citations/jOEIS.bibtex')
+	"""
 CFF schema:
 "required": [
-    "authors",
-    "title",
-    "type"
+	"authors",
+	"title",
+	"type"
 ],
 
 But, bibtex2cff:
@@ -38,6 +38,6 @@ publisher
   field required (type=value_error.missing)
 doi
   field required (type=value_error.missing)
-    """
-    nexusCitation.references.append(getBibtex(pathFilenameExampleBibTeX))
-    return nexusCitation
+	"""
+	nexusCitation.references.append(getBibtex(pathFilenameExampleBibTeX))
+	return nexusCitation

@@ -11,5 +11,5 @@ from conftest import standardizedEqualTo, getPyPIrelease, addPyPIrelease
 ({"title": "pandas"}, ValueError),
 ({}, ValueError), ], indirect=["nexusCitationTesting"] )
 def test_getPyPIrelease(nexusCitationTesting: dict[str, str], expected: dict[str, str] | type[ValueError]) -> None:
-    """Test PyPI release info retrieval with various package names and versions."""
-    standardizedEqualTo(expected, getPyPIrelease, nexusCitationTesting)
+	"""Test PyPI release info retrieval with various package names and versions."""
+	standardizedEqualTo(expected, getPyPIrelease, nexusCitationTesting)

@@ -1,13 +1,13 @@
 from .variables import (
-    CitationNexus,
-    CitationNexusFieldsFrozen,
-    filename_pyprojectDOTtomlDEFAULT,
-    formatDateCFF,
-    FREAKOUT,
-    gitUserEmailFALLBACK,
-    mapNexusCitation2pyprojectDOTtoml,
-    projectURLTargets,
-    SettingsPackage,
+	CitationNexus,
+	CitationNexusFieldsFrozen,
+	filename_pyprojectDOTtomlDEFAULT,
+	formatDateCFF,
+	FREAKOUT,
+	gitUserEmailFALLBACK,
+	mapNexusCitation2pyprojectDOTtoml,
+	projectURLTargets,
+	SettingsPackage,
 )
 
 from .pyprojectDOTtoml import add_pyprojectDOTtoml, getSettingsPackage
