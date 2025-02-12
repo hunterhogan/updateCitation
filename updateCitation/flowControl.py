@@ -6,6 +6,7 @@ from updateCitation import (
     addGitHubSettings,
     addPyPAMetadata,
     addPyPIrelease,
+    addReferences,
     CitationNexus,
     filename_pyprojectDOTtomlDEFAULT,
     gittyUpGitPushGitHub,
@@ -66,18 +67,14 @@ def here(pathFilename_pyprojectDOTtoml: Union[str, os.PathLike[Any], None] = Non
         # especially for a required field
         raise ValueError("Package name is required.")
 
-    # pathCitations = truth.pathRepository / "citations"
-    pathCitations = truth.pathRepository / nexusCitation.title / "citations"
-    pathFilenameCitationSSOT = pathCitations / truth.filenameCitationDOTcff
-    pathFilenameCitationDOTcffRepository = truth.pathRepository / truth.filenameCitationDOTcff
-
-    nexusCitation = addCitation(nexusCitation, pathFilenameCitationSSOT)
+    nexusCitation = addCitation(nexusCitation, truth.pathFilenameCitationSSOT)
     nexusCitation = addPyPAMetadata(nexusCitation, truth.tomlPackageData)
     truth = addGitHubSettings(truth)
     nexusCitation = addGitHubRelease(nexusCitation, truth)
     nexusCitation = addPyPIrelease(nexusCitation)
+    # nexusCitation = addReferences(nexusCitation)
 
-    validationStatus = writeCitation(nexusCitation, pathFilenameCitationSSOT, pathFilenameCitationDOTcffRepository)
+    validationStatus = writeCitation(nexusCitation, truth.pathFilenameCitationSSOT, truth.pathFilenameCitationDOTcffRepository)
 
     if validationStatus and truth.gitPushFromGitHubAction:
-        gitStatus = gittyUpGitPushGitHub(truth, nexusCitation, pathFilenameCitationSSOT, pathFilenameCitationDOTcffRepository)
+        gitStatus = gittyUpGitPushGitHub(truth, nexusCitation, truth.pathFilenameCitationSSOT, truth.pathFilenameCitationDOTcffRepository)

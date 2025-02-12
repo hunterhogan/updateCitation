@@ -88,11 +88,13 @@ def getGitHubRelease(nexusCitation: CitationNexus, truth: SettingsPackage):
         # Using context management to ensure the client closes automatically.
         with GitHubRepository(nexusCitation, truth) as githubRepository:
             latestRelease = githubRepository.get_latest_release()
+            commitLatestRelease = githubRepository.get_commit(latestRelease.target_commitish).sha
+            commitLatestCommit = githubRepository.get_commit(githubRepository.default_branch).sha
 
         urlRelease = latestRelease.html_url
 
         dictionaryRelease = {
-            # "commit": ????,
+            "commit": commitLatestRelease,
             "dateDASHreleased": latestRelease.published_at.strftime(formatDateCFF),
             "identifiers": [{
                 "type": "url",
@@ -104,6 +106,7 @@ def getGitHubRelease(nexusCitation: CitationNexus, truth: SettingsPackage):
 
         if compareVersions(latestRelease.tag_name, nexusCitation.version) == -1:
             dictionaryReleaseHypothetical = {
+                "commit": commitLatestCommit,
                 "dateDASHreleased": datetime.datetime.now().strftime(formatDateCFF),
                 "identifiers": [{
                     "type": "url",

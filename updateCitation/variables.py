@@ -16,9 +16,12 @@ projectURLTargets: Set[str] = {"homepage", "license", "repository"}
 class SettingsPackage:
     pathFilenamePackageSSOT: pathlib.Path
     pathRepository: pathlib.Path = pathlib.Path.cwd()
+    pathReferences: pathlib.Path = pathRepository / 'citations'
     filenameCitationDOTcff: str = 'CITATION.cff'
     tomlPackageData: Dict[str, Any] = attrs.field(factory=dict)
-
+    pathCitationSSOT: pathlib.Path = pathRepository / "citations"
+    pathFilenameCitationSSOT: pathlib.Path = pathCitationSSOT / filenameCitationDOTcff
+    pathFilenameCitationDOTcffRepository: pathlib.Path = pathRepository / filenameCitationDOTcff
     gitCommitMessage: str = "Update citations [skip ci]"
     gitUserName: str = "updateCitation"
     gitUserEmail: str = ""
@@ -51,7 +54,8 @@ class CitationNexus:
     licenseDASHurl: str | None = None
     message: str = messageDEFAULT
     preferredDASHcitation: str | None = None
-    references: List[str] = attrs.field(factory=list)
+    # TODO
+    references: List[Dict] = attrs.field(factory=list)
     repository: str | None = None
     repositoryDASHartifact: str | None = None
     repositoryDASHcode: str | None = None
@@ -98,18 +102,6 @@ class CitationNexus:
 
         CitationNexusFieldsFrozen.update(fieldsSSOT)
 
-"""
-"date": {
-    "$comment": "Note to tool implementers: it is necessary to cast YAML 'date' objects to string objects when validating against this schema.",
-    "examples": [
-        "1900-01-01",
-        "2020-12-31"
-    ],
-    "format": "date",
-    "pattern": "^[0-9]{4}-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$",
-    "type": "string"
-},
-"""
 formatDateCFF = "%Y-%m-%d"
 
 class FREAKOUT(Exception):
