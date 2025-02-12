@@ -15,6 +15,5 @@ from .citationFileFormat import addCitation, writeCitation
 from .pypa import addPyPAMetadata, compareVersions
 from .github import addGitHubRelease, addGitHubSettings, gittyUpGitPushGitHub
 from .pypi import addPyPIrelease
-from .references import addReferences
 
 from .flowControl import here

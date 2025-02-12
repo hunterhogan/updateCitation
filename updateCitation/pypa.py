@@ -1,6 +1,6 @@
-from updateCitation import CitationNexus, projectURLTargets
 from packaging.metadata import Metadata as PyPAMetadata
 from typing import Any, Dict
+from updateCitation import CitationNexus, projectURLTargets
 import packaging
 import packaging.metadata
 import packaging.utils
@@ -69,18 +69,6 @@ def getPyPAMetadata(packageData: Dict[str, Any]) -> PyPAMetadata:
 	return metadata
 
 def addPyPAMetadata(nexusCitation: CitationNexus, tomlPackageData: Dict[str, Any]) -> CitationNexus:
-	"""Adds PyPA (Python Packaging Authority) metadata to a CitationNexus object.
-		Parameters:
-			nexusCitation (CitationNexus): The CitationNexus object to update.
-			tomlPackageData (Dict[str, Any]): A dictionary containing the parsed TOML data
-				from the package's pyproject.toml file.  This should contain the
-				`project` table as specified in PEP 621.
-		Returns:
-			CitationNexus: The updated CitationNexus object with PyPA metadata.
-		Raises:
-			ValueError: If the metadata name is missing from the TOML data.
-		"""
-
 	metadata: PyPAMetadata = getPyPAMetadata(tomlPackageData)
 
 	if metadata.version: nexusCitation.version = str(metadata.version)

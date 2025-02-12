@@ -41,24 +41,6 @@ def addCitation(nexusCitation: CitationNexus, pathFilenameCitationSSOT: pathlib.
 	return nexusCitation
 
 def writeCitation(nexusCitation: CitationNexus, pathFilenameCitationSSOT: pathlib.Path, pathFilenameCitationDOTcffRepo: pathlib.Path) -> bool:
-	"""Writes citation information to YAML files.
-		This function takes a CitationNexus object and writes its data to two YAML files:
-		one for single source of truth (SSOT) and another for a repository's .cff file.
-		It performs data conversion, validation, and file writing using the ruamel.yaml library.
-		Parameters:
-			nexusCitation (CitationNexus): An object containing citation metadata.
-			pathFilenameCitationSSOT (pathlib.Path): Path to the SSOT YAML file.
-			pathFilenameCitationDOTcffRepo (pathlib.Path): Path to the .cff YAML file in the repository.
-		Returns:
-			validationStatus: True/False depending on whether the citation object is valid.
-		Raises:
-			ValidationError: If the generated citation object fails validation.
-		Notes:
-			- The function uses a temporary validation file.
-			- It replaces "DASH" with "-" in dictionary keys.
-			- It filters out empty lists from the citation data.
-		"""
-
 	# NOTE embarrassingly hacky process to follow
 	parameterIndent= 2
 	parameterLineWidth = 60

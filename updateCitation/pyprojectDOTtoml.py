@@ -16,14 +16,6 @@ def getSettingsPackage(pathFilename: pathlib.Path) -> SettingsPackage:
 	return truth
 
 def get_pyprojectDOTtoml(truth: SettingsPackage) -> SettingsPackage:
-	"""Given the path to the root of the repository, return the contents of the pyproject.toml file.
-
-		Parameters:
-			pathRepoRoot (Path): Path to the root of the repository.
-
-		Returns:
-			Dict[str, Any]: Contents of the pyproject.toml file.
-	"""
 	truth.tomlPackageData = tomli.loads(truth.pathFilenamePackageSSOT.read_text())['project']
 	return truth
 

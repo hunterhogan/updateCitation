@@ -1,10 +1,10 @@
 from contextlib import contextmanager
-from typing import Any, Dict, Generator, Optional, Union
+from typing import Any, Generator
 from updateCitation import (
 	CitationNexus,
 	compareVersions,
-	FREAKOUT,
 	formatDateCFF,
+	FREAKOUT,
 	gitUserEmailFALLBACK,
 	SettingsPackage,
 )
