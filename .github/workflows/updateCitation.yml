@@ -8,6 +8,10 @@ permissions:
   contents: write
   actions: write
 
+defaults:
+  run:
+    shell: cmd
+
 jobs:
   updateCitation:
     runs-on: windows-latest
