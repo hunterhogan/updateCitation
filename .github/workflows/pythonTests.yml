@@ -22,21 +22,16 @@ jobs:
       - run: pip install packaging requests tomli
       - id: getVersionsPython
         run: |
-          python -c ("
-          from packaging.specifiers import SpecifierSet
-          from packaging.version import Version
-          from pathlib import Path
-          import itertools, json, os, requests, tomli
-
-          specifications = SpecifierSet(tomli.loads(Path('pyproject.toml').read_text())['project']['requires-python'])
-
-          listPythonVersions = [str(max(group)) for _key, group in itertools.groupby(
-            specifications.filter(Version(item['version']) for item in requests.get(
-              'https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json').json())
-            , lambda V: V.release[0:-1])]
-
-          os.environ['GITHUB_OUTPUT'] = 'versions=' + json.dumps(listPythonVersions)
-          ")
+          python -c "from packaging.specifiers import SpecifierSet; ^
+          from packaging.version import Version; ^
+          from pathlib import Path; ^
+          import itertools, json, os, requests, tomli; ^
+          specifications = SpecifierSet(tomli.loads(Path('pyproject.toml').read_text())['project']['requires-python']); ^
+          listPythonVersions = [str(max(group)) for _key, group in itertools.groupby( ^
+            specifications.filter(Version(item['version']) for item in requests.get( ^
+              'https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json').json()) ^
+            , lambda V: V.release[0:-1])]; ^
+          os.environ['GITHUB_OUTPUT'] = 'versions=' + json.dumps(listPythonVersions)"
 
   make-testbeds:
     needs: getVersionsPython
