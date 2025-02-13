@@ -9,8 +9,8 @@ authors:
   family-names: Hogan
   email: HunterHogan@pm.me
 cff-version: 1.2.0
-commit: f4330d081101ae3c41529f1f63358d115cefb688
-date-released: '2025-02-12'
+commit: 158aaff7d6db03723194791ce8e86ab60c233b13
+date-released: '2025-02-13'
 identifiers:
 - type: url
   value: https://github.com/hunterhogan/updateCitation/releases/tag/0.0.3
