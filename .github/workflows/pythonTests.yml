@@ -5,40 +5,43 @@ on: [push, pull_request]
 permissions:
   contents: read
 
-defaults:
-  run:
-    shell: cmd
-
 jobs:
 
-  getVersionsPython:
-    runs-on: windows-latest
+  get-python-versions:
+    runs-on: ubuntu-latest
     outputs:
-      python-versions: ${{ steps.getVersionsPython.outputs.versions }}
+      python-versions: ${{ steps.get-python-versions.outputs.versions }}
 
     steps:
       - uses: actions/checkout@v4
-      - run: python -m pip install --upgrade pip
-      - run: pip install packaging requests tomli
-      - id: getVersionsPython
+      - name: Install Python packages
+        run: pip install packaging requests tomli
+      - id: get-python-versions
         run: |
-          python -c "from packaging.specifiers import SpecifierSet; ^
-          from packaging.version import Version; ^
-          from pathlib import Path; ^
-          import itertools, json, os, requests, tomli; ^
-          specifications = SpecifierSet(tomli.loads(Path('pyproject.toml').read_text())['project']['requires-python']); ^
-          listPythonVersions = [str(max(group)) for _key, group in itertools.groupby( ^
-            specifications.filter(Version(item['version']) for item in requests.get( ^
-              'https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json').json()) ^
-            , lambda V: V.release[0:-1])]; ^
-          os.environ['GITHUB_OUTPUT'] = 'versions=' + json.dumps(listPythonVersions)"
+          set -e
+          VERSIONS=$(python -c "
+          from packaging.specifiers import SpecifierSet
+          from packaging.version import Version
+          from pathlib import Path
+          import itertools, json, requests, tomli
+
+          specifications = SpecifierSet(tomli.loads(Path('pyproject.toml').read_text())['project']['requires-python'])
+
+          listPythonVersions = [str(max(group)) for _key, group in itertools.groupby(
+            specifications.filter(Version(item['version']) for item in requests.get(
+              'https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json').json())
+            , lambda V: V.release[0:-1])]
+
+          print(json.dumps(listPythonVersions))
+          ")
+          echo "versions=$(echo $VERSIONS | jq -c .)" >> "$GITHUB_OUTPUT"
 
   make-testbeds:
-    needs: getVersionsPython
-    runs-on: windows-latest
+    needs: get-python-versions
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ${{fromJson(needs.getVersionsPython.outputs.python-versions)}}
+        python-version: ${{fromJson(needs.get-python-versions.outputs.python-versions)}}
     steps:
       - uses: actions/checkout@v4
 
@@ -47,6 +50,10 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - run: python -m pip install --upgrade pip
-      - run: pip install ".[testing]"
-      - run: pytest
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip
+          pip install ".[testing]"
+
+      - name: Run Python tests
+        run: pytest
