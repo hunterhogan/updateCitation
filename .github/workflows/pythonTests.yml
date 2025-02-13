@@ -7,22 +7,21 @@ permissions:
 
 jobs:
 
-  get-python-versions:
-    runs-on: ubuntu-latest
+  getVersionsPython:
+    runs-on: windows-latest
     outputs:
-      python-versions: ${{ steps.get-python-versions.outputs.versions }}
+      python-versions: ${{ steps.getVersionsPython.outputs.versions }}
 
     steps:
       - uses: actions/checkout@v4
       - run: pip install packaging requests tomli
-      - id: get-python-versions
+      - id: getVersionsPython
         run: |
-          set -e
-          VERSIONS=$(python -c "
+          python -c "
           from packaging.specifiers import SpecifierSet
           from packaging.version import Version
           from pathlib import Path
-          import itertools, json, requests, tomli
+          import itertools, json, os, requests, tomli
 
           specifications = SpecifierSet(tomli.loads(Path('pyproject.toml').read_text())['project']['requires-python'])
 
@@ -31,16 +30,15 @@ jobs:
               'https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json').json())
             , lambda V: V.release[0:-1])]
 
-          print(json.dumps(listPythonVersions))
-          ")
-          echo "versions=$(echo $VERSIONS | jq -c .)" >> "$GITHUB_OUTPUT"
+          os.environ['GITHUB_OUTPUT'] = 'versions=' + json.dumps(listPythonVersions)
+          "
 
   make-testbeds:
-    needs: get-python-versions
+    needs: getVersionsPython
     runs-on: windows-latest
     strategy:
       matrix:
-        python-version: ${{fromJson(needs.get-python-versions.outputs.python-versions)}}
+        python-version: ${{fromJson(needs.getVersionsPython.outputs.python-versions)}}
     steps:
       - uses: actions/checkout@v4
 
