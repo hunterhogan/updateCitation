@@ -6,25 +6,16 @@ import cffconvert
 import pathlib
 import ruamel.yaml
 
-def addCitation(nexusCitation: CitationNexus, pathFilenameCitationSSOT: pathlib.Path) -> CitationNexus:
-	"""Given a path to a citation file, return a CitationNexus object.
-		The citation file is expected to be in a format that can be parsed by
-		`cffconvert.cli.create_citation.create_citation()`. This function
-		ensures convergence with the CFF ecosystem by using `create_citation`
-		and its internal `_parse()` method.
-		Parameters:
-			pathFilenameCitationSSOT (pathlib.Path): Path to the citation file.
-		Returns:
-			CitationNexus: A CitationNexus object populated with data from the
-				citation file.
-		"""
-
+def getCitation(pathFilenameCitationSSOT: pathlib.Path) -> Dict[str, Any]:
 	# `cffconvert.cli.create_citation.create_citation()` is PAINFULLY mundane, but a major problem
 	# in the CFF ecosystem is divergence. Therefore, I will use this function so that my code
 	# converges with the CFF ecosystem.
 	citationObject: cffconvert.Citation = create_citation(infile=pathFilenameCitationSSOT, url=None)
 	# `._parse()` is a yaml loader: use it for convergence
-	cffobj: Dict[Any, Any] = citationObject._parse()
+	return citationObject._parse()
+
+def addCitation(nexusCitation: CitationNexus, pathFilenameCitationSSOT: pathlib.Path) -> CitationNexus:
+	cffobj = getCitation(pathFilenameCitationSSOT)
 
 	# This step is designed to prevent deleting fields that are populated in the current CFF file,
 	# but for whatever reason do not get added to the CitationNexus object.
@@ -58,7 +49,8 @@ def writeCitation(nexusCitation: CitationNexus, pathFilenameCitationSSOT: pathli
 
 	pathFilenameForValidation = pathFilenameCitationSSOT.with_stem('validation')
 
-	def writeStream(pathFilename):
+	def writeStream(pathFilename: pathlib.Path):
+		pathFilename.parent.mkdir(parents=True, exist_ok=True)
 		with open(pathFilename, 'w') as pathlibIsAStealthContextManagerThatRuamelCannotDetectAndRefusesToWorkWith:
 			yamlWorkhorse.dump(dictionaryCitation, pathlibIsAStealthContextManagerThatRuamelCannotDetectAndRefusesToWorkWith)
 

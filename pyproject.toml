@@ -48,7 +48,7 @@ optional-dependencies = { testing = ["pytest-cov", "pytest-xdist", "pytest"] }
 readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.10"
 urls = { Donate = "https://www.patreon.com/integrated", Homepage = "https://github.com/hunterhogan/updateCitation", Repository = "https://github.com/hunterhogan/updateCitation.git" }
-version = "0.0.3"
+version = "0.0.4"
 
 [tool.coverage]
 report = { exclude_lines = [

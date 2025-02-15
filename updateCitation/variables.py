@@ -4,11 +4,14 @@ import inspect
 import pathlib
 import warnings
 
-cffDASHversionDEFAULT: str = '1.2.0'
+# TODO think of a clever way to dynamically set the default version
+cffDASHversionDEFAULT_HARDCODED: str = '1.2.0'
+cffDASHversionDEFAULT: str = cffDASHversionDEFAULT_HARDCODED
 filename_pyprojectDOTtomlDEFAULT: str = 'pyproject.toml'
 formatDateCFF: str = "%Y-%m-%d"
 gitUserEmailFALLBACK: str = 'gitUserEmail'
 mapNexusCitation2pyprojectDOTtoml: List[Tuple[str, str]] = [("authors", "authors"), ("contact", "maintainers")]
+# TODO change this to dynamically load the schema default message
 messageDEFAULT: str = "Cite this software with the metadata in this file."
 projectURLTargets: Set[str] = {"homepage", "license", "repository"}
 
