@@ -1,6 +1,6 @@
 from .variables import (
 	CitationNexus,
-	CitationNexusFieldsFrozen,
+	CitationNexusFieldsProtected,
 	filename_pyprojectDOTtomlDEFAULT,
 	formatDateCFF,
 	FREAKOUT,

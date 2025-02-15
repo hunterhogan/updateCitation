@@ -1,18 +1,24 @@
-from typing import Any, Dict, List, Set, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple
 import attrs
 import inspect
 import pathlib
 import warnings
 
 # TODO think of a clever way to dynamically set the default version
-cffDASHversionDEFAULT_HARDCODED: str = '1.2.0'
-cffDASHversionDEFAULT: str = cffDASHversionDEFAULT_HARDCODED
-filename_pyprojectDOTtomlDEFAULT: str = 'pyproject.toml'
-formatDateCFF: str = "%Y-%m-%d"
-gitUserEmailFALLBACK: str = 'gitUserEmail'
-mapNexusCitation2pyprojectDOTtoml: List[Tuple[str, str]] = [("authors", "authors"), ("contact", "maintainers")]
+cffDASHversionDefaultHARDCODED: str = '1.2.0'
 # TODO change this to dynamically load the schema default message
-messageDEFAULT: str = "Cite this software with the metadata in this file."
+messageDefaultHARDCODED: str = "Cite this software with the metadata in this file."
+# TODO dynamically load through the following:
+CitationNexusFieldsRequiredHARDCODED: Set[str] = {"authors", "cffDASHversion", "message", "title"}
+"""
+from cffconvert.citation import Citation # from cffconvert.lib.citation import Citation # upcoming version 3.0.0
+cffstr = "cff-version: 1.2.0"; citationObject = Citation(cffstr); schemaDOTjson = citationObject._get_schema()
+# get "required": list of fields; # Convert '-' to 'DASH' in field names """
+
+filename_pyprojectDOTtomlDEFAULT: str = 'pyproject.toml' # used by other processes before `SettingsPackage` is instantiated to help instantiate `SettingsPackage`
+formatDateCFF: str = "%Y-%m-%d"
+gitUserEmailFALLBACK: str = 'action@github.com'
+mapNexusCitation2pyprojectDOTtoml: List[Tuple[str, str]] = [("authors", "authors"), ("contact", "maintainers")]
 projectURLTargets: Set[str] = {"homepage", "license", "repository"}
 
 class FREAKOUT(Exception):
@@ -20,39 +26,34 @@ class FREAKOUT(Exception):
 
 @attrs.define(slots=False)
 class SettingsPackage:
-	pathFilenamePackageSSOT: pathlib.Path
 	pathRepository: pathlib.Path = pathlib.Path.cwd()
+	filename_pyprojectDOTtoml: str = filename_pyprojectDOTtomlDEFAULT
+	pathFilenamePackageSSOT: pathlib.Path = pathRepository / filename_pyprojectDOTtoml
+
 	filenameCitationDOTcff: str = 'CITATION.cff'
-	tomlPackageData: Dict[str, Any] = attrs.field(factory=dict)
+	pathFilenameCitationDOTcffRepository: pathlib.Path = pathRepository / filenameCitationDOTcff
+	pathFilenameCitationSSOT: pathlib.Path = pathFilenameCitationDOTcffRepository
 
 	pathReferences: pathlib.Path = pathRepository / 'citations'
-	pathCitationSSOT: pathlib.Path = pathRepository / "citations"
-	pathFilenameCitationDOTcffRepository: pathlib.Path = pathRepository / filenameCitationDOTcff
-
-	pathFilenameCitationSSOT: pathlib.Path = pathCitationSSOT / filenameCitationDOTcff
 
 	gitCommitMessage: str = "Update citations [skip ci]"
 	gitUserName: str = "updateCitation"
 	gitUserEmail: str = ""
 	gitPushFromGitHubAction: bool = True
 	# gitPushFromOtherEnvironments_why_where_NotImplemented: bool = False
+	tomlPackageData: Dict[str, Any] = attrs.field(factory=dict)
 
 	GITHUB_TOKEN: str | None = None
 
-CitationNexusFieldsRequired: Set[str] = {"authors", "cffDASHversion", "message", "title"}
-""" `fieldsRequired` could be dynamically loaded through the following:
-from cffconvert.citation import Citation # from cffconvert.lib.citation import Citation # upcoming version 3.0.0
-cffstr = "cff-version: 1.2.0"; citationObject = Citation(cffstr); schemaDOTjson = citationObject._get_schema()
-# get "required": list of fields; # Convert '-' to 'DASH' in field names """
-
-CitationNexusFieldsFrozen: Set[str] = set()
+CitationNexusFieldsRequired: Set[str] = CitationNexusFieldsRequiredHARDCODED
+CitationNexusFieldsProtected: Set[str] = set()
 
 @attrs.define()
 class CitationNexus:
 	"""one-to-one correlation with `cffconvert.lib.cff_1_2_x.citation` class Citation_1_2_x.cffobj"""
 	abstract: str | None = None
 	authors: List[Dict[str, str]] = attrs.field(factory=list)
-	cffDASHversion: str = cffDASHversionDEFAULT
+	cffDASHversion: str = cffDASHversionDefaultHARDCODED
 	commit: str | None = None
 	contact: List[Dict[str, str]] = attrs.field(factory=list)
 	dateDASHreleased: str | None = None
@@ -61,9 +62,9 @@ class CitationNexus:
 	keywords: List[str] = attrs.field(factory=list)
 	license: str | None = None
 	licenseDASHurl: str | None = None
-	message: str = messageDEFAULT
+	message: str = messageDefaultHARDCODED
 	preferredDASHcitation: str | None = None
-	# TODO
+	# TODO `cffconvert` doesn't convert this field yet either
 	references: List[Dict] = attrs.field(factory=list)
 	repository: str | None = None
 	repositoryDASHartifact: str | None = None
@@ -73,23 +74,30 @@ class CitationNexus:
 	url: str | None = None
 	version: str | None = None
 
-	def __setattr__(self, name: str, value: Any) -> None:
-		"""Prevent modification of frozen fields."""
-		if name in CitationNexusFieldsFrozen:
-			context = inspect.stack()[1].code_context[0].strip() # type: ignore
-			warnings.warn(f"Field {name} is frozen and cannot be changed.\n{context}", UserWarning)
+		# NOTE the names of the existing parameters for `__setattr__` are fixed
+	def __setattr__(self, name: str, value: Any, warn: Optional[bool] = True) -> None:
+		"""Prevent modification of protected fields."""
+		if name in CitationNexusFieldsProtected:
+			if warn:
+				# Get the line of code that called this method
+				context = inspect.stack()[1].code_context[0].strip() # type: ignore
+				# TODO Improve this warning message and the context information.
+				warnings.warn(f"A process tried to change the field '{name}' after the authoritative source set the field's value.\n{context=}", UserWarning)
 			return
 		super().__setattr__(name, value)
 
+	# TODO re-enable this method in all of the modules
+	# It works too well: pytest "freezes" fields from other tests and then those tests fail
+	# Learn how to prevent the tests from interfering with each other
 	def setInStone(self, prophet: str) -> None:
 		"""
-		Confirm that required fields are not None and freeze fields specified by the context.
+		Confirm that required fields are not None, and freeze fields specified by the context.
 		Parameters:
-			prophet (str): The context for freezing fields.
+			prophet: The power to protect a field.
 		Returns:
-			CitationNexus: The same object with specified fields frozen.
+			None:
 		Raises:
-			ValueError: If any required field is None.
+			ValueError: A required field does not have a value.
 		"""
 		match prophet:
 			case "Citation":
@@ -106,7 +114,8 @@ class CitationNexus:
 				fieldsSSOT = set()
 
 		for fieldName in fieldsSSOT:
-			if fieldName in CitationNexusFieldsRequired and getattr(self, fieldName) is None:
-				raise ValueError(f"Field {fieldName} is required but not provided.")
+			if fieldName in CitationNexusFieldsRequired and not getattr(self, fieldName, None):
+				# TODO work out the semiotics of SSOT, power, authority, then improve this message (and identifiers and your life and the world)
+				raise ValueError(f"I have not yet received a value for the field '{fieldName}', but the Citation Field Format requires the field and {prophet} should have provided it.")
 
-		CitationNexusFieldsFrozen.update(fieldsSSOT)
+		CitationNexusFieldsProtected.update(fieldsSSOT)

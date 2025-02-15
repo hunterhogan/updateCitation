@@ -1,6 +1,6 @@
 from cffconvert.cli.create_citation import create_citation
 from typing import Any, Dict, List
-from updateCitation import CitationNexus, CitationNexusFieldsFrozen
+from updateCitation import CitationNexus
 import attrs
 import cffconvert
 import pathlib
@@ -19,14 +19,13 @@ def addCitation(nexusCitation: CitationNexus, pathFilenameCitationSSOT: pathlib.
 
 	# This step is designed to prevent deleting fields that are populated in the current CFF file,
 	# but for whatever reason do not get added to the CitationNexus object.
-	Z0Z_list: List[attrs.Attribute] = list(attrs.fields(type(nexusCitation)))
-	for Z0Z_field in Z0Z_list:
-		if Z0Z_field.name in CitationNexusFieldsFrozen:
-			continue
+	# Z0Z_list: List[attrs.Attribute] = list(attrs.fields(type(nexusCitation)))
+
+	for Z0Z_field in iter(attrs.fields(type(nexusCitation))): # Z0Z_list:
 		cffobjKeyName: str = Z0Z_field.name.replace("DASH", "-")
 		cffobjValue = cffobj.get(cffobjKeyName)
 		if cffobjValue: # An empty list will be False
-			setattr(nexusCitation, Z0Z_field.name, cffobjValue)
+			nexusCitation.__setattr__(Z0Z_field.name, cffobjValue, warn=False)
 
 	# nexusCitation.setInStone("Citation")
 	return nexusCitation

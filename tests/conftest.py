@@ -18,7 +18,7 @@ from updateCitation.github import getGitHubRelease
 from updateCitation.pypa import getPyPAMetadata
 from updateCitation.pypi import getPyPIrelease
 from updateCitation.pyprojectDOTtoml import get_pyprojectDOTtoml
-from updateCitation.variables import cffDASHversionDEFAULT, CitationNexusFieldsRequired, messageDEFAULT
+from updateCitation.variables import CitationNexusFieldsRequired, messageDefaultHARDCODED, cffDASHversionDefaultHARDCODED
 import pytest
 import shutil
 import uuid

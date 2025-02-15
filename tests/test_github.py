@@ -1,6 +1,6 @@
 import os
 import pytest
-from conftest import (
+from tests.conftest import (
 	addGitHubRelease,
 	addGitHubSettings,
 	CitationNexus,

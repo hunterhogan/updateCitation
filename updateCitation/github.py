@@ -119,8 +119,8 @@ def getGitHubRelease(nexusCitation: CitationNexus, truth: SettingsPackage):
 
 		return dictionaryRelease
 
-	except Exception:
-		warnings.warn(f"Failed to get GitHub release information. {str(Exception)}", UserWarning)
+	except Exception as ERRORmessage:
+		warnings.warn(f"Failed to get GitHub release information. {ERRORmessage}", UserWarning)
 		return {}
 
 def addGitHubRelease(nexusCitation: CitationNexus, truth: SettingsPackage) -> CitationNexus:

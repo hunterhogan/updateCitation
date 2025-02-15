@@ -1,10 +1,10 @@
 from pathlib import Path
 import pytest
-from conftest import standardizedEqualTo, cffDASHversionDEFAULT, messageDEFAULT, CitationNexus, SettingsPackage
+from tests.conftest import standardizedEqualTo, cffDASHversionDefaultHARDCODED, messageDefaultHARDCODED, CitationNexus, SettingsPackage
 
 def test_CitationNexus_requiredFields(nexusCitationTesting: CitationNexus) -> None:
-	assert nexusCitationTesting.cffDASHversion == cffDASHversionDEFAULT
-	assert nexusCitationTesting.message == messageDEFAULT
+	assert nexusCitationTesting.cffDASHversion == cffDASHversionDefaultHARDCODED
+	assert nexusCitationTesting.message == messageDefaultHARDCODED
 	assert nexusCitationTesting.authors == []
 	assert nexusCitationTesting.title is None
 

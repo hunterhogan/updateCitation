@@ -1,5 +1,5 @@
 import pytest
-from conftest import standardizedEqualTo, getPyPIrelease, addPyPIrelease
+from tests.conftest import standardizedEqualTo, getPyPIrelease, addPyPIrelease
 
 @pytest.mark.parametrize("nexusCitationTesting, expected", [
 ({"title": "numpy", "version": "1.23.5"}, {"repositoryDASHartifact": "https://pypi.org/project/numpy/1.23.5/"}),
