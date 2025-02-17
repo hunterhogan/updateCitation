@@ -6,8 +6,8 @@ from .variables import (
 	FREAKOUT,
 	gitUserEmailFALLBACK,
 	mapNexusCitation2pyprojectDOTtoml,
-	projectURLTargets,
 	SettingsPackage,
+	Z0Z_mappingFieldsURLFromPyPAMetadataToCFF,
 )
 
 from .pyprojectDOTtoml import add_pyprojectDOTtoml, getSettingsPackage

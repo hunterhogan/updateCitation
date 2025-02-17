@@ -1,8 +1,14 @@
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Set, Tuple
 import attrs
 import inspect
 import pathlib
 import warnings
+
+"""
+Long term:
+	`fieldsSSOT` will be something more like, the SSOT for this field is: ____
+	`Z0Z_addGitHubRelease` will be unnecessary. The flow will cycle through the SSOTs for each field. If the SSOT for a field is GitHub, then the flow will add the GitHub release.
+"""
 
 # TODO think of a clever way to dynamically set the default version
 cffDASHversionDefaultHARDCODED: str = '1.2.0'
@@ -19,7 +25,11 @@ filename_pyprojectDOTtomlDEFAULT: str = 'pyproject.toml' # used by other process
 formatDateCFF: str = "%Y-%m-%d"
 gitUserEmailFALLBACK: str = 'action@github.com'
 mapNexusCitation2pyprojectDOTtoml: List[Tuple[str, str]] = [("authors", "authors"), ("contact", "maintainers")]
-projectURLTargets: Set[str] = {"homepage", "license", "repository"}
+Z0Z_mappingFieldsURLFromPyPAMetadataToCFF: Dict[str, str] = {
+	"homepage": "url",
+	"license": "licenseDASHurl",
+	"repository": "repository",
+}
 
 class FREAKOUT(Exception):
 	pass
@@ -32,12 +42,13 @@ class SettingsPackage:
 
 	filenameCitationDOTcff: str = 'CITATION.cff'
 	pathFilenameCitationDOTcffRepository: pathlib.Path = pathlib.Path(pathRepository, filenameCitationDOTcff)
-	# pathFilenameCitationDOTcffRepository: pathlib.Path = pathRepository / filenameCitationDOTcff
 	pathFilenameCitationSSOT: pathlib.Path = pathlib.Path(pathFilenameCitationDOTcffRepository)
-	# pathFilenameCitationSSOT: pathlib.Path = pathFilenameCitationDOTcffRepository
+
+	Z0Z_addGitHubRelease: bool = True
+	Z0Z_addPyPIrelease: bool = True
 
 	pathReferences: pathlib.Path = pathlib.Path(pathRepository, 'citations')
-	# pathReferences: pathlib.Path = pathRepository / 'citations'
+	projectURLTargets: Set[str] = {"homepage", "license", "repository"}
 
 	gitCommitMessage: str = "Update citations [skip ci]"
 	gitUserName: str = "updateCitation"

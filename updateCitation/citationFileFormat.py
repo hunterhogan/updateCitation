@@ -36,7 +36,7 @@ def writeCitation(nexusCitation: CitationNexus, pathFilenameCitationSSOT: pathli
 	parameterLineWidth = 60
 	yamlWorkhorse = ruamel.yaml.YAML()
 
-	def srsly(Z0Z_filed, Z0Z_value):
+	def srsly(Z0Z_field, Z0Z_value):
 		if Z0Z_value: # empty lists
 			return True
 		else:

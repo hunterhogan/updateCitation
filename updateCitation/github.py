@@ -69,32 +69,25 @@ def gittyUpGitPushGitHub(truth: SettingsPackage, nexusCitation: CitationNexus, p
 def getGitHubRelease(nexusCitation: CitationNexus, truth: SettingsPackage):
 	"""Retrieves the latest release information from a GitHub repository.
 		Parameters:
-			nexusCitation (CitationNexus): A CitationNexus object containing
-				citation metadata, including the repository URL.
+			nexusCitation: A CitationNexus object containing citation metadata, including the repository URL.
 		Returns:
-			Dict[str, Any]: A dictionary containing the release date,
-				identifiers (release URL), and repository code URL.
-				Returns an empty dictionary if the repository URL is missing
-				or if an error occurs while fetching the release information.
+			dictionaryRelease: A dictionary containing release information or an empty dictionary.
+		Raises:
+			NEVER: `Exception` is caught and converted to a warning. (So, don't filter all warnings, you know?)
 		"""
 	if not nexusCitation.repository:
 		return {}
 
 	try:
-		# latestRelease.tag_name == nexusCitation.version
+		# NOTE latestRelease.tag_name == nexusCitation.version
 		if not nexusCitation.version:
 			raise FREAKOUT
 
-		# Using context management to ensure the client closes automatically.
 		with GitHubRepository(nexusCitation, truth) as githubRepository:
 			latestRelease = githubRepository.get_latest_release()
 			tagObject = githubRepository.get_git_ref(f'tags/{latestRelease.tag_name}').object
 			commitLatestRelease = tagObject.sha if tagObject.type == 'tag' else tagObject.sha
 			commitLatestCommit = githubRepository.get_commit(githubRepository.default_branch).sha
-
-		Z0Z_commitCorrect = "44ac9e8f92ae79735e49b38ea8ed58540b899858"
-		print(f"{commitLatestRelease=}\n{commitLatestCommit=}\n{Z0Z_commitCorrect=}")
-		print(f"{commitLatestRelease == Z0Z_commitCorrect=}")
 
 		urlRelease = latestRelease.html_url
 
@@ -131,7 +124,7 @@ def getGitHubRelease(nexusCitation: CitationNexus, truth: SettingsPackage):
 def addGitHubRelease(nexusCitation: CitationNexus, truth: SettingsPackage) -> CitationNexus:
 	"""Adds GitHub release information to a CitationNexus object.
 		Parameters:
-			nexusCitation (CitationNexus): The CitationNexus object to update.
+			nexusCitation: The CitationNexus object to update.
 		Returns:
 			CitationNexus: The updated CitationNexus object with GitHub release information.
 	"""

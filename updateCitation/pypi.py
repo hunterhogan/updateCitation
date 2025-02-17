@@ -10,7 +10,7 @@ def getPyPIrelease(nexusCitation: CitationNexus) -> Dict[str, Any]:
 
 	packageName = packaging.utils.canonicalize_name(nexusCitation.title)
 	version = str(nexusCitation.version)
-	return { "repositoryDASHartifact": f"https://pypi.org/project/{packageName}/{version}/" }
+	return {"repositoryDASHartifact": f"https://pypi.org/project/{packageName}/{version}/"}
 
 def addPyPIrelease(nexusCitation: CitationNexus) -> CitationNexus:
 	pypiReleaseData = getPyPIrelease(nexusCitation)

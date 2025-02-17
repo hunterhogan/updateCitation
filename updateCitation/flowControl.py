@@ -29,10 +29,6 @@ def here(pathFilename_pyprojectDOTtoml: Union[str, os.PathLike[Any], None] = Non
 		# especially for a required field
 		raise ValueError("Package name is required.")
 
-	# TODO consider whether or not my system will be intuitive for other people
-	# I'm beginning to suspect it will be confusing for others and that the
-	# default should be to have pathFilenameCitationSSOT = pathFilenameCitationDOTcffRepository
-	# and I customize my personal settings to put pathFilenameCitationSSOT in a different place.
 	if pathlib.Path(truth.pathFilenameCitationSSOT).exists():
 		pathFilenameCitationSSOT = truth.pathFilenameCitationSSOT
 	elif pathlib.Path(truth.pathFilenameCitationDOTcffRepository).exists():
@@ -43,10 +39,12 @@ def here(pathFilename_pyprojectDOTtoml: Union[str, os.PathLike[Any], None] = Non
 		pathFilenameCitationSSOT = truth.pathFilenameCitationSSOT
 
 	nexusCitation = addCitation(nexusCitation, pathFilenameCitationSSOT)
-	nexusCitation = addPyPAMetadata(nexusCitation, truth.tomlPackageData)
+	nexusCitation = addPyPAMetadata(nexusCitation, truth.tomlPackageData, truth.projectURLTargets)
 	truth = addGitHubSettings(truth)
-	nexusCitation = addGitHubRelease(nexusCitation, truth)
-	nexusCitation = addPyPIrelease(nexusCitation)
+	if truth.Z0Z_addGitHubRelease:
+		nexusCitation = addGitHubRelease(nexusCitation, truth)
+	if truth.Z0Z_addPyPIrelease:
+		nexusCitation = addPyPIrelease(nexusCitation)
 
 	validationStatus = writeCitation(nexusCitation, truth.pathFilenameCitationSSOT, truth.pathFilenameCitationDOTcffRepository)
 
