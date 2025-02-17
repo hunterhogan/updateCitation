@@ -33,9 +33,9 @@ def here(pathFilename_pyprojectDOTtoml: Union[str, os.PathLike[Any], None] = Non
 	# I'm beginning to suspect it will be confusing for others and that the
 	# default should be to have pathFilenameCitationSSOT = pathFilenameCitationDOTcffRepository
 	# and I customize my personal settings to put pathFilenameCitationSSOT in a different place.
-	if truth.pathFilenameCitationSSOT.exists():
+	if pathlib.Path(truth.pathFilenameCitationSSOT).exists():
 		pathFilenameCitationSSOT = truth.pathFilenameCitationSSOT
-	elif truth.pathFilenameCitationDOTcffRepository.exists():
+	elif pathlib.Path(truth.pathFilenameCitationDOTcffRepository).exists():
 		pathFilenameCitationSSOT = truth.pathFilenameCitationDOTcffRepository
 	else:
 		truth.pathFilenameCitationSSOT.parent.mkdir(parents=True, exist_ok=True)

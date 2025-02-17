@@ -46,9 +46,10 @@ def writeCitation(nexusCitation: CitationNexus, pathFilenameCitationSSOT: pathli
 	for keyName in list(dictionaryCitation.keys()):
 		dictionaryCitation[keyName.replace("DASH", "-")] = dictionaryCitation.pop(keyName)
 
-	pathFilenameForValidation = pathFilenameCitationSSOT.with_stem('validation')
+	pathFilenameForValidation = pathlib.Path(pathFilenameCitationSSOT).with_stem('validation')
 
 	def writeStream(pathFilename: pathlib.Path):
+		pathFilename = pathlib.Path(pathFilename)
 		pathFilename.parent.mkdir(parents=True, exist_ok=True)
 		with open(pathFilename, 'w') as pathlibIsAStealthContextManagerThatRuamelCannotDetectAndRefusesToWorkWith:
 			yamlWorkhorse.dump(dictionaryCitation, pathlibIsAStealthContextManagerThatRuamelCannotDetectAndRefusesToWorkWith)

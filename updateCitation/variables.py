@@ -28,13 +28,16 @@ class FREAKOUT(Exception):
 class SettingsPackage:
 	pathRepository: pathlib.Path = pathlib.Path.cwd()
 	filename_pyprojectDOTtoml: str = filename_pyprojectDOTtomlDEFAULT
-	pathFilenamePackageSSOT: pathlib.Path = pathRepository / filename_pyprojectDOTtoml
+	pathFilenamePackageSSOT: pathlib.Path = pathlib.Path(pathRepository, filename_pyprojectDOTtoml)
 
 	filenameCitationDOTcff: str = 'CITATION.cff'
-	pathFilenameCitationDOTcffRepository: pathlib.Path = pathRepository / filenameCitationDOTcff
-	pathFilenameCitationSSOT: pathlib.Path = pathFilenameCitationDOTcffRepository
+	pathFilenameCitationDOTcffRepository: pathlib.Path = pathlib.Path(pathRepository, filenameCitationDOTcff)
+	# pathFilenameCitationDOTcffRepository: pathlib.Path = pathRepository / filenameCitationDOTcff
+	pathFilenameCitationSSOT: pathlib.Path = pathlib.Path(pathFilenameCitationDOTcffRepository)
+	# pathFilenameCitationSSOT: pathlib.Path = pathFilenameCitationDOTcffRepository
 
-	pathReferences: pathlib.Path = pathRepository / 'citations'
+	pathReferences: pathlib.Path = pathlib.Path(pathRepository, 'citations')
+	# pathReferences: pathlib.Path = pathRepository / 'citations'
 
 	gitCommitMessage: str = "Update citations [skip ci]"
 	gitUserName: str = "updateCitation"
