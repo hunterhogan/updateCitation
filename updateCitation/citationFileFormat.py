@@ -7,11 +7,9 @@ import pathlib
 import ruamel.yaml
 
 def getCitation(pathFilenameCitationSSOT: pathlib.Path) -> Dict[str, Any]:
-	# `cffconvert.cli.create_citation.create_citation()` is PAINFULLY mundane, but a major problem
-	# in the CFF ecosystem is divergence. Therefore, I will use this function so that my code
-	# converges with the CFF ecosystem.
+	# Try to converge with cffconvert when possible.
 	citationObject: cffconvert.Citation = create_citation(infile=pathFilenameCitationSSOT, url=None)
-	# `._parse()` is a yaml loader: use it for convergence
+	# `._parse()` is a yaml loader
 	return citationObject._parse()
 
 def addCitation(nexusCitation: CitationNexus, pathFilenameCitationSSOT: pathlib.Path) -> CitationNexus:
@@ -19,13 +17,12 @@ def addCitation(nexusCitation: CitationNexus, pathFilenameCitationSSOT: pathlib.
 
 	# This step is designed to prevent deleting fields that are populated in the current CFF file,
 	# but for whatever reason do not get added to the CitationNexus object.
-	# Z0Z_list: List[attrs.Attribute] = list(attrs.fields(type(nexusCitation)))
 
-	for Z0Z_field in iter(attrs.fields(type(nexusCitation))): # Z0Z_list:
-		cffobjKeyName: str = Z0Z_field.name.replace("DASH", "-")
+	for nexusCitationField in iter(attrs.fields(type(nexusCitation))):
+		cffobjKeyName: str = nexusCitationField.name.replace("DASH", "-")
 		cffobjValue = cffobj.get(cffobjKeyName)
 		if cffobjValue: # An empty list will be False
-			nexusCitation.__setattr__(Z0Z_field.name, cffobjValue, warn=False)
+			nexusCitation.__setattr__(nexusCitationField.name, cffobjValue, warn=False)
 
 	# nexusCitation.setInStone("Citation")
 	return nexusCitation

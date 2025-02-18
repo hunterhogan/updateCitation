@@ -48,7 +48,7 @@ def here(pathFilename_pyprojectDOTtoml: Union[str, os.PathLike[Any], None] = Non
 
 	validationStatus = writeCitation(nexusCitation, truth.pathFilenameCitationSSOT, truth.pathFilenameCitationDOTcffRepository)
 
-	"""TODO remove the second push (done?)
+	"""TODO remove the second push
 	TODO figure out the sha paradox
 	TODO possibly related: fix the `commitLatestRelease` value in `getGitHubRelease`
 	- allegedly, `commitInProgress = os.environ.get("GITHUB_SHA")`
