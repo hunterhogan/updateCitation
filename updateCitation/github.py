@@ -89,12 +89,9 @@ def gittyUpGitAmendGitHub(truth: SettingsPackage, nexusCitation: CitationNexus, 
 	# Stage the citation files
 	subprocess.run(["git", "add", str(pathFilenameCitationSSOT), str(pathFilenameCitationDOTcffRepository)])
 
-	# Instead of creating a new commit, amend the existing commit
-	# NOTE this creates a new commit hash (sha)
-	commitResult = subprocess.run(["git", "commit", "--amend", "--no-edit"])
+	commitResult = subprocess.run(["git", "commit", "-m", truth.gitCommitMessage])
 	if commitResult.returncode == 0:
-		# Force-push the amended commit to update the remote
-		subprocess.run(["git", "push", "--force-with-lease", "origin", "HEAD"])
+		subprocess.run(["git", "push", "origin", "HEAD"])
 
 def getGitHubRelease(nexusCitation: CitationNexus, truth: SettingsPackage):
 	"""Retrieves the latest release information from a GitHub repository.
