@@ -9,12 +9,12 @@ authors:
   family-names: Hogan
   email: HunterHogan@pm.me
 cff-version: 1.2.0
-commit: 2ceceee66bed5a1b75ca1feeac089fec00da7376
-date-released: '2025-02-17'
+commit: 078b2264532ce975b23e03effbd92ce5c81f9c13
+date-released: '2025-02-18'
 identifiers:
 - type: url
-  value: https://github.com/hunterhogan/updateCitation/releases/tag/0.0.5
-  description: The URL for updateCitation 0.0.5.
+  value: https://github.com/hunterhogan/updateCitation/releases/tag/0.0.7
+  description: The URL for updateCitation 0.0.7.
 keywords:
 - academic-software
 - automation
@@ -29,9 +29,9 @@ keywords:
 license: CC-BY-NC-4.0
 message: Cite this software with the metadata in this file.
 repository: https://github.com/hunterhogan/updateCitation.git
-repository-artifact: https://pypi.org/project/updatecitation/0.0.5/
-repository-code: https://github.com/hunterhogan/updateCitation/releases/tag/0.0.5
+repository-artifact: https://pypi.org/project/updatecitation/0.0.7/
+repository-code: https://github.com/hunterhogan/updateCitation/releases/tag/0.0.7
 title: updateCitation
 type: software
 url: https://github.com/hunterhogan/updateCitation
-version: 0.0.5
+version: 0.0.7
