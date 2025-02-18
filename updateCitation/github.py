@@ -1,5 +1,5 @@
 from contextlib import contextmanager
-from typing import Any, Generator
+from typing import Any, Generator, Optional
 from updateCitation import (
 	CitationNexus,
 	compareVersions,
@@ -15,56 +15,86 @@ import os
 import pathlib
 import warnings
 
+@contextmanager
+def GithubClient(tokenAsStr: Optional[str]) -> Generator[github.Github, Any, None]:
+	"""Creates a GitHub client with authentication if a token is available.
+
+	Parameters:
+		tokenAsStr: A GitHub authentication token as a string.
+
+	Returns:
+		A GitHub client instance that will be automatically closed.
+	"""
+	# Don't do the following because: 1) not DRY, 2) it's "sneaky" to use environment variables without the user's knowledge.
+	# tokenAsStr = tokenAsStr or os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
+	githubAuthToken = github.Auth.Token(tokenAsStr) if tokenAsStr else None
+	githubClient = github.Github(auth=githubAuthToken)
+	try:
+		yield githubClient
+	finally:
+		githubClient.close()
+
 def addGitHubSettings(truth: SettingsPackage) -> SettingsPackage:
+	# TODO low priority: make "load token from environment variable" optional
 	truth.GITHUB_TOKEN = truth.GITHUB_TOKEN or os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
 
 	if not truth.gitUserEmail:
-		githubAuth = github.Auth.Token(truth.GITHUB_TOKEN) if truth.GITHUB_TOKEN else None
-		githubClient = github.Github(auth=githubAuth)
-
-		try:
-			userGitHub = githubClient.get_user()
-			ImaGitUserEmail = f"{userGitHub.id}+{userGitHub.login}@users.noreply.github.com"
-		except github.GithubException:
-			ImaGitUserEmail = None
+		with GithubClient(truth.GITHUB_TOKEN) as githubClient:
+			try:
+				userGitHub = githubClient.get_user()
+				ImaGitUserEmail = f"{userGitHub.id}+{userGitHub.login}@users.noreply.github.com"
+			except github.GithubException:
+				ImaGitUserEmail = None
 
 		githubActor = os.environ.get("GITHUB_ACTOR")
-		Z0Z_email = f"{githubActor}@users.noreply.github.com" if githubActor else None
-		truth.gitUserEmail = ImaGitUserEmail or Z0Z_email or gitUserEmailFALLBACK
-
-		githubClient.close()
+		gitUserEmailGithubActor = f"{githubActor}@users.noreply.github.com" if githubActor else None
+		truth.gitUserEmail = ImaGitUserEmail or gitUserEmailGithubActor or gitUserEmailFALLBACK
 
 	return truth
 
 @contextmanager
 def GitHubRepository(nexusCitation: CitationNexus, truth: SettingsPackage) -> Generator[github.Repository.Repository, Any, None]:
+	"""Creates a GitHub repository instance for the given citation.
+
+	Parameters:
+		nexusCitation: Citation object containing repository information.
+		truth: Settings package containing GitHub authentication token.
+
+	Returns:
+		A GitHub repository instance.
+
+	Raises:
+		FREAKOUT: If repository information is missing.
+	"""
 	if not nexusCitation.repository:
 		raise FREAKOUT
 
-	githubAuth = github.Auth.Token(truth.GITHUB_TOKEN) if truth.GITHUB_TOKEN else None
-	githubClient = github.Github(auth=githubAuth)
-
-	full_name_or_id: str = nexusCitation.repository.replace("https://github.com/", "").replace(".git", "")
-	githubRepository = githubClient.get_repo(full_name_or_id)
-	try:
+	with GithubClient(truth.GITHUB_TOKEN) as githubClient:
+		full_name_or_id: str = nexusCitation.repository.replace("https://github.com/", "").replace(".git", "")
+		githubRepository = githubClient.get_repo(full_name_or_id)
 		yield githubRepository
-	finally:
-		githubClient.close()
 
-def gittyUpGitPushGitHub(truth: SettingsPackage, nexusCitation: CitationNexus, pathFilenameCitationSSOT: pathlib.Path, pathFilenameCitationDOTcffRepository: pathlib.Path):
+def gittyUpGitAmendGitHub(truth: SettingsPackage, nexusCitation: CitationNexus, pathFilenameCitationSSOT: pathlib.Path, pathFilenameCitationDOTcffRepository: pathlib.Path):
 	environmentIsGitHubAction = bool(os.environ.get("GITHUB_ACTIONS") and os.environ.get("GITHUB_WORKFLOW"))
 	if not environmentIsGitHubAction or not nexusCitation.repository:
 		return
 
 	import subprocess
+	# TODO I don't like that this flow assumes `git` is installed and available in the environment.
+	# Can I use `GitHubRepository` instead of `subprocess`?
 
 	subprocess.run(["git", "config", "user.name", truth.gitUserName])
 	subprocess.run(["git", "config", "user.email", truth.gitUserEmail])
 
+	# Stage the citation files
 	subprocess.run(["git", "add", str(pathFilenameCitationSSOT), str(pathFilenameCitationDOTcffRepository)])
-	commitResult = subprocess.run(["git", "commit", "-m", truth.gitCommitMessage])
+
+	# Instead of creating a new commit, amend the existing commit
+	# NOTE this creates a new commit hash (sha)
+	commitResult = subprocess.run(["git", "commit", "--amend", "--no-edit"])
 	if commitResult.returncode == 0:
-		subprocess.run(["git", "push", "origin", "HEAD"])
+		# Force-push the amended commit to update the remote
+		subprocess.run(["git", "push", "--force-with-lease", "origin", "HEAD"])
 
 def getGitHubRelease(nexusCitation: CitationNexus, truth: SettingsPackage):
 	"""Retrieves the latest release information from a GitHub repository.
@@ -86,6 +116,7 @@ def getGitHubRelease(nexusCitation: CitationNexus, truth: SettingsPackage):
 		with GitHubRepository(nexusCitation, truth) as githubRepository:
 			latestRelease = githubRepository.get_latest_release()
 			tagObject = githubRepository.get_git_ref(f'tags/{latestRelease.tag_name}').object
+			# TODO `commitLatestRelease` should be fixed but it's not
 			commitLatestRelease = tagObject.sha if tagObject.type == 'tag' else tagObject.sha
 			commitLatestCommit = githubRepository.get_commit(githubRepository.default_branch).sha
 

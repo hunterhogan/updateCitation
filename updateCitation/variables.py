@@ -53,7 +53,7 @@ class SettingsPackage:
 	gitCommitMessage: str = "Update citations [skip ci]"
 	gitUserName: str = "updateCitation"
 	gitUserEmail: str = ""
-	gitPushFromGitHubAction: bool = True
+	gitAmendFromGitHubAction: bool = True
 	# gitPushFromOtherEnvironments_why_where_NotImplemented: bool = False
 	tomlPackageData: Dict[str, Any] = attrs.field(factory=dict)
 

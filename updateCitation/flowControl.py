@@ -8,7 +8,7 @@ from updateCitation import (
 	addPyPIrelease,
 	CitationNexus,
 	filename_pyprojectDOTtomlDEFAULT,
-	gittyUpGitPushGitHub,
+	gittyUpGitAmendGitHub,
 	getSettingsPackage,
 	SettingsPackage,
 	writeCitation,
@@ -48,16 +48,9 @@ def here(pathFilename_pyprojectDOTtoml: Union[str, os.PathLike[Any], None] = Non
 
 	validationStatus = writeCitation(nexusCitation, truth.pathFilenameCitationSSOT, truth.pathFilenameCitationDOTcffRepository)
 
-	"""TODO change from
-on:
-	push:
-
-to
-
-on:
-    pre-receive:
-
-	- This will allow me to avoid making two commits.
+	"""TODO remove the second push (done?)
+	TODO figure out the sha paradox
+	TODO possibly related: fix the `commitLatestRelease` value in `getGitHubRelease`
 	- allegedly, `commitInProgress = os.environ.get("GITHUB_SHA")`
 	- so the citation could 1) have the correct commit hash in the same file as the release,
 	and 2) the up-to-date citation file could be in the release it references.
@@ -66,11 +59,11 @@ on:
 	But I don't know how to conditionally use `dictionaryReleaseHypothetical` only if the Python Tests pass
 	(and the release actions are successful).
 
-	I guess if the tests were `pre-receive`, for example, I could wait to see the outcome of the tests,
+	I guess I could wait to see the outcome of the tests,
 	then choose the correct dictionary. I don't want to prevent the commit: I just want to put accurate information
 	in the citation file.
 
 	"""
 
-	if validationStatus and truth.gitPushFromGitHubAction:
-		gitStatus = gittyUpGitPushGitHub(truth, nexusCitation, truth.pathFilenameCitationSSOT, truth.pathFilenameCitationDOTcffRepository)
+	if validationStatus and truth.gitAmendFromGitHubAction:
+		gittyUpGitAmendGitHub(truth, nexusCitation, truth.pathFilenameCitationSSOT, truth.pathFilenameCitationDOTcffRepository)

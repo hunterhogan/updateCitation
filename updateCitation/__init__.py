@@ -13,7 +13,7 @@ from .variables import (
 from .pyprojectDOTtoml import add_pyprojectDOTtoml, getSettingsPackage
 from .citationFileFormat import addCitation, writeCitation
 from .pypa import addPyPAMetadata, compareVersions
-from .github import addGitHubRelease, addGitHubSettings, gittyUpGitPushGitHub
+from .github import addGitHubRelease, addGitHubSettings, gittyUpGitAmendGitHub
 from .pypi import addPyPIrelease
 
 from .flowControl import here
