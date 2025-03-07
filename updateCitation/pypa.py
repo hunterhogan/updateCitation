@@ -1,5 +1,5 @@
 from packaging.metadata import Metadata as PyPAMetadata
-from typing import Any, Dict, Set
+from typing import Any
 from updateCitation import CitationNexus, Z0Z_mappingFieldsURLFromPyPAMetadataToCFF
 import packaging
 import packaging.metadata
@@ -26,7 +26,7 @@ def compareVersions(comparand: str, comparator: str) -> int:
 	else:
 		return 3153
 
-def getPyPAMetadata(packageData: Dict[str, Any]) -> PyPAMetadata:
+def getPyPAMetadata(packageData: dict[str, Any]) -> PyPAMetadata:
 	"""
 	Retrieves and formats package metadata from a dictionary into a PyPAMetadata object.
 	Parameters:
@@ -35,13 +35,13 @@ def getPyPAMetadata(packageData: Dict[str, Any]) -> PyPAMetadata:
 		PyPAMetadata: A PyPAMetadata object containing the extracted and formatted
 			metadata. The package name is canonicalized using `packaging.utils.canonicalize_name` and validated.
 	"""
-	dictionaryPackageDataURLs: Dict[str, str] = packageData.get("urls", {})
-	dictionaryProjectURLs: Dict[str, str] = {}
+	dictionaryPackageDataURLs: dict[str, str] = packageData.get("urls", {})
+	dictionaryProjectURLs: dict[str, str] = {}
 	for urlName, url in dictionaryPackageDataURLs.items():
 		urlName = urlName.lower()
 		dictionaryProjectURLs[urlName] = url
 
-	dictionaryPackageDataLicense: Dict[str, str] = packageData.get("license", {})
+	dictionaryPackageDataLicense: dict[str, str] = packageData.get("license", {})
 	metadataRaw = packaging.metadata.RawMetadata(
 		keywords=packageData.get("keywords", []),
 		license_expression=dictionaryPackageDataLicense.get("text", ""),
@@ -55,7 +55,7 @@ def getPyPAMetadata(packageData: Dict[str, Any]) -> PyPAMetadata:
 	metadata = PyPAMetadata().from_raw(metadataRaw)
 	return metadata
 
-def addPyPAMetadata(nexusCitation: CitationNexus, tomlPackageData: Dict[str, Any], projectURLTargets: Set[str]) -> CitationNexus:
+def addPyPAMetadata(nexusCitation: CitationNexus, tomlPackageData: dict[str, Any], projectURLTargets: set[str]) -> CitationNexus:
 	pypaMetadata: PyPAMetadata = getPyPAMetadata(tomlPackageData)
 
 	if pypaMetadata.version: nexusCitation.version = str(pypaMetadata.version)

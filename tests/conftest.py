@@ -1,5 +1,7 @@
 """SSOT for Pytest."""
-from typing import Generator, Any, Type, Callable
+from typing import Any
+
+from collections.abc import Generator, Callable
 import pathlib
 from updateCitation import (
 	add_pyprojectDOTtoml,
@@ -29,7 +31,7 @@ pathFilenameCitationAlphaDOTcff = pathDataSamples / "citationAlpha.cff"
 pathTmpRoot = pathDataSamples / "tmp"
 
 @pytest.fixture(scope="session", autouse=True)
-def setupTeardownTestSession() -> Generator[None, None, None]:
+def setupTeardownTestSession() -> Generator[None]:
 	pathDataSamples.mkdir(exist_ok=True)
 	pathTmpRoot.mkdir(exist_ok=True)
 	yield
@@ -95,9 +97,9 @@ def uniformTestFailureMessage(expected: Any, actual: Any, functionName: str, *ar
 			f"Expected: {expected}\n"
 			f"Got: {actual}")
 
-def standardizedEqualTo(expected: Any, functionTarget: Callable, *arguments: Any, **keywordArguments: Any) -> None:
+def standardizedEqualTo(expected: Any, functionTarget: Callable[..., Any], *arguments: Any, **keywordArguments: Any) -> None:
 	"""Template for most tests to compare the actual outcome with the expected outcome, including expected errors."""
-	if type(expected) == Type[Exception]:
+	if type(expected) == type[Exception]:
 		messageExpected = expected.__name__
 	else:
 		messageExpected = expected

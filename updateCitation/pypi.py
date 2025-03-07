@@ -1,8 +1,8 @@
 from updateCitation import CitationNexus
-from typing import Any, Dict
+from typing import Any
 import packaging.utils
 
-def getPyPIrelease(nexusCitation: CitationNexus) -> Dict[str, Any]:
+def getPyPIrelease(nexusCitation: CitationNexus) -> dict[str, Any]:
 	if not nexusCitation.title:
 		raise ValueError("Package name (title) is required to get PyPI release info.")
 	if not nexusCitation.version:

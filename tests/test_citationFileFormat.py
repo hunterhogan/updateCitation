@@ -1,8 +1,9 @@
 import pathlib
 import pytest
 from tests.conftest import *
+from updateCitation.variables import CitationNexus
 
-def test_addCitation(nexusCitationTesting, citationAlphaDOTcff: pathlib.Path):
+def test_addCitation(nexusCitationTesting: CitationNexus, citationAlphaDOTcff: pathlib.Path):
 	"""Test that addCitation() returns a CitationNexus object."""
 	nexusCitation = addCitation(nexusCitationTesting, citationAlphaDOTcff)
 	assert isinstance(nexusCitation, CitationNexus), "addCitation() should return a CitationNexus object."
@@ -24,7 +25,7 @@ def test_addCitation(nexusCitationTesting, citationAlphaDOTcff: pathlib.Path):
 	("url", "https://github.com/hunterhogan/mapFolding"),
 	("version", "0.3.9"),
 ])
-def test_addCitation_fields(nexusCitationTesting, citationAlphaDOTcff: pathlib.Path, fieldName: str, expectedValue: str):
+def test_addCitation_fields(nexusCitationTesting: CitationNexus, citationAlphaDOTcff: pathlib.Path, fieldName: str, expectedValue: str):
 	"""Test that addCitation() correctly sets each field in the CitationNexus object."""
 	nexusCitation = addCitation(nexusCitationTesting, citationAlphaDOTcff)
 	# actual = getattr(nexusCitation, fieldName)

@@ -1,4 +1,4 @@
-from typing import Any, Union
+from typing import Any
 from updateCitation import (
 	add_pyprojectDOTtoml,
 	addCitation,
@@ -16,7 +16,7 @@ from updateCitation import (
 import os
 import pathlib
 
-def here(pathFilename_pyprojectDOTtoml: Union[str, os.PathLike[Any], None] = None) -> None:
+def here(pathFilename_pyprojectDOTtoml: str | os.PathLike[Any] | None = None) -> None:
 	pathFilenameSettingsSSOT = pathlib.Path(pathFilename_pyprojectDOTtoml) if pathFilename_pyprojectDOTtoml else pathlib.Path.cwd() / filename_pyprojectDOTtomlDEFAULT
 	truth: SettingsPackage = getSettingsPackage(pathFilenameSettingsSSOT)
 

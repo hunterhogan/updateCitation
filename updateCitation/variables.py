@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional, Sequence, Set, Tuple
+from typing import Any, Literal, TypedDict
 import attrs
 import inspect
 import pathlib
@@ -15,7 +15,7 @@ cffDASHversionDefaultHARDCODED: str = '1.2.0'
 # TODO change this to dynamically load the schema default message
 messageDefaultHARDCODED: str = "Cite this software with the metadata in this file."
 # TODO dynamically load through the following:
-CitationNexusFieldsRequiredHARDCODED: Set[str] = {"authors", "cffDASHversion", "message", "title"}
+CitationNexusFieldsRequiredHARDCODED: set[str] = {"authors", "cffDASHversion", "message", "title"}
 """
 from cffconvert.citation import Citation # from cffconvert.lib.citation import Citation # upcoming version 3.0.0
 cffstr = "cff-version: 1.2.0"; citationObject = Citation(cffstr); schemaDOTjson = citationObject._get_schema()
@@ -24,8 +24,8 @@ cffstr = "cff-version: 1.2.0"; citationObject = Citation(cffstr); schemaDOTjson 
 filename_pyprojectDOTtomlDEFAULT: str = 'pyproject.toml' # used by other processes before `SettingsPackage` is instantiated to help instantiate `SettingsPackage`
 formatDateCFF: str = "%Y-%m-%d"
 gitUserEmailFALLBACK: str = 'action@github.com'
-mapNexusCitation2pyprojectDOTtoml: List[Tuple[str, str]] = [("authors", "authors"), ("contact", "maintainers")]
-Z0Z_mappingFieldsURLFromPyPAMetadataToCFF: Dict[str, str] = {
+mapNexusCitation2pyprojectDOTtoml: list[tuple[str, str]] = [("authors", "authors"), ("contact", "maintainers")]
+Z0Z_mappingFieldsURLFromPyPAMetadataToCFF: dict[str, str] = {
 	"homepage": "url",
 	"license": "licenseDASHurl",
 	"repository": "repository",
@@ -48,38 +48,152 @@ class SettingsPackage:
 	Z0Z_addPyPIrelease: bool = True
 
 	pathReferences: pathlib.Path = pathlib.Path(pathRepository, 'citations')
-	projectURLTargets: Set[str] = {"homepage", "license", "repository"}
+	projectURLTargets: set[str] = {"homepage", "license", "repository"}
 
 	gitCommitMessage: str = "Update citations [skip ci]"
 	gitUserName: str = "updateCitation"
 	gitUserEmail: str = ""
 	gitAmendFromGitHubAction: bool = True
 	# gitPushFromOtherEnvironments_why_where_NotImplemented: bool = False
-	tomlPackageData: Dict[str, Any] = attrs.field(factory=dict)
+	tomlPackageData: dict[str, Any] = attrs.field(factory=dict)
 
 	GITHUB_TOKEN: str | None = None
 
-CitationNexusFieldsRequired: Set[str] = CitationNexusFieldsRequiredHARDCODED
-CitationNexusFieldsProtected: Set[str] = set()
+CitationNexusFieldsRequired: set[str] = CitationNexusFieldsRequiredHARDCODED
+CitationNexusFieldsProtected: set[str] = set()
+
+# Define type definitions for schema structures
+class Person(TypedDict, total=False):
+	address: str
+	affiliation: str
+	alias: str
+	city: str
+	country: str
+	email: str
+	family_names: str
+	fax: str
+	given_names: str
+	name_particle: str
+	name_suffix: str
+	orcid: str
+	post_code: str | int
+	region: str
+	tel: str
+	website: str
+
+class Entity(TypedDict, total=False):
+	address: str
+	alias: str
+	city: str
+	country: str
+	date_end: str
+	date_start: str
+	email: str
+	fax: str
+	location: str
+	name: str
+	orcid: str
+	post_code: str | int
+	region: str
+	tel: str
+	website: str
+
+class Identifier(TypedDict, total=False):
+	description: str
+	type: Literal["doi", "url", "swh", "other"]
+	value: str
+
+class ReferenceDictionary(TypedDict, total=False):
+	abbreviation: str
+	abstract: str
+	authors: list[Person | Entity]
+	collection_doi: str
+	collection_title: str
+	collection_type: str
+	commit: str
+	conference: Entity
+	contact: list[Person | Entity]
+	copyright: str
+	data_type: str
+	database: str
+	database_provider: Entity
+	date_accessed: str
+	date_downloaded: str
+	date_published: str
+	date_released: str
+	department: str
+	doi: str
+	edition: str
+	editors: list[Person | Entity]
+	editors_series: list[Person | Entity]
+	end: int | str
+	entry: str
+	filename: str
+	format: str
+	identifiers: list[Identifier]
+	institution: Entity
+	isbn: str
+	issn: str
+	issue: str | int
+	issue_date: str
+	issue_title: str
+	journal: str
+	keywords: list[str]
+	languages: list[str]
+	license: str | list[str]
+	license_url: str
+	loc_end: int | str
+	loc_start: int | str
+	location: Entity
+	medium: str
+	month: int | str
+	nihmsid: str
+	notes: str
+	number: str | int
+	number_volumes: int | str
+	pages: int | str
+	patent_states: list[str]
+	pmcid: str
+	publisher: Entity
+	recipients: list[Entity | Person]
+	repository: str
+	repository_artifact: str
+	repository_code: str
+	scope: str
+	section: str | int
+	senders: list[Entity | Person]
+	start: int | str
+	status: Literal["abstract", "advance-online", "in-preparation", "in-press", "preprint", "submitted"]
+	term: str
+	thesis_type: str
+	title: str
+	translators: list[Entity | Person]
+	type: str
+	url: str
+	version: str | int
+	volume: int | str
+	volume_title: str
+	year: int | str
+	year_original: int | str
 
 @attrs.define()
 class CitationNexus:
 	"""one-to-one correlation with `cffconvert.lib.cff_1_2_x.citation` class Citation_1_2_x.cffobj"""
 	abstract: str | None = None
-	authors: List[Dict[str, str]] = attrs.field(factory=list)
+	authors: list[dict[str, str]] = attrs.field(factory=list)
 	cffDASHversion: str = cffDASHversionDefaultHARDCODED
 	commit: str | None = None
-	contact: List[Dict[str, str]] = attrs.field(factory=list)
+	contact: list[dict[str, str]] = attrs.field(factory=list)
 	dateDASHreleased: str | None = None
 	doi: str | None = None
-	identifiers: List[str] = attrs.field(factory=list)
-	keywords: List[str] = attrs.field(factory=list)
+	identifiers: list[str] = attrs.field(factory=list)
+	keywords: list[str] = attrs.field(factory=list)
 	license: str | None = None
 	licenseDASHurl: str | None = None
 	message: str = messageDefaultHARDCODED
-	preferredDASHcitation: str | None = None
-	# TODO `cffconvert` doesn't convert this field yet either
-	references: List[Dict] = attrs.field(factory=list)
+	preferredDASHcitation: ReferenceDictionary | None = None
+	# TODO `cffconvert` also doesn't convert references yet
+	references: list[ReferenceDictionary] = attrs.field(factory=list)
 	repository: str | None = None
 	repositoryDASHartifact: str | None = None
 	repositoryDASHcode: str | None = None
@@ -88,8 +202,8 @@ class CitationNexus:
 	url: str | None = None
 	version: str | None = None
 
-		# NOTE the names of the existing parameters for `__setattr__` are fixed
-	def __setattr__(self, name: str, value: Any, warn: Optional[bool] = True) -> None:
+	# NOTE the names of the existing parameters for `__setattr__` are fixed
+	def __setattr__(self, name: str, value: Any, warn: bool | None = True) -> None:
 		"""Prevent modification of protected fields."""
 		if name in CitationNexusFieldsProtected:
 			if warn:
@@ -115,7 +229,7 @@ class CitationNexus:
 		"""
 		match prophet:
 			case "Citation":
-				fieldsSSOT = {"abstract", "cffDASHversion", "doi", "message", "preferredDASHcitation", "type"}
+				fieldsSSOT: set[str] = {"abstract", "cffDASHversion", "doi", "message", "preferredDASHcitation", "type"}
 			case "GitHub":
 				fieldsSSOT = {"commit", "dateDASHreleased", "identifiers", "repositoryDASHcode"}
 			case "PyPA":

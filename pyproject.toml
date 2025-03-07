@@ -10,6 +10,7 @@ classifiers = [
     "Framework :: Pytest",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
+    "Intended Audience :: Information Technology",
     "Natural Language :: English",
     "Operating System :: OS Independent",
     "Programming Language :: Python",
@@ -21,6 +22,8 @@ classifiers = [
     "Topic :: Scientific/Engineering",
     "Topic :: Software Development :: Documentation",
     "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Text Processing :: Markup",
+    "Topic :: Utilities",
     "Typing :: Typed",]
 dependencies = [
     "attrs",
@@ -40,7 +43,11 @@ keywords = [
     "doi",
     "github",
     "metadata",
+    "publishing",
+    "references",
     "research-software",
+    "scholarly-communication",
+    "software-citation",
     "zenodo",]
 license = { 'text' = "CC-BY-NC-4.0" }
 name = "updateCitation"

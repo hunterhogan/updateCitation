@@ -9,7 +9,7 @@ from tests.conftest import (
 	standardizedEqualTo,
 )
 
-def test_addGitHubSettings_preservesGitUserEmail(settingsPackageTesting):
+def test_addGitHubSettings_preservesGitUserEmail(settingsPackageTesting: SettingsPackage) -> None:
 	emailBefore = settingsPackageTesting.gitUserEmail
 	updatedPackage = addGitHubSettings(settingsPackageTesting)
 	assert updatedPackage.gitUserEmail == emailBefore, (
@@ -17,12 +17,11 @@ def test_addGitHubSettings_preservesGitUserEmail(settingsPackageTesting):
 		f"but got {updatedPackage.gitUserEmail}"
 	)
 
-def test_getGitHubRelease_noRepository(nexusCitationTesting, settingsPackageTesting):
+def test_getGitHubRelease_noRepository(nexusCitationTesting: CitationNexus, settingsPackageTesting: SettingsPackage) -> None:
 	nexusCitationTesting.repository = None
-	dictionaryOutcome = getGitHubRelease(nexusCitationTesting, settingsPackageTesting)
-	assert dictionaryOutcome == {}, "Expected empty dictionary when repository is None"
+	standardizedEqualTo(None, getGitHubRelease, nexusCitationTesting, settingsPackageTesting)
 
-def test_addGitHubRelease_hypotheticalVersion(nexusCitationTesting, settingsPackageTesting):
+def test_addGitHubRelease_hypotheticalVersion(nexusCitationTesting: CitationNexus, settingsPackageTesting: SettingsPackage) -> None:
 	nexusCitationTesting.repository = "dummyRepo"
 	nexusCitationTesting.version = "9.9.9"
 	updatedCitation = addGitHubRelease(nexusCitationTesting, settingsPackageTesting)

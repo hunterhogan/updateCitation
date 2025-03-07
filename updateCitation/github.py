@@ -1,5 +1,7 @@
 from contextlib import contextmanager
-from typing import Any, Generator, Optional
+from typing import Any
+
+from collections.abc import Generator
 from updateCitation import (
 	CitationNexus,
 	compareVersions,
@@ -16,7 +18,7 @@ import pathlib
 import warnings
 
 @contextmanager
-def GithubClient(tokenAsStr: Optional[str]) -> Generator[github.Github, Any, None]:
+def GithubClient(tokenAsStr: str | None) -> Generator[github.Github, Any, None]:
 	"""Creates a GitHub client with authentication if a token is available.
 
 	Parameters:
@@ -93,7 +95,7 @@ def gittyUpGitAmendGitHub(truth: SettingsPackage, nexusCitation: CitationNexus, 
 	if commitResult.returncode == 0:
 		subprocess.run(["git", "push", "origin", "HEAD"])
 
-def getGitHubRelease(nexusCitation: CitationNexus, truth: SettingsPackage):
+def getGitHubRelease(nexusCitation: CitationNexus, truth: SettingsPackage) -> dict[str, Any] | None:
 	"""Retrieves the latest release information from a GitHub repository.
 		Parameters:
 			nexusCitation: A CitationNexus object containing citation metadata, including the repository URL.
@@ -103,7 +105,7 @@ def getGitHubRelease(nexusCitation: CitationNexus, truth: SettingsPackage):
 			NEVER: `Exception` is caught and converted to a warning. (So, don't filter all warnings, you know?)
 		"""
 	if not nexusCitation.repository:
-		return {}
+		return None
 
 	try:
 		# NOTE latestRelease.tag_name == nexusCitation.version
@@ -147,7 +149,7 @@ def getGitHubRelease(nexusCitation: CitationNexus, truth: SettingsPackage):
 
 	except Exception as ERRORmessage:
 		warnings.warn(f"Failed to get GitHub release information. {ERRORmessage}", UserWarning)
-		return {}
+		return None
 
 def addGitHubRelease(nexusCitation: CitationNexus, truth: SettingsPackage) -> CitationNexus:
 	"""Adds GitHub release information to a CitationNexus object.
@@ -159,21 +161,22 @@ def addGitHubRelease(nexusCitation: CitationNexus, truth: SettingsPackage) -> Ci
 
 	gitHubReleaseData = getGitHubRelease(nexusCitation, truth)
 
-	commitSherpa = gitHubReleaseData.get("commit")
-	if commitSherpa:
-		nexusCitation.commit = commitSherpa
+	if gitHubReleaseData:
+		commitSherpa = gitHubReleaseData.get("commit")
+		if commitSherpa:
+			nexusCitation.commit = commitSherpa
 
-	dateDASHreleasedSherpa = gitHubReleaseData.get("dateDASHreleased")
-	if dateDASHreleasedSherpa:
-		nexusCitation.dateDASHreleased = dateDASHreleasedSherpa
+		dateDASHreleasedSherpa = gitHubReleaseData.get("dateDASHreleased")
+		if dateDASHreleasedSherpa:
+			nexusCitation.dateDASHreleased = dateDASHreleasedSherpa
 
-	identifiersSherpa = gitHubReleaseData.get("identifiers")
-	if identifiersSherpa:
-		nexusCitation.identifiers = identifiersSherpa
+		identifiersSherpa = gitHubReleaseData.get("identifiers")
+		if identifiersSherpa:
+			nexusCitation.identifiers = identifiersSherpa
 
-	repositoryDASHcodeSherpa = gitHubReleaseData.get("repositoryDASHcode")
-	if repositoryDASHcodeSherpa:
-		nexusCitation.repositoryDASHcode = repositoryDASHcodeSherpa
+		repositoryDASHcodeSherpa = gitHubReleaseData.get("repositoryDASHcode")
+		if repositoryDASHcodeSherpa:
+			nexusCitation.repositoryDASHcode = repositoryDASHcodeSherpa
 
 	# nexusCitation.setInStone("GitHub")
 	return nexusCitation

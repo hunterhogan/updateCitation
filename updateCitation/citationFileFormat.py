@@ -1,12 +1,12 @@
 from cffconvert.cli.create_citation import create_citation
-from typing import Any, Dict, List
+from typing import Any
 from updateCitation import CitationNexus
 import attrs
 import cffconvert
 import pathlib
 import ruamel.yaml
 
-def getCitation(pathFilenameCitationSSOT: pathlib.Path) -> Dict[str, Any]:
+def getCitation(pathFilenameCitationSSOT: pathlib.Path) -> dict[str, Any]:
 	# Try to converge with cffconvert when possible.
 	citationObject: cffconvert.Citation = create_citation(infile=pathFilenameCitationSSOT, url=None)
 	# `._parse()` is a yaml loader
@@ -29,11 +29,11 @@ def addCitation(nexusCitation: CitationNexus, pathFilenameCitationSSOT: pathlib.
 
 def writeCitation(nexusCitation: CitationNexus, pathFilenameCitationSSOT: pathlib.Path, pathFilenameCitationDOTcffRepo: pathlib.Path) -> bool:
 	# NOTE embarrassingly hacky process to follow
-	parameterIndent= 2
-	parameterLineWidth = 60
+	parameterIndent: int = 2
+	parameterLineWidth: int = 60
 	yamlWorkhorse = ruamel.yaml.YAML()
 
-	def srsly(Z0Z_field, Z0Z_value):
+	def srsly(Z0Z_field: Any, Z0Z_value: Any) -> bool:
 		if Z0Z_value: # empty lists
 			return True
 		else:

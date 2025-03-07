@@ -73,4 +73,4 @@ Contributions are welcome! Please feel free to submit pull requests.
 
 This project is licensed under CC-BY-NC-4.0. See the LICENSE file for details.
 
-[![CC-BY-NC-4.0](https://github.com/hunterhogan/updateCitation/blob/main/CC-BY-NC-4.0.svg)](https://creativecommons.org/licenses/by-nc/4.0/)
+[![CC-BY-NC-4.0](https://github.com/hunterhogan/updateCitation/blob/main/CC-BY-NC-4.0.png)](https://creativecommons.org/licenses/by-nc/4.0/)
