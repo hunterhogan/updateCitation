@@ -24,7 +24,7 @@ def addCitation(nexusCitation: CitationNexus, pathFilenameCitationSSOT: pathlib.
 		if cffobjValue: # An empty list will be False
 			nexusCitation.__setattr__(nexusCitationField.name, cffobjValue, warn=False)
 
-	# nexusCitation.setInStone("Citation")
+	nexusCitation.setInStone("Citation")
 	return nexusCitation
 
 def writeCitation(nexusCitation: CitationNexus, pathFilenameCitationSSOT: pathlib.Path, pathFilenameCitationDOTcffRepo: pathlib.Path) -> bool:

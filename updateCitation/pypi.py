@@ -16,5 +16,5 @@ def addPyPIrelease(nexusCitation: CitationNexus) -> CitationNexus:
 	pypiReleaseData = getPyPIrelease(nexusCitation)
 	nexusCitation.repositoryDASHartifact = pypiReleaseData.get("repositoryDASHartifact")
 
-	# nexusCitation.setInStone("PyPI")
+	nexusCitation.setInStone("PyPI")
 	return nexusCitation

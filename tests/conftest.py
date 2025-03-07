@@ -20,7 +20,7 @@ from updateCitation.github import getGitHubRelease
 from updateCitation.pypa import getPyPAMetadata
 from updateCitation.pypi import getPyPIrelease
 from updateCitation.pyprojectDOTtoml import get_pyprojectDOTtoml
-from updateCitation.variables import CitationNexusFieldsRequired, messageDefaultHARDCODED, cffDASHversionDefaultHARDCODED
+from updateCitation.variables import CitationNexusFieldsRequired, messageDefaultHARDCODED, cffDASHversionDefaultHARDCODED, CitationNexusFieldsProtected
 import pytest
 import shutil
 import uuid
@@ -36,6 +36,11 @@ def setupTeardownTestSession() -> Generator[None]:
 	pathTmpRoot.mkdir(exist_ok=True)
 	yield
 	shutil.rmtree(pathTmpRoot, ignore_errors=True)
+
+@pytest.fixture(autouse=True)
+def resetCitationNexusProtectedFields() -> None:
+	"""Reset the protected fields set before each test to prevent test interference."""
+	CitationNexusFieldsProtected.clear()
 
 @pytest.fixture
 def pathTmpTesting(request: pytest.FixtureRequest) -> pathlib.Path:

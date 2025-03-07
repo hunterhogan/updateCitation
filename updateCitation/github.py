@@ -178,5 +178,5 @@ def addGitHubRelease(nexusCitation: CitationNexus, truth: SettingsPackage) -> Ci
 		if repositoryDASHcodeSherpa:
 			nexusCitation.repositoryDASHcode = repositoryDASHcodeSherpa
 
-	# nexusCitation.setInStone("GitHub")
+	nexusCitation.setInStone("GitHub")
 	return nexusCitation
