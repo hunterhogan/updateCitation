@@ -24,7 +24,11 @@ keywords:
 - doi
 - github
 - metadata
+- publishing
+- references
 - research-software
+- scholarly-communication
+- software-citation
 - zenodo
 license: CC-BY-NC-4.0
 message: Cite this software with the metadata in this file.
