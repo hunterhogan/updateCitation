@@ -81,7 +81,7 @@ addopts = ["--color=yes", "-n 6"]
 testpaths = ["tests"]
 
 [tool.setuptools]
-package-data = { "" = ["py.typed"] }
+package-data = { "*" = ["py.typed"] }
 packages = { find = {} }
 
 [tool.updateCitation]
