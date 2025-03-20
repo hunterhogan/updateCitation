@@ -1,13 +1,13 @@
 import os
 import pytest
-from tests.conftest import (
+from updateCitation import (
 	addGitHubRelease,
 	addGitHubSettings,
 	CitationNexus,
-	getGitHubRelease,
 	SettingsPackage,
-	standardizedEqualTo,
 )
+from tests.conftest import standardizedEqualTo
+from updateCitation.github import getGitHubRelease
 
 def test_addGitHubSettings_preservesGitUserEmail(settingsPackageTesting: SettingsPackage) -> None:
 	emailBefore = settingsPackageTesting.gitUserEmail

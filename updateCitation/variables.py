@@ -214,9 +214,6 @@ class CitationNexus:
 			return
 		super().__setattr__(name, value)
 
-	# TODO re-enable this method in all of the modules
-	# It works too well: pytest "freezes" fields from other tests and then those tests fail
-	# Learn how to prevent the tests from interfering with each other
 	def setInStone(self, prophet: str) -> None:
 		"""
 		Confirm that required fields are not None, and freeze fields specified by the context.

@@ -1,6 +1,6 @@
 from pathlib import Path
-import pytest
-from tests.conftest import standardizedEqualTo, cffDASHversionDefaultHARDCODED, messageDefaultHARDCODED, CitationNexus, SettingsPackage
+from updateCitation import CitationNexus, SettingsPackage
+from updateCitation.variables import cffDASHversionDefaultHARDCODED, messageDefaultHARDCODED
 
 def test_CitationNexus_requiredFields(nexusCitationTesting: CitationNexus) -> None:
 	assert nexusCitationTesting.cffDASHversion == cffDASHversionDefaultHARDCODED

@@ -8,7 +8,7 @@ import ruamel.yaml
 
 def getCitation(pathFilenameCitationSSOT: pathlib.Path) -> dict[str, Any]:
 	# Try to converge with cffconvert when possible.
-	citationObject: cffconvert.Citation = create_citation(infile=pathFilenameCitationSSOT, url=None)
+	citationObject: cffconvert.Citation = create_citation(infile=str(pathFilenameCitationSSOT), url=None)
 	# `._parse()` is a yaml loader
 	return citationObject._parse()
 
@@ -53,7 +53,7 @@ def writeCitation(nexusCitation: CitationNexus, pathFilenameCitationSSOT: pathli
 
 	writeStream(pathFilenameForValidation)
 
-	citationObject: cffconvert.Citation = create_citation(infile=pathFilenameForValidation, url=None)
+	citationObject: cffconvert.Citation = create_citation(infile=str(pathFilenameForValidation), url=None)
 
 	pathFilenameForValidation.unlink()
 

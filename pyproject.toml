@@ -51,11 +51,16 @@ keywords = [
     "zenodo",]
 license = { 'text' = "CC-BY-NC-4.0" }
 name = "updateCitation"
-optional-dependencies = { testing = ["pytest-cov", "pytest-xdist", "pytest"] }
+optional-dependencies = { testing = [
+    "mypy",
+    "pytest",
+    "pytest-cov",
+    "pytest-xdist",
+	"pyupgrade",] }
 readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.10"
 urls = { Donate = "https://www.patreon.com/integrated", Homepage = "https://github.com/hunterhogan/updateCitation", Repository = "https://github.com/hunterhogan/updateCitation.git" }
-version = "0.0.8"
+version = "0.0.9"
 
 [tool.coverage]
 report = { exclude_lines = [
@@ -71,12 +76,13 @@ run = { branch = true, concurrency = [
 xml = { output = "tests/coverage/coverage.xml" }
 
 [tool.pytest.ini_options]
-log_auto_indent = ["On"]
+log_auto_indent = true
 addopts = ["--color=yes", "-n 6"]
 testpaths = ["tests"]
 
-[tool.setuptools.packages.find]
-where = ["."]
+[tool.setuptools]
+package-data = { "" = ["py.typed"] }
+packages = { find = {} }
 
 [tool.updateCitation]
 filenameCitationDOTcff = 'CITATION.cff'

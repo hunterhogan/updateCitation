@@ -1,7 +1,7 @@
-from contextlib import contextmanager
-from typing import Any
-
 from collections.abc import Generator
+from contextlib import contextmanager
+from pathlib import Path
+from typing import Any
 from updateCitation import (
 	CitationNexus,
 	compareVersions,
@@ -14,7 +14,6 @@ import datetime
 import github
 import github.Repository
 import os
-import pathlib
 import warnings
 
 @contextmanager
@@ -76,7 +75,7 @@ def GitHubRepository(nexusCitation: CitationNexus, truth: SettingsPackage) -> Ge
 		githubRepository = githubClient.get_repo(full_name_or_id)
 		yield githubRepository
 
-def gittyUpGitAmendGitHub(truth: SettingsPackage, nexusCitation: CitationNexus, pathFilenameCitationSSOT: pathlib.Path, pathFilenameCitationDOTcffRepository: pathlib.Path):
+def gittyUpGitAmendGitHub(truth: SettingsPackage, nexusCitation: CitationNexus, pathFilenameCitationSSOT: Path, pathFilenameCitationDOTcffRepository: Path):
 	environmentIsGitHubAction = bool(os.environ.get("GITHUB_ACTIONS") and os.environ.get("GITHUB_WORKFLOW"))
 	if not environmentIsGitHubAction or not nexusCitation.repository:
 		return

@@ -1,5 +1,7 @@
 import pytest
-from tests.conftest import standardizedEqualTo, getPyPAMetadata, addPyPAMetadata, CitationNexus
+from tests.conftest import standardizedEqualTo
+from updateCitation import addPyPAMetadata, CitationNexus
+from updateCitation.pypa import getPyPAMetadata
 
 def test_getPyPAMetadata_missingName() -> None:
 	dictionaryPackageData = {

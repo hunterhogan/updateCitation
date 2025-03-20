@@ -1,3 +1,5 @@
+from os import PathLike
+from pathlib import Path
 from typing import Any
 from updateCitation import (
 	add_pyprojectDOTtoml,
@@ -13,11 +15,9 @@ from updateCitation import (
 	SettingsPackage,
 	writeCitation,
 )
-import os
-import pathlib
 
-def here(pathFilename_pyprojectDOTtoml: str | os.PathLike[Any] | None = None) -> None:
-	pathFilenameSettingsSSOT = pathlib.Path(pathFilename_pyprojectDOTtoml) if pathFilename_pyprojectDOTtoml else pathlib.Path.cwd() / filename_pyprojectDOTtomlDEFAULT
+def here(pathFilename_pyprojectDOTtoml: str | PathLike[Any] | None = None) -> None:
+	pathFilenameSettingsSSOT = Path(pathFilename_pyprojectDOTtoml) if pathFilename_pyprojectDOTtoml else Path.cwd() / filename_pyprojectDOTtomlDEFAULT
 	truth: SettingsPackage = getSettingsPackage(pathFilenameSettingsSSOT)
 
 	nexusCitation = CitationNexus()
@@ -29,9 +29,9 @@ def here(pathFilename_pyprojectDOTtoml: str | os.PathLike[Any] | None = None) ->
 		# especially for a required field
 		raise ValueError("Package name is required.")
 
-	if pathlib.Path(truth.pathFilenameCitationSSOT).exists():
+	if Path(truth.pathFilenameCitationSSOT).exists():
 		pathFilenameCitationSSOT = truth.pathFilenameCitationSSOT
-	elif pathlib.Path(truth.pathFilenameCitationDOTcffRepository).exists():
+	elif Path(truth.pathFilenameCitationDOTcffRepository).exists():
 		pathFilenameCitationSSOT = truth.pathFilenameCitationDOTcffRepository
 	else:
 		truth.pathFilenameCitationSSOT.parent.mkdir(parents=True, exist_ok=True)

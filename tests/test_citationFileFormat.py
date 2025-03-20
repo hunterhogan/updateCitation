@@ -1,6 +1,7 @@
 import pathlib
 import pytest
-from tests.conftest import *
+from tests.conftest import standardizedEqualTo
+from updateCitation.citationFileFormat import addCitation
 from updateCitation.variables import CitationNexus
 
 def test_addCitation(nexusCitationTesting: CitationNexus, citationAlphaDOTcff: pathlib.Path):

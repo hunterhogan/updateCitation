@@ -1,32 +1,14 @@
 """SSOT for Pytest."""
-from typing import Any
-
 from collections.abc import Generator, Callable
-import pathlib
-from updateCitation import (
-	add_pyprojectDOTtoml,
-	addCitation,
-	addGitHubRelease,
-	addGitHubSettings,
-	addPyPAMetadata,
-	addPyPIrelease,
-	CitationNexus,
-	filename_pyprojectDOTtomlDEFAULT,
-	flowControl,
-	getSettingsPackage,
-	SettingsPackage,
-)
-from updateCitation.github import getGitHubRelease
-from updateCitation.pypa import getPyPAMetadata
-from updateCitation.pypi import getPyPIrelease
-from updateCitation.pyprojectDOTtoml import get_pyprojectDOTtoml
-from updateCitation.variables import CitationNexusFieldsRequired, messageDefaultHARDCODED, cffDASHversionDefaultHARDCODED, CitationNexusFieldsProtected
+from typing import Any
+from updateCitation import CitationNexus, CitationNexusFieldsProtected, filename_pyprojectDOTtomlDEFAULT, SettingsPackage
+from pathlib import Path
 import pytest
 import shutil
 import uuid
 
 # SSOT for test data paths and filenames
-pathDataSamples = pathlib.Path("tests/dataSamples")
+pathDataSamples = Path("tests/dataSamples")
 pathFilenameCitationAlphaDOTcff = pathDataSamples / "citationAlpha.cff"
 pathTmpRoot = pathDataSamples / "tmp"
 
@@ -43,14 +25,14 @@ def resetCitationNexusProtectedFields() -> None:
 	CitationNexusFieldsProtected.clear()
 
 @pytest.fixture
-def pathTmpTesting(request: pytest.FixtureRequest) -> pathlib.Path:
+def pathTmpTesting(request: pytest.FixtureRequest) -> Path:
 	"""'path' means directory or folder, not file."""
 	pathTmp = pathTmpRoot / uuid.uuid4().hex
 	pathTmp.mkdir(parents=True, exist_ok=False)
 	return pathTmp
 
 @pytest.fixture
-def pathFilenameTmpTesting(request: pytest.FixtureRequest) -> pathlib.Path:
+def pathFilenameTmpTesting(request: pytest.FixtureRequest) -> Path:
 	"""'filename' means file; 'pathFilename' means the full path and filename."""
 	try:
 		extension = request.param
@@ -58,7 +40,7 @@ def pathFilenameTmpTesting(request: pytest.FixtureRequest) -> pathlib.Path:
 		extension = ".txt"
 
 	uuidString = uuid.uuid4().hex
-	pathFilenameTmp = pathlib.Path(pathTmpRoot, uuidString[0:-8], uuidString[-8:None] + extension)
+	pathFilenameTmp = Path(pathTmpRoot, uuidString[0:-8], uuidString[-8:None] + extension)
 	pathFilenameTmp.parent.mkdir(parents=True, exist_ok=False)
 	return pathFilenameTmp
 
@@ -66,14 +48,14 @@ def pathFilenameTmpTesting(request: pytest.FixtureRequest) -> pathlib.Path:
 def nexusCitationTesting(request: pytest.FixtureRequest) -> CitationNexus:
 	"""Return a CitationNexus object with the specified attributes."""
 	try:
-		attributes = request.param
+		attributes: dict[str, Any] = request.param
 	except AttributeError:
 		attributes = {}
 
 	return CitationNexus(**attributes)
 
 @pytest.fixture
-def citationAlphaDOTcff() -> pathlib.Path:
+def citationAlphaDOTcff() -> Path:
 	return pathFilenameCitationAlphaDOTcff
 
 """
