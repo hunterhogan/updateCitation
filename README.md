@@ -69,8 +69,18 @@ For detailed documentation, examples, and best practices, visit our [GitHub repo
 
 Contributions are welcome! Please feel free to submit pull requests.
 
-## License
+## My recovery
 
-This project is licensed under CC-BY-NC-4.0. See the LICENSE file for details.
+[![Static Badge](https://img.shields.io/badge/2011_August-Homeless_since-blue?style=flat)](https://HunterThinks.com/support)
+[![YouTube Channel Subscribers](https://img.shields.io/youtube/channel/subscribers/UC3Gx7kz61009NbhpRtPP7tw)](https://www.youtube.com/@HunterHogan)
+
+## How to code
+
+Coding One Step at a Time:
+
+0. WRITE CODE.
+1. Don't write stupid code that's hard to revise.
+2. Write good code.
+3. When revising, write better code.
 
 [![CC-BY-NC-4.0](https://github.com/hunterhogan/updateCitation/blob/main/CC-BY-NC-4.0.svg)](https://creativecommons.org/licenses/by-nc/4.0/)
