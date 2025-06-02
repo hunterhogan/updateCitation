@@ -25,7 +25,7 @@ def add_pyprojectDOTtoml(nexusCitation: CitationNexus, truth: SettingsPackage) -
 			cffPerson['email'] = person['email']
 		return cffPerson
 
-	packageName: str = truth.tomlPackageData.get("name", None)
+	packageName = truth.tomlPackageData.get("name", None)
 	nexusCitation.title = packageName
 
 	for keyNexusCitation, key_pyprojectDOTtoml in mapNexusCitation2pyprojectDOTtoml:

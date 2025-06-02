@@ -1,5 +1,5 @@
 from packaging.metadata import Metadata as PyPAMetadata
-from typing import Any
+from typing import Any, cast
 from updateCitation import CitationNexus, Z0Z_mappingFieldsURLFromPyPAMetadataToCFF
 import packaging
 import packaging.metadata
@@ -47,9 +47,9 @@ def getPyPAMetadata(packageData: dict[str, Any]) -> PyPAMetadata:
 		license_expression=dictionaryPackageDataLicense.get("text", ""),
 		metadata_version="2.4",
 		# NOTE packaging.metadata.InvalidMetadata: 'name' is a required field
-		name=packaging.utils.canonicalize_name(packageData.get("name", None), validate=True),
+		name=cast(str, packaging.utils.canonicalize_name(packageData.get("name", None), validate=True)), # pyright: ignore[reportArgumentType]
 		project_urls=dictionaryProjectURLs,
-		version=packageData.get("version", None),
+		version=cast(str, packageData.get("version", None)),  # pyright: ignore[reportArgumentType]
 	)
 
 	metadata = PyPAMetadata().from_raw(metadataRaw)
@@ -58,9 +58,12 @@ def getPyPAMetadata(packageData: dict[str, Any]) -> PyPAMetadata:
 def addPyPAMetadata(nexusCitation: CitationNexus, tomlPackageData: dict[str, Any], projectURLTargets: set[str]) -> CitationNexus:
 	pypaMetadata: PyPAMetadata = getPyPAMetadata(tomlPackageData)
 
-	if pypaMetadata.version: nexusCitation.version = str(pypaMetadata.version)
-	if pypaMetadata.keywords: nexusCitation.keywords = pypaMetadata.keywords
-	if pypaMetadata.license_expression: nexusCitation.license = pypaMetadata.license_expression
+	if pypaMetadata.version:
+		nexusCitation.version = str(pypaMetadata.version)
+	if pypaMetadata.keywords:
+		nexusCitation.keywords = pypaMetadata.keywords
+	if pypaMetadata.license_expression:
+		nexusCitation.license = pypaMetadata.license_expression
 
 	if pypaMetadata.project_urls:
 		for urlTarget in projectURLTargets:

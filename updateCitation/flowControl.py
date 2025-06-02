@@ -2,18 +2,9 @@ from os import PathLike
 from pathlib import Path
 from typing import Any
 from updateCitation import (
-	add_pyprojectDOTtoml,
-	addCitation,
-	addGitHubRelease,
-	addGitHubSettings,
-	addPyPAMetadata,
-	addPyPIrelease,
-	CitationNexus,
-	filename_pyprojectDOTtomlDEFAULT,
-	gittyUpGitAmendGitHub,
-	getSettingsPackage,
-	SettingsPackage,
-	writeCitation,
+	add_pyprojectDOTtoml, addCitation, addGitHubRelease, addGitHubSettings, addPyPAMetadata,
+	addPyPIrelease, CitationNexus, filename_pyprojectDOTtomlDEFAULT, getSettingsPackage,
+	gittyUpGitAmendGitHub, SettingsPackage, writeCitation,
 )
 
 def here(pathFilename_pyprojectDOTtoml: str | PathLike[Any] | None = None) -> None:

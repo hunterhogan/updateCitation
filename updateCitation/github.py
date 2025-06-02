@@ -3,12 +3,7 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 from updateCitation import (
-	CitationNexus,
-	compareVersions,
-	formatDateCFF,
-	FREAKOUT,
-	gitUserEmailFALLBACK,
-	SettingsPackage,
+	CitationNexus, compareVersions, formatDateCFF, FREAKOUT, gitUserEmailFALLBACK, SettingsPackage,
 )
 import datetime
 import github
@@ -81,16 +76,28 @@ def gittyUpGitAmendGitHub(truth: SettingsPackage, nexusCitation: CitationNexus, 
 		return
 
 	import subprocess
+
 	# TODO I don't like that this flow assumes `git` is installed and available in the environment.
 	# Can I use `GitHubRepository` instead of `subprocess`?
 
 	subprocess.run(["git", "config", "user.name", truth.gitUserName])
 	subprocess.run(["git", "config", "user.email", truth.gitUserEmail])
+	# Get the previous commit message
+	previousCommitResult = subprocess.run(["git", "log", "-1", "--pretty=format:%s"], capture_output=True, text=True)
+	if previousCommitResult.returncode == 0 and previousCommitResult.stdout.strip():
+		previousCommitMessage = previousCommitResult.stdout.strip()
+		# Only append if the previous message doesn't already contain citation update text
+		if "Update CITATION.cff" not in previousCommitMessage:
+			combinedCommitMessage = f"{previousCommitMessage} + Update CITATION.cff [skip ci]"
+		else:
+			combinedCommitMessage = truth.gitCommitMessage
+	else:
+		combinedCommitMessage = truth.gitCommitMessage
 
 	# Stage the citation files
 	subprocess.run(["git", "add", str(pathFilenameCitationSSOT), str(pathFilenameCitationDOTcffRepository)])
 
-	commitResult = subprocess.run(["git", "commit", "-m", truth.gitCommitMessage])
+	commitResult = subprocess.run(["git", "commit", "-m", combinedCommitMessage])
 	if commitResult.returncode == 0:
 		subprocess.run(["git", "push", "origin", "HEAD"])
 
@@ -118,9 +125,9 @@ def getGitHubRelease(nexusCitation: CitationNexus, truth: SettingsPackage) -> di
 			commitLatestRelease = tagObject.sha if tagObject.type == 'tag' else tagObject.sha
 			commitLatestCommit = githubRepository.get_commit(githubRepository.default_branch).sha
 
-		urlRelease = latestRelease.html_url
+		urlRelease: str = latestRelease.html_url
 
-		dictionaryRelease = {
+		dictionaryRelease: dict[str, Any] = {
 			"commit": commitLatestRelease,
 			"dateDASHreleased": latestRelease.published_at.strftime(formatDateCFF),
 			"identifiers": [{
@@ -132,7 +139,7 @@ def getGitHubRelease(nexusCitation: CitationNexus, truth: SettingsPackage) -> di
 		}
 
 		if compareVersions(latestRelease.tag_name, nexusCitation.version) == -1:
-			dictionaryReleaseHypothetical = {
+			dictionaryReleaseHypothetical: dict[str, Any] = {
 				"commit": commitLatestCommit,
 				"dateDASHreleased": datetime.datetime.now().strftime(formatDateCFF),
 				"identifiers": [{

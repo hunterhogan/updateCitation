@@ -1,8 +1,10 @@
 """SSOT for Pytest."""
-from collections.abc import Generator, Callable
-from typing import Any
-from updateCitation import CitationNexus, CitationNexusFieldsProtected, filename_pyprojectDOTtomlDEFAULT, SettingsPackage
+from collections.abc import Callable, Generator
 from pathlib import Path
+from typing import Any
+from updateCitation import (
+	CitationNexus, CitationNexusFieldsProtected, filename_pyprojectDOTtomlDEFAULT, SettingsPackage,
+)
 import pytest
 import shutil
 import uuid
@@ -86,7 +88,7 @@ def uniformTestFailureMessage(expected: Any, actual: Any, functionName: str, *ar
 
 def standardizedEqualTo(expected: Any, functionTarget: Callable[..., Any], *arguments: Any, **keywordArguments: Any) -> None:
 	"""Template for most tests to compare the actual outcome with the expected outcome, including expected errors."""
-	if type(expected) == type[Exception]:
+	if type(expected) == type[Exception]:  # noqa: E721
 		messageExpected = expected.__name__
 	else:
 		messageExpected = expected

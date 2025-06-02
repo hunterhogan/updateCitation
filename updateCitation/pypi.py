@@ -1,5 +1,5 @@
-from updateCitation import CitationNexus
 from typing import Any
+from updateCitation import CitationNexus
 import packaging.utils
 
 def getPyPIrelease(nexusCitation: CitationNexus) -> dict[str, Any]:

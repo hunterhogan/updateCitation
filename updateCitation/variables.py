@@ -1,4 +1,4 @@
-from typing import Any, Literal, TypedDict
+from typing import Any, cast, Literal, TypedDict
 import attrs
 import inspect
 import pathlib
@@ -55,7 +55,7 @@ class SettingsPackage:
 	gitUserEmail: str = ""
 	gitAmendFromGitHubAction: bool = True
 	# gitPushFromOtherEnvironments_why_where_NotImplemented: bool = False
-	tomlPackageData: dict[str, Any] = attrs.field(factory=dict)
+	tomlPackageData: dict[str, Any] = cast(dict[str, Any], attrs.field(factory=dict))
 
 	GITHUB_TOKEN: str | None = None
 
@@ -180,20 +180,20 @@ class ReferenceDictionary(TypedDict, total=False):
 class CitationNexus:
 	"""one-to-one correlation with `cffconvert.lib.cff_1_2_x.citation` class Citation_1_2_x.cffobj"""
 	abstract: str | None = None
-	authors: list[dict[str, str]] = attrs.field(factory=list)
+	authors: list[dict[str, str]] = cast(list[dict[str, str]], attrs.field(factory=list))
 	cffDASHversion: str = cffDASHversionDefaultHARDCODED
 	commit: str | None = None
-	contact: list[dict[str, str]] = attrs.field(factory=list)
+	contact: list[dict[str, str]] = cast(list[dict[str, str]], attrs.field(factory=list))
 	dateDASHreleased: str | None = None
 	doi: str | None = None
-	identifiers: list[str] = attrs.field(factory=list)
-	keywords: list[str] = attrs.field(factory=list)
+	identifiers: list[str] = cast(list[str], attrs.field(factory=list))
+	keywords: list[str] = cast(list[str], attrs.field(factory=list))
 	license: str | None = None
 	licenseDASHurl: str | None = None
 	message: str = messageDefaultHARDCODED
 	preferredDASHcitation: ReferenceDictionary | None = None
 	# TODO `cffconvert` also doesn't convert references yet
-	references: list[ReferenceDictionary] = attrs.field(factory=list)
+	references: list[ReferenceDictionary] = cast(list[ReferenceDictionary], attrs.field(factory=list))
 	repository: str | None = None
 	repositoryDASHartifact: str | None = None
 	repositoryDASHcode: str | None = None
@@ -208,7 +208,9 @@ class CitationNexus:
 		if name in CitationNexusFieldsProtected:
 			if warn:
 				# Get the line of code that called this method
-				context = inspect.stack()[1].code_context[0].strip() # type: ignore
+				stackFrame = inspect.stack()[1]
+				codeContext = stackFrame.code_context[0] if stackFrame.code_context is not None else ""
+				context = codeContext.strip()
 				# TODO Improve this warning message and the context information.
 				warnings.warn(f"A process tried to change the field '{name}' after the authoritative source set the field's value.\n{context=}", UserWarning)
 			return

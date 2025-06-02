@@ -31,8 +31,8 @@ def writeCitation(nexusCitation: CitationNexus, pathFilenameCitationSSOT: pathli
 	# NOTE embarrassingly hacky process to follow
 
 	# TODO format the output
-	parameterIndent: int = 2
-	parameterLineWidth: int = 60
+	# parameterIndent: int = 2
+	# parameterLineWidth: int = 60
 
 	# use `ruamel.yaml` because using the same packages and identifiers as `cffconvert` and other CFF ecosystem tools has benefits
 	yamlWorkhorse = ruamel.yaml.YAML()
