@@ -1,5 +1,3 @@
-# See https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python#publishing-to-package-registries
-
 name: Make PyPI Release
 
 on:
@@ -22,34 +20,50 @@ jobs:
       url: ${{ steps.check.outputs.url }}
     steps:
       - uses: actions/checkout@v4
+      - name: Get versionPackage and namePackage from Python Tests workflow
+        id: use-project-info
+        run: |
+          versionPackage=$(gh api repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}/jobs | jq -r '.jobs[] | select(.name == "get-project-info") | .outputs.versionPackage')
+          echo "versionPackage=$versionPackage" >> "$GITHUB_OUTPUT"
+          namePackage=$(gh api repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}/jobs | jq -r '.jobs[] | select(.name == "get-project-info") | .outputs.namePackage')
+          echo "namePackage=$namePackage" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ github.token }}
+
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.x"
-      - run: pip install requests toml
-      - name: Check PyPI version
+          python-version: '>=3.11'
+      - name: Cache, pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: pip-a-dee-doo-dah
+          restore-keys: pip-a-dee-doo-dah
+
+      - name: Check if version exists on PyPI
         id: check
         run: |
           python -c "
-          import os, requests, toml
-          dictionaryProject = toml.load('pyproject.toml')['project']
-          version = dictionaryProject['version']
-          name = dictionaryProject['name']
-          if version not in requests.get(f'https://pypi.org/pypi/{name}/json').json().get('releases'):
-            with open(os.environ['GITHUB_OUTPUT'], 'a') as appendStream:
-              appendStream.write('should_publish=true\n')
-              appendStream.write(f'url=https://pypi.org/project/{name}/{version}\n')
-          "
+          import os, urllib.error, urllib.request
 
-  release-build:
-    needs: check-version
-    if: needs.check-version.outputs.should_publish == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.x"
-      - run: pipx run build
+          versionPackage, namePackage = os.environ['versionPackage'], os.environ['namePackage']
+          url = f'https://pypi.org/project/{namePackage}/{versionPackage}'
+
+          try:
+            urllib.request.urlopen(urllib.request.Request(url, method='HEAD'))
+          except urllib.error.HTTPError as HTTPError:
+            if HTTPError.code == 404:
+              with open(os.environ['GITHUB_OUTPUT'], 'a') as appendStream:
+                appendStream.write('should_publish=true\n')
+                appendStream.write(f'url={url}\n')
+                  "
+
+      - name: Build wheels and source dist
+        if: steps.check.outputs.should_publish == 'true'
+        run: |
+          pip install build
+          python -m build
+
       - name: Upload distributions
         uses: actions/upload-artifact@v4
         with:
@@ -57,7 +71,7 @@ jobs:
           path: dist/
 
   pypi-publish:
-    needs: [check-version, release-build]
+    needs: [check-version]
     if: needs.check-version.outputs.should_publish == 'true'
     runs-on: ubuntu-latest
     environment:

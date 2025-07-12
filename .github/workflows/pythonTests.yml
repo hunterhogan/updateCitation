@@ -7,10 +7,12 @@ permissions:
 
 jobs:
 
-  get-python-versions:
+  get-project-info:
     runs-on: ubuntu-latest
     outputs:
-      python-versions: ${{ steps.get-python-versions.outputs.versions }}
+      tests-python-versions: ${{ steps.get-project-info.outputs.versions }}
+      versionPackage: ${{ steps.get-project-info.outputs.versionPackage }}
+      namePackage: ${{ steps.get-project-info.outputs.namePackage }}
 
     steps:
       - uses: actions/checkout@v4
@@ -27,29 +29,36 @@ jobs:
 
       - run: pip install packaging requests
 
-      - id: get-python-versions
+      - id: get-project-info
         run: |
           python -c "
           import itertools, json, os, packaging.specifiers, packaging.version, pathlib, requests, tomllib
+
+          dictionaryProject = tomllib.loads(pathlib.Path('pyproject.toml').read_text())['project']
+          versionPackage = dictionaryProject['version']
+          namePackage = dictionaryProject['name']
+
           listPythonVersions = [str(max(group))
             for _key, group in itertools.groupby(
-              packaging.specifiers.SpecifierSet(tomllib.loads(pathlib.Path('pyproject.toml').read_text())['project']['requires-python']).filter(
-                packaging.version.Version(item['version'])
-            for item in requests.get(
-              'https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json'
-              ).json())
-            , lambda V: V.release[0:-1])]
+              packaging.specifiers.SpecifierSet(dictionaryProject['requires-python']).filter(
+                packaging.version.Version(manifest['version'])
+              for manifest in requests.get(
+                'https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json'
+                ).json())
+              , lambda V: V.release[0:-1])]
 
           with open(os.environ['GITHUB_OUTPUT'], 'a') as writeStream:
             writeStream.write(f'versions={json.dumps(listPythonVersions)}\n')
+            writeStream.write(f'versionPackage={versionPackage}\n')
+            writeStream.write(f'namePackage={namePackage}\n')
           "
 
   make-testbeds:
-    needs: get-python-versions
+    needs: get-project-info
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ${{ fromJson(needs.get-python-versions.outputs.python-versions) }}
+        tests-python-versions: ${{ fromJson(needs.get-project-info.outputs.tests-python-versions) }}
     steps:
       - uses: actions/checkout@v4
       - name: Cache, pip
@@ -61,8 +70,7 @@ jobs:
 
       - uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: ${{ matrix.tests-python-versions }}
 
-      - name: Install package[testing]
-        run: pip install ".[testing]"
+      - run: pip install ".[testing]"
       - run: pytest
