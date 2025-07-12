@@ -42,6 +42,9 @@ jobs:
 
       - name: Check if version exists on PyPI
         id: check
+        env:
+          versionPackage: ${{ steps.use-project-info.outputs.versionPackage }}
+          namePackage: ${{ steps.use-project-info.outputs.namePackage }}
         run: |
           python -c "
           import os, urllib.error, urllib.request
@@ -56,7 +59,7 @@ jobs:
               with open(os.environ['GITHUB_OUTPUT'], 'a') as appendStream:
                 appendStream.write('should_publish=true\n')
                 appendStream.write(f'url={url}\n')
-                  "
+          "
 
       - name: Build wheels and source dist
         if: steps.check.outputs.should_publish == 'true'
