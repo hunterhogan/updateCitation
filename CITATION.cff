@@ -1,20 +1,21 @@
-abstract: updateCitation is a Python tool that automates the maintenance of citation
-  metadata in software projects. It seamlessly integrates with Python package ecosystems
-  by extracting metadata from pyproject.toml files, synchronizing with GitHub releases,
-  and incorporating PyPI package information to generate and update CITATION.cff files.
-  This tool helps researchers and developers ensure their software is properly citeable
-  while maintaining consistent metadata across different platforms.
+abstract: updateCitation is a Python tool that automates the maintenance of 
+  citation metadata in software projects. It seamlessly integrates with Python 
+  package ecosystems by extracting metadata from pyproject.toml files, 
+  synchronizing with GitHub releases, and incorporating PyPI package information
+  to generate and update CITATION.cff files. This tool helps researchers and 
+  developers ensure their software is properly citeable while maintaining 
+  consistent metadata across different platforms.
 authors:
 - given-names: Hunter
   family-names: Hogan
   email: HunterHogan@pm.me
 cff-version: 1.2.0
-commit: f84ebab05f51f054901cfcb99b0b570636486a7e
-date-released: '2025-06-02'
+commit: 09fd53500d7e837d3e1dfc1be4ea616d1d559a6e
+date-released: '2025-07-12'
 identifiers:
 - type: url
-  value: https://github.com/hunterhogan/updateCitation/releases/tag/0.0.10
-  description: The URL for updateCitation 0.0.10.
+  value: https://github.com/hunterhogan/updateCitation/releases/tag/0.0.11
+  description: The URL for updateCitation 0.0.11.
 keywords:
 - academic-software
 - automation
@@ -33,9 +34,10 @@ keywords:
 license: CC-BY-NC-4.0
 message: Cite this software with the metadata in this file.
 repository: https://github.com/hunterhogan/updateCitation.git
-repository-artifact: https://pypi.org/project/updatecitation/0.0.10/
-repository-code: https://github.com/hunterhogan/updateCitation/releases/tag/0.0.10
+repository-artifact: https://pypi.org/project/updatecitation/0.0.11/
+repository-code: 
+  https://github.com/hunterhogan/updateCitation/releases/tag/0.0.11
 title: updateCitation
 type: software
 url: https://github.com/hunterhogan/updateCitation
-version: 0.0.10
+version: 0.0.11
