@@ -3,8 +3,7 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 from updateCitation import (
-	CitationNexus, compareVersions, formatDateCFF, FREAKOUT, gitUserEmailFALLBACK, SettingsPackage,
-)
+	CitationNexus, compareVersions, formatDateCFF, FREAKOUT, gitUserEmailFALLBACK, SettingsPackage)
 import datetime
 import github
 import github.Repository

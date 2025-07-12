@@ -1,10 +1,10 @@
 from pathlib import Path
-from tomli import loads as tomli_loads
+from tomllib import loads as tomllib_loads
 from typing import Any
 from updateCitation import CitationNexus, mapNexusCitation2pyprojectDOTtoml, SettingsPackage
 
 def getSettingsPackage(pathFilename: Path) -> SettingsPackage:
-	Z0Z_tomlSherpa = tomli_loads(pathFilename.read_text())
+	Z0Z_tomlSherpa = tomllib_loads(pathFilename.read_text(encoding="utf-8"))
 	Z0Z_SettingsPackage: dict[str, Any] = {}
 	if Z0Z_tomlSherpa.get("tool", None):
 		Z0Z_SettingsPackage = Z0Z_tomlSherpa["tool"].get("updateCitation", {})
@@ -13,7 +13,7 @@ def getSettingsPackage(pathFilename: Path) -> SettingsPackage:
 	return truth
 
 def get_pyprojectDOTtoml(truth: SettingsPackage) -> SettingsPackage:
-	truth.tomlPackageData = tomli_loads(truth.pathFilenamePackageSSOT.read_text())['project']
+	truth.tomlPackageData = tomllib_loads(truth.pathFilenamePackageSSOT.read_text(encoding="utf-8"))['project']
 	return truth
 
 def add_pyprojectDOTtoml(nexusCitation: CitationNexus, truth: SettingsPackage) -> CitationNexus:

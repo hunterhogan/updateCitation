@@ -1,6 +1,6 @@
 [project]
 name = "updateCitation"
-version = "0.0.10"
+version = "0.0.11"
 description = "Automatically update citation files (CITATION.cff) in a GitHub repository from `pyproject.toml`, GitHub releases, and PyPI releases."
 readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.10"
@@ -48,18 +48,18 @@ urls = { Donate = "https://www.patreon.com/integrated", Homepage = "https://gith
 dependencies = [
   "attrs",
   "cffconvert",
-  "httpx",
   "packaging",
   "pygithub",
   "ruamel.yaml",
-  "tomli",
 ]
-optional-dependencies = { testing = [
+optional-dependencies = { development = [
   "mypy",
+  "pyupgrade",
+  "setuptools-scm",
+], testing = [
   "pytest",
   "pytest-cov",
   "pytest-xdist",
-  "pyupgrade",
 ] }
 
 [build-system]
