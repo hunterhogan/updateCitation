@@ -11,8 +11,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       tests-python-versions: ${{ steps.get-project-info.outputs.versions }}
-      versionPackage: ${{ steps.get-project-info.outputs.versionPackage }}
-      namePackage: ${{ steps.get-project-info.outputs.namePackage }}
 
     steps:
       - uses: actions/checkout@v4
@@ -35,8 +33,6 @@ jobs:
           import itertools, json, os, packaging.specifiers, packaging.version, pathlib, requests, tomllib
 
           dictionaryProject = tomllib.loads(pathlib.Path('pyproject.toml').read_text())['project']
-          versionPackage = dictionaryProject['version']
-          namePackage = dictionaryProject['name']
 
           listPythonVersions = [str(max(group))
             for _key, group in itertools.groupby(
@@ -49,8 +45,6 @@ jobs:
 
           with open(os.environ['GITHUB_OUTPUT'], 'a') as writeStream:
             writeStream.write(f'versions={json.dumps(listPythonVersions)}\n')
-            writeStream.write(f'versionPackage={versionPackage}\n')
-            writeStream.write(f'namePackage={namePackage}\n')
           "
 
   make-testbeds:
