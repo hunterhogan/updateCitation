@@ -55,7 +55,6 @@ dependencies = [
 optional-dependencies = { development = [
   "mypy",
   "pyupgrade",
-  "setuptools-scm",
 ], testing = [
   "pytest",
   "pytest-cov",
@@ -63,7 +62,7 @@ optional-dependencies = { development = [
 ] }
 
 [build-system]
-requires = ["setuptools"]
+requires = ["setuptools", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
 
 [tool.coverage]

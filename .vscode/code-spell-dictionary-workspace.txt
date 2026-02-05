@@ -1,0 +1,26 @@
+# Custom Dictionary Words
+CAPSLOCK
+cffconvert
+cffobj
+cffstr
+commitish
+dists
+gitty
+httpx
+Hversion
+infile
+issn
+nihmsid
+OEIS
+orcid
+ownername
+pmcid
+pygithub
+pypa
+rawify
+reponame
+ruamel
+softprops
+Tcff
+tomli
+zenodo
