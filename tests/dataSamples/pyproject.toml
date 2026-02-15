@@ -4,7 +4,7 @@ version = "0.0.10"
 description = "Automatically update citation files (CITATION.cff) in a GitHub repository from `pyproject.toml`, GitHub releases, and PyPI releases."
 readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.10"
-license = { 'text' = "CC-BY-NC-4.0" }
+license = "CC-BY-NC-4.0"
 authors = [{ name = "Hunter Hogan", email = "HunterHogan@pm.me" }]
 keywords = [
   "academic-software",
@@ -79,9 +79,9 @@ run = { branch = true, concurrency = [
 ] }
 xml = { output = "tests/coverage/coverage.xml" }
 
-[tool.pytest.ini_options]
+[tool.pytest]
 addopts = ["--color=auto", "-n 6"]
-log_auto_indent = true
+log_auto_indent = "On"
 testpaths = ["tests"]
 
 [tool.setuptools]
