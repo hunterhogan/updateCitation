@@ -69,6 +69,17 @@ For detailed documentation, examples, and best practices, visit our [GitHub repo
 
 Contributions are welcome! Please feel free to submit pull requests.
 
+## Design goals
+
+1. 100% Python.
+2. Dynamic self-configuration whenever possible.
+3. 100% of the updateCitation settings in pyproject.toml.
+   1. No command line arguments.
+   2. No environment variables.
+   3. No separate configuration files.
+4. All settings for external services, such as GitHub and PyPI, use the configuration from those services instead of creating new configuration for updateCitation.
+5. Highly extensible for current and future services.
+
 ## My recovery
 
 [![Static Badge](https://img.shields.io/badge/2011_August-Homeless_since-blue?style=flat)](https://HunterThinks.com/support)

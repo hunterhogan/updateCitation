@@ -1,6 +1,68 @@
+"""Define core types and configuration for citation metadata aggregation.
+
+(AI generated docstring)
+
+You can use this module to access the data structures and configuration values that
+govern the citation update workflow. The module defines `CitationNexus` [1], the
+central data container for citation fields, and `SettingsPackage` [2], the
+configuration container for repository paths, git settings, and feature flags.
+The module also defines `TypedDict` [3] types that model the Citation File Format
+(CFF) [4] schema structures.
+
+Contents
+--------
+Variables
+	cffDASHversionDefaultHARDCODED
+		The default CFF specification version string.
+	CitationNexusFieldsProtected
+		The set of field name string that are frozen after their authoritative source populates them.
+	CitationNexusFieldsRequired
+		The set of field name string required by the CFF specification.
+	CitationNexusFieldsRequiredHARDCODED
+		The hardcoded set of required CFF field name string.
+	filename_pyprojectDOTtomlDEFAULT
+		The default filename for `pyproject.toml`.
+	formatDateCFF
+		The `strftime` format string for CFF date field.
+	gitUserEmailFALLBACK
+		The fallback email address for git commit authorship.
+	mapNexusCitation2pyprojectDOTtoml
+		The mapping of `CitationNexus` field name to `pyproject.toml` key name.
+	messageDefaultHARDCODED
+		The default CFF message string.
+	Z0Z_mappingFieldsURLFromPyPAMetadataToCFF
+		The mapping of PyPA URL key name to CFF field name.
+
+Classes
+	CitationNexus
+		Store and manage all citation metadata field for a CFF file.
+	Entity
+		Represent an organization or entity in CFF schema.
+	FREAKOUT
+		Signal an unrecoverable error in the citation workflow.
+	Identifier
+		Represent a persistent identifier (DOI, URL, SWH, other) in CFF schema.
+	Person
+		Represent a person in CFF schema.
+	ReferenceDictionary
+		Represent a bibliographic reference entry in CFF schema.
+	SettingsPackage
+		Store repository path, git configuration, and feature flag for the workflow.
+
+References
+----------
+[1] updateCitation.variables.CitationNexus
+	Internal package reference
+[2] updateCitation.variables.SettingsPackage
+	Internal package reference
+[3] typing.TypedDict - Python standard library
+	https://docs.python.org/3/library/typing.html#typing.TypedDict
+[4] Citation File Format (CFF) specification
+	https://citation-file-format.github.io/
+
+"""
 from typing import Any, cast, Literal, TypedDict
 import attrs
-import inspect
 import pathlib
 import warnings
 
@@ -32,10 +94,83 @@ Z0Z_mappingFieldsURLFromPyPAMetadataToCFF: dict[str, str] = {
 }
 
 class FREAKOUT(Exception):
-	pass
+	"""Signal an unrecoverable error in the citation workflow.
+
+	(AI generated docstring)
+
+	You can raise `FREAKOUT` when a required precondition is missing and no
+	recovery is possible. For example, `GitHubRepository` [1] raises `FREAKOUT`
+	when `nexusCitation.repository` is `None`.
+
+	References
+	----------
+	[1] updateCitation.github.GitHubRepository
+		Internal package reference
+
+	"""
 
 @attrs.define(slots=False)
 class SettingsPackage:
+	"""Store repository path, git configuration, and feature flag for the workflow.
+
+	(AI generated docstring)
+
+	You can use `SettingsPackage` to configure the citation update workflow.
+	`SettingsPackage` holds filesystem path for the repository and citation file,
+	git commit settings, GitHub authentication token, and boolean flag that
+	control which metadata source to include. `getSettingsPackage` [1]
+	instantiates `SettingsPackage` from `pyproject.toml` [2] `[tool.updateCitation]`
+	table values.
+
+	Attributes
+	----------
+	pathRepository : pathlib.Path = Path.cwd()
+		The root directory of the repository.
+	filename_pyprojectDOTtoml : str = 'pyproject.toml'
+		The filename of the `pyproject.toml` configuration file.
+	pathFilenamePackageSSOT : pathlib.Path
+		The full path to the `pyproject.toml` file.
+	filenameCitationDOTcff : str = 'CITATION.cff'
+		The filename of the CITATION.cff file.
+	pathFilenameCitationDOTcffRepository : pathlib.Path
+		The full path to the CITATION.cff file in the repository root.
+	pathFilenameCitationSSOT : pathlib.Path
+		The full path to the authoritative CITATION.cff file.
+	Z0Z_addGitHubRelease : bool = True
+		Whether to include GitHub release metadata.
+	Z0Z_addPyPIrelease : bool = True
+		Whether to include PyPI release metadata.
+	pathReferences : pathlib.Path
+		The directory path for reference citation file.
+	projectURLTargets : set[str] = {'homepage', 'license', 'repository'}
+		The set of PyPA project URL key name to extract.
+	gitCommitMessage : str = 'Update citations [skip ci]'
+		The default git commit message.
+	gitUserName : str = 'updateCitation'
+		The git user name for commit authorship.
+	gitUserEmail : str = ''
+		The git user email for commit authorship.
+	gitAmendFromGitHubAction : bool = True
+		Whether to amend and push from a GitHub Actions environment.
+	tomlPackageData : dict[str, Any]
+		The parsed `[project]` table from `pyproject.toml`.
+	GITHUB_TOKEN : str | None = None
+		The GitHub authentication token.
+
+	Examples
+	--------
+	Real usage from updateCitation.pyprojectDOTtoml module:
+
+		truth = SettingsPackage(**Z0Z_SettingsPackage, pathFilenamePackageSSOT=pathFilename)
+
+	References
+	----------
+	[1] updateCitation.pyprojectDOTtoml.getSettingsPackage
+		Internal package reference
+	[2] pyproject.toml specification - Python Packaging User Guide
+		https://packaging.python.org/en/latest/specifications/pyproject-toml/
+
+	"""
 	pathRepository: pathlib.Path = pathlib.Path.cwd()
 	filename_pyprojectDOTtoml: str = filename_pyprojectDOTtomlDEFAULT
 	pathFilenamePackageSSOT: pathlib.Path = pathlib.Path(pathRepository, filename_pyprojectDOTtoml)
@@ -64,6 +199,20 @@ CitationNexusFieldsProtected: set[str] = set()
 
 # Define type definitions for schema structures
 class Person(TypedDict, total=False):
+	"""Represent a person in CFF schema.
+
+	(AI generated docstring)
+
+	You can use `Person` to type-check dictionary value that represent
+	a person author, contact, editor, or other role in Citation File
+	Format [1]. The key name match the CFF schema field name.
+
+	References
+	----------
+	[1] Citation File Format (CFF) specification
+		https://citation-file-format.github.io/
+
+	"""
 	address: str
 	affiliation: str
 	alias: str
@@ -82,6 +231,20 @@ class Person(TypedDict, total=False):
 	website: str
 
 class Entity(TypedDict, total=False):
+	"""Represent an organization or entity in CFF schema.
+
+	(AI generated docstring)
+
+	You can use `Entity` to type-check dictionary value that represent
+	an organization, institution, or other entity in Citation File
+	Format [1]. The key name match the CFF schema field name.
+
+	References
+	----------
+	[1] Citation File Format (CFF) specification
+		https://citation-file-format.github.io/
+
+	"""
 	address: str
 	alias: str
 	city: str
@@ -99,11 +262,39 @@ class Entity(TypedDict, total=False):
 	website: str
 
 class Identifier(TypedDict, total=False):
+	"""Represent a persistent identifier (DOI, URL, SWH, other) in CFF schema.
+
+	(AI generated docstring)
+
+	You can use `Identifier` to type-check dictionary value that represent
+	a persistent identifier entry in Citation File Format [1].
+
+	References
+	----------
+	[1] Citation File Format (CFF) specification
+		https://citation-file-format.github.io/
+
+	"""
 	description: str
 	type: Literal["doi", "url", "swh", "other"]
 	value: str
 
 class ReferenceDictionary(TypedDict, total=False):
+	"""Represent a bibliographic reference entry in CFF schema.
+
+	(AI generated docstring)
+
+	You can use `ReferenceDictionary` to type-check dictionary value that
+	represent a bibliographic reference in Citation File Format [1].
+	The key name match the CFF schema field for the `references` and
+	`preferred-citation` section.
+
+	References
+	----------
+	[1] Citation File Format (CFF) specification
+		https://citation-file-format.github.io/
+
+	"""
 	abbreviation: str
 	abstract: str
 	authors: list[Person | Entity]
@@ -178,7 +369,82 @@ class ReferenceDictionary(TypedDict, total=False):
 
 @attrs.define()
 class CitationNexus:
-	"""one-to-one correlation with `cffconvert.lib.cff_1_2_x.citation` class Citation_1_2_x.cffobj"""
+	"""Store and manage all citation metadata field for a CFF file.
+
+	(AI generated docstring)
+
+	You can use `CitationNexus` to aggregate citation metadata from multiple
+	authoritative source into a single object. `CitationNexus` has a one-to-one
+	correlation with `cffconvert.lib.cff_1_2_x.citation.Citation_1_2_x.cffobj` [1].
+	Each metadata source populates its designated field, then calls
+	`setInStone` [2] to freeze those field and prevent later source from
+	overwriting authoritative value. The `__setattr__` override emits a
+	warning when a process attempts to modify a frozen field.
+
+	Attributes
+	----------
+	abstract : str | None = None
+		The software abstract or description.
+	authors : list[dict[str, str]]
+		The list of author dictionary with CFF person field.
+	cffDASHversion : str = '1.2.0'
+		The CFF specification version.
+	commit : str | None = None
+		The git commit SHA of the release.
+	contact : list[dict[str, str]]
+		The list of contact dictionary with CFF person field.
+	dateDASHreleased : str | None = None
+		The release date in CFF date format.
+	doi : str | None = None
+		The Digital Object Identifier for the software.
+	identifiers : list[Identifier]
+		The list of persistent `Identifier` for the software.
+	keywords : list[str]
+		The list of keyword string.
+	license : str | None = None
+		The SPDX license expression.
+	licenseDASHurl : str | None = None
+		The URL to the license text.
+	message : str
+		The CFF message prompting citation.
+	preferredDASHcitation : ReferenceDictionary | None = None
+		The preferred citation `ReferenceDictionary` for academic use.
+	references : list[ReferenceDictionary]
+		The list of `ReferenceDictionary` for related work.
+	repository : str | None = None
+		The URL of the source code repository.
+	repositoryDASHartifact : str | None = None
+		The URL of the package artifact (for example, PyPI release).
+	repositoryDASHcode : str | None = None
+		The URL of the release on the code hosting platform.
+	title : str | None = None
+		The software title (package name).
+	type : str | None = None
+		The CFF type (for example, "software").
+	url : str | None = None
+		The project homepage URL.
+	version : str | None = None
+		The software version string.
+
+	Examples
+	--------
+	Real usage from updateCitation.flowControl module:
+
+		nexusCitation: CitationNexus = CitationNexus()
+		nexusCitation = add_pyprojectDOTtoml(nexusCitation, truth)
+
+	Real usage from test suite:
+
+		nexusCitation = CitationNexus(**attributes)
+
+	References
+	----------
+	[1] cffconvert - Citation File Format converter
+		https://github.com/citation-file-format/cffconvert
+	[2] updateCitation.variables.CitationNexus.setInStone
+		Internal package reference
+
+	"""
 	abstract: str | None = None
 	authors: list[dict[str, str]] = cast(list[dict[str, str]], attrs.field(factory=list))
 	cffDASHversion: str = cffDASHversionDefaultHARDCODED
@@ -186,7 +452,7 @@ class CitationNexus:
 	contact: list[dict[str, str]] = cast(list[dict[str, str]], attrs.field(factory=list))
 	dateDASHreleased: str | None = None
 	doi: str | None = None
-	identifiers: list[str] = cast(list[str], attrs.field(factory=list))
+	identifiers: list[Identifier] = cast(list[Identifier], attrs.field(factory=list))
 	keywords: list[str] = cast(list[str], attrs.field(factory=list))
 	license: str | None = None
 	licenseDASHurl: str | None = None
@@ -204,27 +470,72 @@ class CitationNexus:
 
 	# NOTE the names of the existing parameters for `__setattr__` are fixed
 	def __setattr__(self, name: str, value: Any, warn: bool | None = True) -> None:
-		"""Prevent modification of protected fields."""
+		"""Guard frozen field from modification by later metadata source.
+
+		(AI generated docstring)
+
+		You can rely on `__setattr__` to enforce field protection after
+		`setInStone` [1] freezes a set of field name. When a process
+		attempts to modify a field in `CitationNexusFieldsProtected`,
+		`__setattr__` emits a `UserWarning` with the calling code context
+		and silently discards the assignment.
+
+		Parameters
+		----------
+		name : str
+			The attribute name to set.
+		value : Any
+			The value to assign.
+		warn : bool | None = True
+			Whether to emit a `UserWarning` when the field is protected.
+
+		References
+		----------
+		[1] updateCitation.variables.CitationNexus.setInStone
+			Internal package reference
+
+		"""
 		if name in CitationNexusFieldsProtected:
 			if warn:
-				# Get the line of code that called this method
-				stackFrame = inspect.stack()[1]
-				codeContext = stackFrame.code_context[0] if stackFrame.code_context is not None else ""
-				context = codeContext.strip()
-				# TODO Improve this warning message and the context information.
-				warnings.warn(f"A process tried to change the field '{name}' after the authoritative source set the field's value.\n{context=}", UserWarning)
+				message: str = f"A process tried to change the field '{name}' after the authoritative source set the field's value.\n"
+				warnings.warn(message, UserWarning, stacklevel=2)
 			return
 		super().__setattr__(name, value)
 
 	def setInStone(self, prophet: str) -> None:
-		"""
-		Confirm that required fields are not None, and freeze fields specified by the context.
-		Parameters:
-			prophet: The power to protect a field.
-		Returns:
-			None:
-		Raises:
-			ValueError: A required field does not have a value.
+		"""Validate required field and freeze the field owned by `prophet`.
+
+		(AI generated docstring)
+
+		You can call `setInStone` after a metadata source finishes populating its
+		field. The method verifies that every required field owned by `prophet`
+		has a non-`None` value, then adds those field name to
+		`CitationNexusFieldsProtected` so that `__setattr__` [1] prevents later
+		modification.
+
+		Parameters
+		----------
+		prophet : str
+			The name of the metadata source whose field to freeze. Accepted
+			value: `"Citation"`, `"GitHub"`, `"PyPA"`, `"PyPI"`,
+			`"pyprojectDOTtoml"`.
+
+		Raises
+		------
+		ValueError
+			If a required field owned by `prophet` has no value.
+
+		Examples
+		--------
+		Real usage from updateCitation.citationFileFormat module:
+
+			nexusCitation.setInStone("Citation")
+
+		References
+		----------
+		[1] updateCitation.variables.CitationNexus.__setattr__
+			Internal package reference
+
 		"""
 		match prophet:
 			case "Citation":
@@ -242,7 +553,8 @@ class CitationNexus:
 
 		for fieldName in fieldsSSOT:
 			if fieldName in CitationNexusFieldsRequired and not getattr(self, fieldName, None):
-				# TODO work out the semiotics of SSOT, power, authority, then improve this message (and identifiers and your life and the world)
-				raise ValueError(f"I have not yet received a value for the field '{fieldName}', but the Citation Field Format requires the field and {prophet} should have provided it.")
+# TODO work out the semiotics of SSOT, power, authority, then improve this message (and identifiers and your life and the world)
+				message = f"I have not yet received a value for the field '{fieldName}', but the Citation Field Format requires the field and {prophet} should have provided it."
+				raise ValueError(message)
 
 		CitationNexusFieldsProtected.update(fieldsSSOT)

@@ -1,8 +1,8 @@
-"""You can use this module to integrate PyPA metadata with Citation File Format.
+"""Integrate PyPA metadata with Citation File Format.
 
 (AI generated docstring)
 
-This module provides functionality to extract metadata from Python Package Authority
+You can use this module to extract metadata from Python Package Authority
 (PyPA) compliant package dictionaries and merge that metadata into `CitationNexus` [1]
 objects. The module supports version comparison using `packaging.version.Version` [2]
 and handles metadata normalization including package name canonicalization, license
@@ -12,11 +12,11 @@ Contents
 --------
 Functions
 	addPyPAMetadata
-		You can populate a `CitationNexus` object with PyPA metadata fields.
+		Populate a `CitationNexus` object with PyPA metadata field.
 	compareVersions
-		You can compare two version strings using PyPA version semantics.
+		Compare two version strings using PyPA version semantics.
 	getPyPAMetadata
-		You can extract and normalize PyPA metadata from a package dictionary.
+		Extract and normalize PyPA metadata from a package dictionary.
 
 References
 ----------
@@ -36,7 +36,7 @@ import packaging.utils
 import packaging.version
 
 def compareVersions(comparand: str, comparator: str) -> int:
-	"""You can compare two version strings using PyPA version semantics.
+	"""Compare two version strings using PyPA version semantics.
 
 	This function uses `packaging.version.Version` [1] to parse and compare version
 	strings according to PEP 440 [2] version specification. The function returns
@@ -73,11 +73,11 @@ def compareVersions(comparand: str, comparator: str) -> int:
 		https://peps.python.org/pep-0440/
 
 	"""
-	versionComparand = packaging.version.Version(comparand)
-	versionComparator = packaging.version.Version(comparator)
+	versionComparand: packaging.version.Version = packaging.version.Version(comparand)
+	versionComparator: packaging.version.Version = packaging.version.Version(comparator)
 	if versionComparand < versionComparator:
 		return -1
-	elif versionComparand > versionComparator:
+	elif versionComparator < versionComparand:
 		return 1
 	elif versionComparand == versionComparator:
 		return 0
@@ -85,7 +85,7 @@ def compareVersions(comparand: str, comparator: str) -> int:
 		return 3153
 
 def getPyPAMetadata(packageData: dict[str, Any]) -> PyPAMetadata:
-	"""You can extract and normalize PyPA metadata from a package dictionary.
+	"""Extract and normalize PyPA metadata from a package dictionary.
 
 	This function converts a dictionary containing package information into a
 	`packaging.metadata.Metadata` [1] object. The function handles polymorphic
@@ -163,7 +163,7 @@ def getPyPAMetadata(packageData: dict[str, Any]) -> PyPAMetadata:
 	return PyPAMetadata().from_raw(metadataRaw)
 
 def addPyPAMetadata(nexusCitation: CitationNexus, tomlPackageData: dict[str, Any], projectURLTargets: set[str]) -> CitationNexus:
-	"""You can populate a `CitationNexus` object with PyPA metadata fields.
+	"""Populate a `CitationNexus` object with PyPA metadata field.
 
 	(AI generated docstring)
 
