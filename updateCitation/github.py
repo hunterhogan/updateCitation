@@ -313,7 +313,7 @@ def getGitHubRelease(nexusCitation: CitationNexus, truth: SettingsPackage) -> di
 		if compareVersions(latestRelease.tag_name, nexusCitation.version) == -1:
 			dictionaryReleaseHypothetical: dict[str, Any] = {
 				"commit": commitLatestCommit,
-				"dateDASHreleased": datetime.datetime.now().strftime(formatDateCFF),
+				"dateDASHreleased": datetime.datetime.now(datetime.UTC).strftime(formatDateCFF),
 				"identifiers": [{
 					"type": "url",
 					"value": urlRelease.replace(latestRelease.tag_name, nexusCitation.version),

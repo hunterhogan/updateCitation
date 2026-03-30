@@ -61,7 +61,7 @@ References
 	https://citation-file-format.github.io/
 
 """
-from typing import Any, cast, Literal, TypedDict
+from typing import Any, Literal, TypedDict
 import attrs
 import pathlib
 import warnings
@@ -189,8 +189,8 @@ class SettingsPackage:
 	gitUserName: str = "updateCitation"
 	gitUserEmail: str = ""
 	gitAmendFromGitHubAction: bool = True
-	# gitPushFromOtherEnvironments_why_where_NotImplemented: bool = False
-	tomlPackageData: dict[str, Any] = cast(dict[str, Any], attrs.field(factory=dict))
+	# gitPushFromOtherEnvironments_why_where_NotImplemented: bool = False  # noqa: ERA001
+	tomlPackageData: dict[str, Any] = attrs.field(factory=dict[str, Any])
 
 	GITHUB_TOKEN: str | None = None
 
@@ -446,20 +446,20 @@ class CitationNexus:
 
 	"""
 	abstract: str | None = None
-	authors: list[dict[str, str]] = cast(list[dict[str, str]], attrs.field(factory=list))
+	authors: list[dict[str, str]] = attrs.field(factory=list[dict[str, str]])
 	cffDASHversion: str = cffDASHversionDefaultHARDCODED
 	commit: str | None = None
-	contact: list[dict[str, str]] = cast(list[dict[str, str]], attrs.field(factory=list))
+	contact: list[dict[str, str]] = attrs.field(factory=list[dict[str, str]])
 	dateDASHreleased: str | None = None
 	doi: str | None = None
-	identifiers: list[Identifier] = cast(list[Identifier], attrs.field(factory=list))
-	keywords: list[str] = cast(list[str], attrs.field(factory=list))
+	identifiers: list[Identifier] = attrs.field(factory=list[Identifier])
+	keywords: list[str] = attrs.field(factory=list[str])
 	license: str | None = None
 	licenseDASHurl: str | None = None
 	message: str = messageDefaultHARDCODED
 	preferredDASHcitation: ReferenceDictionary | None = None
 	# TODO `cffconvert` also doesn't convert references yet
-	references: list[ReferenceDictionary] = cast(list[ReferenceDictionary], attrs.field(factory=list))
+	references: list[ReferenceDictionary] = attrs.field(factory=list[ReferenceDictionary])
 	repository: str | None = None
 	repositoryDASHartifact: str | None = None
 	repositoryDASHcode: str | None = None
