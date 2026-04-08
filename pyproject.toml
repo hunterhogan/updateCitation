@@ -61,6 +61,11 @@ optional-dependencies = { testing = [
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
+[tool.cibuildwheel]
+test-command = "pytest"
+test-extras = ["testing"]
+test-sources = ["tests"]
+
 [tool.coverage]
 report = { exclude_lines = [
   "if TYPE_CHECKING:",
