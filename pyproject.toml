@@ -47,7 +47,6 @@ urls = { Donate = "https://www.patreon.com/integrated", Homepage = "https://gith
 dependencies = [
   "attrs",
   "cffconvert",
-  "hunterMakesPy",
   "packaging",
   "pygithub",
   "ruamel.yaml",

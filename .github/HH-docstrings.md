@@ -2,25 +2,58 @@
 name: Docstring Standards
 description: Standards for Python docstrings.
 ---
-# Python Docstring Standards
+# Write Consistent, Precise NumPy-style Docstrings
 
-Standards for Python docstrings. These standards conform to NumPy style [1] with the following modifications.
+Use [NumPy style](https://numpydoc.readthedocs.io/en/v1.10.0/format.html#docstring-standard) with the following modifications and additional requirements.
+
+## Modifications to the NumPy Docstring Standards
 
 1. Replace the generic "Notes" section with one or more semantic section names instead.
 2. Public, non-method attributes must be documented.
 3. Use Unicode for all mathematical symbols, not LaTeX.
 4. Use plain text with NumPy-style section headers, not reStructuredText.
 
-[1] numpydoc v1.10.0 Style guide
-    <https://numpydoc.readthedocs.io/en/v1.10.0/format.html#docstring-standard>
+## Technical Syntax
 
-**Audience.** The audience for docstrings includes human developers (two-thirds of whom are non-native English speakers), machine translation tools, and AI assistants that consume docstrings for code generation, analysis, and retrieval.
+- **Triple double quotes.** Always use `"""`, never `'''`.
+- **Full stops.** End every sentence with a full stop, including the summary line.
+- **No end-of-line colons in prose.** Machine parsers may interpret a trailing colon as syntax. Restructure the sentence instead.
+- **No LaTeX.** Use Unicode characters for all mathematical symbols (e.g., ×, ÷, √, ∑, ≤, ∈, →).
+- **No reST.** Do not use reStructuredText directives, roles, or markup (e.g., no `.. note::`, no `:param:`, no `:math:`). Write plain text with NumPy-style section headers.
+- **Indentation.** Follow the project `.editorconfig` for indentation width and type. Within a docstring, indent continuation lines by one level relative to the section entry.
 
 ## Docstring Layout
 
-This section shows the structural template for each kind of Python identifier. All examples use four-space indentation; follow the project `.editorconfig` for the actual indentation width and type.
+### Sections and their Order Within a Docstring
 
-### Functions
+1. Summary line (on the same line as the opening triple quotes)
+2. (AI generated docstring) marker, if applicable
+3. Extended description
+4. `Parameters`
+5. `Returns` or `Yields`
+6. `Raises`
+7. `Warns`
+8. `Other Parameters`
+9. `See Also`
+10. Custom-named sections (e.g., `Mathematical Basis`, `Algorithm Details`)
+11. `Examples`
+12. `References`
+
+### Formatting a Docstring Section
+
+Use this exact structure for all named sections:
+
+```text
+[blank line]
+Section Name
+------------
+entry : datatype
+    Definition or description.
+entry : datatype = defaultValue
+    Definition or description.
+```
+
+### Formatting a Function
 
 ```python
 def exampleFunction(parameterFirst: int, parameterSecond: str = "default") -> bool:
@@ -51,71 +84,7 @@ def exampleFunction(parameterFirst: int, parameterSecond: str = "default") -> bo
     """
 ```
 
-#### Section order within a function docstring
-
-1. Summary line (on the same line as the opening triple quotes)
-2. (AI generated docstring) marker, if applicable
-3. Extended description
-4. `Parameters`
-5. `Returns` or `Yields`
-6. `Raises`
-7. `Warns`
-8. `Other Parameters`
-9. `See Also`
-10. Custom-named sections (e.g., `Mathematical Basis`, `Algorithm Details`)
-11. `Examples`
-12. `References`
-
-#### Section Formatting
-
-Use this exact structure for all named sections:
-
-```text
-[blank line]
-Section Name
-------------
-entry : datatype
-    Definition or description.
-entry : datatype = defaultValue
-    Definition or description.
-```
-
-### Classes
-
-Document the constructor (`__init__`) parameters in the class docstring. An `Attributes` section lists all public, non-method attributes.
-
-```python
-class ExampleClass:
-    """Manage map folding computation state.
-
-    (AI generated docstring)
-
-    You can use this class to encapsulate and manage the state needed for parallel
-    map-folding computations. Extended description of behavior and usage.
-
-    Parameters
-    ----------
-    dimensionCount : int
-        Number of dimensions in the map.
-
-    Attributes
-    ----------
-    attributeName : type
-        Description of the attribute.
-    """
-```
-
-If the class has many methods and only a few are central to typical usage, an optional `Methods` section may list those key methods with one-line descriptions.
-
-### Methods
-
-Document methods the same way as functions. Do not include `self` or `cls` in the `Parameters` section. If a method has an equivalent module-level function, the function docstring should contain the detailed documentation; the method docstring should provide a brief summary and a `See Also` reference.
-
-### Class Constructor (`__init__`)
-
-The class docstring is the primary location for constructor documentation. An optional, separate `__init__` docstring may be added when the initialization logic is complex enough to warrant its own extended description. Do not duplicate parameter documentation between the class docstring and `__init__`.
-
-### Modules
+### Formatting a Module
 
 Place the module docstring at the very top of the file, before imports. Include a table of contents listing all public identifiers.
 
@@ -144,7 +113,7 @@ Classes
 import ...
 ```
 
-**Include all public identifiers in the table of contents.**
+#### Include all public identifiers in the table of contents
 
 - List all public functions, classes, and other exported identifiers.
 - If there are sections (`#======== Boolean filters ====`) and subsections (`#---- Specific filters ----`), reflect that hierarchy.
@@ -152,7 +121,7 @@ import ...
 - Provide one-line descriptions for each item.
 - Omit private identifiers (those starting with `_`).
 
-### Package `__init__.py`
+### Formatting a Package `__init__.py`
 
 Document what the package exposes and its organizational purpose. Include a table of contents of public modules and subpackages.
 
@@ -183,18 +152,18 @@ _e
 """
 ```
 
-**Include all public modules and subpackages in the table of contents.**
+#### Include all public modules and subpackages in the table of contents
 
 - List public modules with brief descriptions.
 - List subpackages with brief descriptions.
 - Use section headers (`Modules`, `Subpackages`) with dashed underlines.
 - Omit private modules (starting with `_`) unless they are documented internal APIs.
 
-### Top-Level Package `__init__.py`
+### Formatting a Top-Level Package `__init__.py`
 
 The top-level `__init__.py` follows the same format as any package `__init__.py`, but the extended description should also state the package's purpose and scope for users encountering it for the first time.
 
-### Variables and Constants
+### Documenting and Formatting Variables and "Constants"
 
 Public class-level and instance-level variables must be documented, either in the class `Attributes` section, as an inline docstring immediately after the assignment, or both.
 
@@ -217,17 +186,6 @@ class Configuration:
 ```
 
 Module-level constants follow the same sections as functions where applicable: summary, extended description, `See Also`, `References`, `Examples`.
-
-## Technical Syntax
-
-These rules are mechanical and require no interpretation.
-
-- **Triple double quotes.** Always use `"""`, never `'''`.
-- **Full stops.** End every sentence with a full stop, including the summary line.
-- **No end-of-line colons in prose.** Machine parsers may interpret a trailing colon as syntax. Restructure the sentence instead.
-- **No LaTeX.** Use Unicode characters for all mathematical symbols (e.g., ×, ÷, √, ∑, ≤, ∈, →).
-- **No reST.** Do not use reStructuredText directives, roles, or markup (e.g., no `.. note::`, no `:param:`, no `:math:`). Write plain text with NumPy-style section headers.
-- **Indentation.** Follow the project `.editorconfig` for indentation width and type. Within a docstring, indent continuation lines by one level relative to the section entry.
 
 ## Docstring Sections
 
@@ -275,13 +233,13 @@ The summary line must be written in **first-person descriptive voice** explainin
 - ❌ Incorrect: "Validates input." (third person - too passive, doesn't explain architectural role)
 - ❌ Incorrect: "Validate input before processing." (imperative - doesn't explain usage context)
 
-### Extended Description
-
-After the terse summary line, start the body text with an **explicit subject** ("You can...", "The identifier...", "This function...") to provide context and smooth the transition from the concise summary to the detailed explanation. The extended description should clarify functionality, not discuss implementation detail or background theory.
-
 ### AI-Generated Marker
 
 When creating a new docstring, place "(AI generated docstring)" on its own line after the summary line and a blank line. When reformatting an existing docstring, do NOT add or remove "(AI generated docstring)".
+
+### Extended Description
+
+After the terse summary line, start the body text with an **explicit subject** ("You can...", "The identifier...", "This function...") to provide context and smooth the transition from the concise summary to the detailed explanation. The extended description should clarify functionality, not discuss implementation detail or background theory.
 
 ### Parameters
 
@@ -337,6 +295,7 @@ Examples must be drawn from actual usage in the codebase. To find examples, sear
 
 - Examples must follow the identifier and style conventions of the codebase.
 - Include context if needed for clarity (imports, setup, etc.).
+- Use triple-backtick code fences for all code examples, not REPL-style `>>>` prompts. Indent the code fence block one level deeper than the surrounding explanatory text.
 
 ### References
 
@@ -412,7 +371,7 @@ def exampleFunction(data: list[int]) -> int:
 - Include both title/description and URL for web resources.
 - For packages: prefer Context7 links when available.
 - For academic papers: include full citation (author, year, title, publication).
-- For internal package references: use module path, note "Internal package reference".
+- For internal package references: use the module path only. No additional annotation is needed, but so IDEs render the section properly, put a blank line where the annotation would go.
 
 **Prefer these documentation URLs when referencing these packages.** Add other packages as needed using the same pattern (Context7 when available, official documentation otherwise).
 
@@ -423,20 +382,25 @@ def exampleFunction(data: list[int]) -> int:
 - `gmpy2`: <https://gmpy2.readthedocs.io/en/latest/>
 - `numba`: <https://numba.readthedocs.io/en/stable/>
 
-## Writing Standards
+## Write Consistent, Precise Technical Documentation
+
+Technical documentation requires consistency and precision. Literary prose avoids repetition through synonyms and pronouns.
+
+### Write for Non-Native Speakers, Machine Translation, and AI Assistants
+
+The audience for these docstrings includes developers, researchers using Python as a tool, hobbyists, machine translators, and AI assistants. Two-thirds of the human audience are non-native English speakers, and half will use some machine translation.
+
+- **Use active voice**: "This function returns X" rather than "X is returned by this function".
+- **Use technical terms, not idioms or colloquialisms**: "fails quickly" not "bails out", "prevents errors" not "catches issues".
+- **Use consistent terms**: Machine translation and AI retrieval work better with repeated exact phrases.
+- **Be explicit and precise**: Avoid pronouns, cultural context, and implied knowledge.
+- **Short, complete sentences**: Better for parsing and translation than long, flowing prose.
 
 ### Repeat Identifiers Instead of Using Pronouns
 
-Literary prose avoids repetition through synonyms and pronouns. Technical documentation requires consistency and precision.
-
 - **Repeat nouns instead of using pronouns**: Write "`parameterFirst`" every time, not "it" or "the parameter".
 - **Repeat exact identifiers**: Don't vary between "`handler`", "the handler", or "this callback".
-- **Avoid synonyms for precision**: Don't alternate between "function" and "routine", or "list" and "sequence" unless they mean different things.
-- **Consistency aids comprehension**: Non-native speakers, machine translation tools, and AI assistants rely on consistent terminology.
-
-- Pronouns create ambiguity: "it" can refer to multiple prior nouns.
-- Synonyms suggest false distinctions: readers wonder if "handler" and "callback" mean different things.
-- Repetition in technical writing establishes clear, unambiguous reference chains.
+- **Use _the_ technical term, not synonyms**: Don't alternate, for example, between "function" and "routine". Synonyms suggest false distinctions: some readers will wonder if "handler" and "callback" mean different things.
 
 ❌ **Bad** (prose-style with pronouns and synonyms):
 
@@ -448,7 +412,7 @@ and pass the result to the callback, which processes it further.
 > Process `data` using `handler`. The `handler` transforms `data`
 and passes `data` to `handler`, which processes `data` further.
 
-### Use Backticks
+### Always Use Backticks for Code
 
 - Always use backticks when referring to:
   - Identifiers and other labels: `parameterName`, `className`
@@ -473,7 +437,7 @@ and passes `data` to `handler`, which processes `data` further.
 
 - Qualify ambiguous terms: "Python keyword `try`" not just "`try`".
 - Maintain precision: "`class` `Exception`" rather than "the `Exception` `class`".
-- Avoid compound hyphenation with technical terms: not "`Exception`-free" but "successful completion".
+- Avoid compound hyphenation with technical terms: not "`Exception`-free" "completion without an `Exception`".
 
 ### Never Use "Pipeline"
 
@@ -486,16 +450,3 @@ and passes `data` to `handler`, which processes `data` further.
   - **Audience**: Experts who need to know.
   - **Tone**: Efficient, precise, technical.
   - **Constraint**: Do not explain standard concepts (like "don't share mutable objects between threads") to experts. Only document non-obvious behaviors or critical constraints.
-
-### Write for Non-Native Speakers and Machine Translation
-
-Two-thirds of the human audience are non-native English speakers, half will use machine translation, and AI assistants consume docstrings for code generation and retrieval. Every guideline below serves these readers.
-
-- **Use simple sentence structures**: Avoid complex subordinate clauses when possible.
-- **Prefer active voice**: "This function returns X" rather than "X is returned by this function".
-- **Avoid idioms and colloquialisms**: "fails quickly" not "bails out", "prevents errors" not "catches issues".
-- **Use consistent terminology**: Machine translation and AI retrieval work better with repeated exact phrases.
-- **Minimize ambiguity**: Pronouns confuse both humans and translation systems.
-- **Be explicit**: Don't rely on cultural context or implied knowledge.
-- **Short, complete sentences**: Better for parsing and translation than long, flowing prose.
-- **Test your writing**: If a sentence would be difficult to translate word-by-word, rewrite it more explicitly.

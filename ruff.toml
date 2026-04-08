@@ -50,7 +50,7 @@ select = ["ALL"]
 task-tags = ["DEVELOPMENT", "NOTE", "SEMIOTICS", "TODO"]
 
 [lint.flake8-import-conventions]
-aliases = { numpy = "numpy", pandas = "pandas", "re" = "regex" }
+aliases = { numpy = "numpy", pandas = "pandas", re = "regex" }
 banned-aliases = { numpy = ["np"], pandas = ["pd"], regex=["re"] }
 
 [lint.per-file-ignores]
