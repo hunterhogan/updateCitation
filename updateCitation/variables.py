@@ -539,24 +539,24 @@ class CitationNexus:
 			Internal package reference
 
 		"""
-		authority: str = prophet
-		match authority:
+		match prophet:
 			case "Citation":
-				authoritativeFields: set[str] = {"abstract", "cffDASHversion", "doi", "message", "preferredDASHcitation", "type"}
+				fieldsSSOT: set[str] = {"abstract", "cffDASHversion", "doi", "message", "preferredDASHcitation", "type"}
 			case "GitHub":
-				authoritativeFields = {"commit", "dateDASHreleased", "identifiers", "repositoryDASHcode"}
+				fieldsSSOT = {"commit", "dateDASHreleased", "identifiers", "repositoryDASHcode"}
 			case "PyPA":
-				authoritativeFields = {"keywords", "license", "licenseDASHurl", "repository", "url", "version"}
+				fieldsSSOT = {"keywords", "license", "licenseDASHurl", "repository", "url", "version"}
 			case "PyPI":
-				authoritativeFields = {"repositoryDASHartifact"}
+				fieldsSSOT = {"repositoryDASHartifact"}
 			case "pyprojectDOTtoml":
-				authoritativeFields = {"authors", "contact", "title"}
+				fieldsSSOT = {"authors", "contact", "title"}
 			case _:
-				authoritativeFields = set()
+				fieldsSSOT = set()
 
-		for fieldName in authoritativeFields & CitationNexusFieldsRequired:
+		# TODO work out the semiotics of SSOT, power, authority, then improve this message (and identifiers and your life and the world)
+		for fieldName in fieldsSSOT.intersection(CitationNexusFieldsRequired):
 			if not getattr(self, fieldName, None):
-				message = f"{authority} is the authoritative metadata source for required Citation File Format field '{fieldName}', but it did not provide a value."
+				message: str = f"{prophet} is the authoritative source for required Citation File Format field '{fieldName}', but it did not provide a value."
 				raise ValueError(message)
 
-		CitationNexusFieldsProtected.update(authoritativeFields)
+		CitationNexusFieldsProtected.update(fieldsSSOT)
