@@ -25,10 +25,14 @@ References
 	Internal package reference
 
 """
-from pathlib import Path
+from __future__ import annotations
+
 from tomllib import loads as tomllib_loads
-from typing import Any
+from typing import Any, TYPE_CHECKING
 from updateCitation import CitationNexus, mapNexusCitation2pyprojectDOTtoml, SettingsPackage
+
+if TYPE_CHECKING:
+	from pathlib import Path
 
 def getSettingsPackage(pathFilename: Path) -> SettingsPackage:
 	"""Instantiate a `SettingsPackage` from a `pyproject.toml` file.

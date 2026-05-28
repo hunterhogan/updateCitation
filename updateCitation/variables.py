@@ -61,6 +61,8 @@ References
 	https://citation-file-format.github.io/
 
 """
+from __future__ import annotations
+
 from typing import Any, Literal, TypedDict
 import attrs
 import pathlib
@@ -83,7 +85,7 @@ from cffconvert.citation import Citation # from cffconvert.lib.citation import C
 cffstr = "cff-version: 1.2.0"; citationObject = Citation(cffstr); schemaDOTjson = citationObject._get_schema()
 # get "required": list of fields; # Convert '-' to 'DASH' in field names """
 
-filename_pyprojectDOTtomlDEFAULT: str = 'pyproject.toml' # used by other processes before `SettingsPackage` is instantiated to help instantiate `SettingsPackage`
+filename_pyprojectDOTtomlDEFAULT: str = 'pyproject.toml'  # used by other processes before `SettingsPackage` is instantiated to help instantiate `SettingsPackage`
 formatDateCFF: str = "%Y-%m-%d"
 gitUserEmailFALLBACK: str = 'action@github.com'
 mapNexusCitation2pyprojectDOTtoml: list[tuple[str, str]] = [("authors", "authors"), ("contact", "maintainers")]
@@ -469,7 +471,7 @@ class CitationNexus:
 	version: str | None = None
 
 	# NOTE the names of the existing parameters for `__setattr__` are fixed
-	def __setattr__(self, name: str, value: Any, warn: bool | None = True) -> None:
+	def __setattr__(self, name: str, value: Any, *, warn: bool | None = True) -> None:
 		"""Guard frozen field from modification by later metadata source.
 
 		(AI generated docstring)
@@ -537,24 +539,24 @@ class CitationNexus:
 			Internal package reference
 
 		"""
-		match prophet:
+		authority: str = prophet
+		match authority:
 			case "Citation":
-				fieldsSSOT: set[str] = {"abstract", "cffDASHversion", "doi", "message", "preferredDASHcitation", "type"}
+				authoritativeFields: set[str] = {"abstract", "cffDASHversion", "doi", "message", "preferredDASHcitation", "type"}
 			case "GitHub":
-				fieldsSSOT = {"commit", "dateDASHreleased", "identifiers", "repositoryDASHcode"}
+				authoritativeFields = {"commit", "dateDASHreleased", "identifiers", "repositoryDASHcode"}
 			case "PyPA":
-				fieldsSSOT = {"keywords", "license", "licenseDASHurl", "repository", "url", "version"}
+				authoritativeFields = {"keywords", "license", "licenseDASHurl", "repository", "url", "version"}
 			case "PyPI":
-				fieldsSSOT = {"repositoryDASHartifact"}
+				authoritativeFields = {"repositoryDASHartifact"}
 			case "pyprojectDOTtoml":
-				fieldsSSOT = {"authors", "contact", "title"}
+				authoritativeFields = {"authors", "contact", "title"}
 			case _:
-				fieldsSSOT = set()
+				authoritativeFields = set()
 
-		for fieldName in fieldsSSOT:
-			if fieldName in CitationNexusFieldsRequired and not getattr(self, fieldName, None):
-# TODO work out the semiotics of SSOT, power, authority, then improve this message (and identifiers and your life and the world)
-				message = f"I have not yet received a value for the field '{fieldName}', but the Citation Field Format requires the field and {prophet} should have provided it."
+		for fieldName in authoritativeFields & CitationNexusFieldsRequired:
+			if not getattr(self, fieldName, None):
+				message = f"{authority} is the authoritative metadata source for required Citation File Format field '{fieldName}', but it did not provide a value."
 				raise ValueError(message)
 
-		CitationNexusFieldsProtected.update(fieldsSSOT)
+		CitationNexusFieldsProtected.update(authoritativeFields)

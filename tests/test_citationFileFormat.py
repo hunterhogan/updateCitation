@@ -1,10 +1,15 @@
-import pathlib
-import pytest
+from __future__ import annotations
+
 from tests.conftest import standardizedEqualTo
+from typing import TYPE_CHECKING
 from updateCitation.citationFileFormat import addCitation
 from updateCitation.variables import CitationNexus
+import pytest
 
-def test_addCitation(nexusCitationTesting: CitationNexus, citationAlphaDOTcff: pathlib.Path):
+if TYPE_CHECKING:
+	import pathlib
+
+def test_addCitation(nexusCitationTesting: CitationNexus, citationAlphaDOTcff: pathlib.Path) -> None:
 	"""Test that addCitation() returns a CitationNexus object."""
 	nexusCitation = addCitation(nexusCitationTesting, citationAlphaDOTcff)
 	assert isinstance(nexusCitation, CitationNexus), "addCitation() should return a CitationNexus object."
@@ -26,8 +31,7 @@ def test_addCitation(nexusCitationTesting: CitationNexus, citationAlphaDOTcff: p
 	("url", "https://github.com/hunterhogan/mapFolding"),
 	("version", "0.3.9"),
 ])
-def test_addCitation_fields(nexusCitationTesting: CitationNexus, citationAlphaDOTcff: pathlib.Path, fieldName: str, expectedValue: str):
+def test_addCitation_fields(nexusCitationTesting: CitationNexus, citationAlphaDOTcff: pathlib.Path, fieldName: str, expectedValue: str) -> None:
 	"""Test that addCitation() correctly sets each field in the CitationNexus object."""
 	nexusCitation = addCitation(nexusCitationTesting, citationAlphaDOTcff)
-	# actual = getattr(nexusCitation, fieldName)
 	standardizedEqualTo(expectedValue, getattr, nexusCitation, fieldName)

@@ -1,13 +1,15 @@
 """SSOT for Pytest."""
-from collections.abc import Callable, Generator
+from __future__ import annotations
+
 from pathlib import Path
-from typing import Any
-from updateCitation import (
-	CitationNexus, CitationNexusFieldsProtected, filename_pyprojectDOTtomlDEFAULT, SettingsPackage,
-)
+from typing import Any, TYPE_CHECKING
+from updateCitation import CitationNexus, CitationNexusFieldsProtected, filename_pyprojectDOTtomlDEFAULT, SettingsPackage
 import pytest
 import shutil
 import uuid
+
+if TYPE_CHECKING:
+	from collections.abc import Callable, Generator
 
 # SSOT for test data paths and filenames
 pathDataSamples = Path("tests/dataSamples")
@@ -28,14 +30,14 @@ def resetCitationNexusProtectedFields() -> None:
 
 @pytest.fixture
 def pathTmpTesting(request: pytest.FixtureRequest) -> Path:
-	"""'path' means directory or folder, not file."""
+	"""'path' means directory or folder, not file."""  # noqa: DOC201
 	pathTmp = pathTmpRoot / uuid.uuid4().hex
 	pathTmp.mkdir(parents=True, exist_ok=False)
 	return pathTmp
 
 @pytest.fixture
 def pathFilenameTmpTesting(request: pytest.FixtureRequest) -> Path:
-	"""'filename' means file; 'pathFilename' means the full path and filename."""
+	"""'filename' means file; 'pathFilename' means the full path and filename."""  # noqa: DOC201
 	try:
 		extension = request.param
 	except AttributeError:
@@ -48,7 +50,7 @@ def pathFilenameTmpTesting(request: pytest.FixtureRequest) -> Path:
 
 @pytest.fixture
 def nexusCitationTesting(request: pytest.FixtureRequest) -> CitationNexus:
-	"""Return a CitationNexus object with the specified attributes."""
+	"""Return a CitationNexus object with the specified attributes."""  # noqa: DOC201
 	try:
 		attributes: dict[str, Any] = request.param
 	except AttributeError:
@@ -66,8 +68,8 @@ Section: Pytest fixtures for testing the updateCitation package"""
 @pytest.fixture
 def settingsPackageTesting() -> SettingsPackage:
 	return SettingsPackage(
-		pathFilenamePackageSSOT= pathDataSamples / filename_pyprojectDOTtomlDEFAULT,
-		GITHUB_TOKEN="FAKE_TOKEN",
+		pathFilenamePackageSSOT=pathDataSamples / filename_pyprojectDOTtomlDEFAULT,
+		GITHUB_TOKEN="FAKE_TOKEN",  # noqa: S106
 		gitUserEmail="test@example.com",
 		gitUserName="TestUserName",
 		gitCommitMessage="TestCommitMessage",
@@ -77,7 +79,7 @@ def settingsPackageTesting() -> SettingsPackage:
 Section: Standardized assert statements and failure messages"""
 
 def uniformTestFailureMessage(expected: Any, actual: Any, functionName: str, *arguments: Any, **keywordArguments: Any) -> str:
-	"""Format assertion message for any test comparison."""
+	"""Format assertion message for any test comparison."""  # noqa: DOC201
 	listArgumentComponents = [str(parameter) for parameter in arguments]
 	listKeywordComponents = [f"{key}={value}" for key, value in keywordArguments.items()]
 	joinedArguments = ', '.join(listArgumentComponents + listKeywordComponents)
@@ -99,4 +101,4 @@ def standardizedEqualTo(expected: Any, functionTarget: Callable[..., Any], *argu
 		messageActual = type(actualError).__name__
 		actual = type(actualError)
 
-	assert actual == expected, uniformTestFailureMessage(messageExpected, messageActual, functionTarget.__name__, *arguments, **keywordArguments)
+	assert actual == expected, uniformTestFailureMessage(messageExpected, messageActual, functionTarget.__name__, *arguments, **keywordArguments)  # ty:ignore[unresolved-attribute]

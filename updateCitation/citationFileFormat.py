@@ -27,15 +27,17 @@ References
 	https://yaml.readthedocs.io/en/latest/
 
 """
+from __future__ import annotations
+
 from cffconvert.cli.create_citation import create_citation
 from operator import truth
 from typing import Any, TYPE_CHECKING
-from updateCitation import CitationNexus
 import attrs
 import pathlib
 import ruamel.yaml
 
 if TYPE_CHECKING:
+	from updateCitation import CitationNexus
 	import cffconvert
 
 def getCitation(pathFilenameCitationSSOT: pathlib.Path) -> dict[str, Any]:
@@ -124,7 +126,7 @@ def addCitation(nexusCitation: CitationNexus, pathFilenameCitationSSOT: pathlib.
 	for nexusCitationField in iter(attrs.fields(type(nexusCitation))):
 		cffobjKeyName: str = nexusCitationField.name.replace("DASH", "-")
 		cffobjValue = cffobj.get(cffobjKeyName)
-		if cffobjValue: # An empty list will be False
+		if cffobjValue:  # An empty list will be False
 			nexusCitation.__setattr__(nexusCitationField.name, cffobjValue, warn=False)
 
 	nexusCitation.setInStone("Citation")
@@ -198,8 +200,8 @@ def writeCitation(nexusCitation: CitationNexus, pathFilenameCitationSSOT: pathli
 	def writeStream(pathFilename: pathlib.Path) -> None:
 		pathFilename = pathlib.Path(pathFilename)
 		pathFilename.parent.mkdir(parents=True, exist_ok=True)
-		with open(pathFilename, 'w') as pathlibIsAStealthContextManagerThatRuamelCannotDetectAndRefusesToWorkWith:  # noqa: PTH123
-			yamlWorkhorse.dump(dictionaryCitation, pathlibIsAStealthContextManagerThatRuamelCannotDetectAndRefusesToWorkWith) # pyright: ignore[reportUnknownMemberType]
+		with open(pathFilename, 'w', encoding="utf-8") as pathlibIsAStealthContextManagerThatRuamelCannotDetectAndRefusesToWorkWith:  # noqa: PTH123
+			yamlWorkhorse.dump(dictionaryCitation, pathlibIsAStealthContextManagerThatRuamelCannotDetectAndRefusesToWorkWith)  # pyright: ignore[reportUnknownMemberType]
 
 	# Write the validation file because I haven't figured out how to validate it as a stream yet.
 	pathFilenameForValidation: pathlib.Path = pathlib.Path(pathFilenameCitationSSOT).with_stem('validation')

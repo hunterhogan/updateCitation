@@ -23,9 +23,13 @@ References
 	https://packaging.pypa.io/en/stable/utils.html#packaging.utils.canonicalize_name
 
 """
-from typing import Any
-from updateCitation import CitationNexus
+from __future__ import annotations
+
+from typing import Any, TYPE_CHECKING
 import packaging.utils
+
+if TYPE_CHECKING:
+	from updateCitation import CitationNexus
 
 def getPyPIrelease(nexusCitation: CitationNexus) -> dict[str, Any]:
 	"""Construct the PyPI release URL dictionary from `CitationNexus` metadata.

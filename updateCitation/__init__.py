@@ -1,3 +1,4 @@
+# pyright: reportUnusedImport=none
 """Access citation metadata aggregation and CITATION.cff generation.
 
 (AI generated docstring)
@@ -41,6 +42,8 @@ References
 """
 
 # isort: split
+from __future__ import annotations
+
 from updateCitation.variables import (
 	CitationNexus, CitationNexusFieldsProtected, filename_pyprojectDOTtomlDEFAULT, formatDateCFF, FREAKOUT, gitUserEmailFALLBACK,
 	mapNexusCitation2pyprojectDOTtoml, SettingsPackage, Z0Z_mappingFieldsURLFromPyPAMetadataToCFF)

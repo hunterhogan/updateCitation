@@ -31,10 +31,10 @@ References
 	Internal package reference
 
 """
-from collections.abc import Generator
+from __future__ import annotations
+
 from contextlib import contextmanager
-from pathlib import Path
-from typing import Any
+from typing import Any, TYPE_CHECKING
 from updateCitation import CitationNexus, compareVersions, formatDateCFF, FREAKOUT, gitUserEmailFALLBACK, SettingsPackage
 import datetime
 import github
@@ -43,8 +43,12 @@ import os
 import subprocess
 import warnings
 
+if TYPE_CHECKING:
+	from collections.abc import Generator
+	from pathlib import Path
+
 @contextmanager
-def GitHubClient(tokenAsStr: str | None) -> Generator[github.Github, None, None]:
+def GitHubClient(tokenAsStr: str | None) -> Generator[github.Github]:
 	"""Create an authenticated GitHub API client as a context manager.
 
 	(AI generated docstring)
@@ -177,8 +181,7 @@ def GitHubRepository(nexusCitation: CitationNexus, truth: SettingsPackage) -> Ge
 
 	with GitHubClient(truth.GITHUB_TOKEN) as gitHubClient:
 		full_name_or_id: str = nexusCitation.repository.replace("https://github.com/", "").replace(".git", "")
-		gitHubRepository = gitHubClient.get_repo(full_name_or_id)
-		yield gitHubRepository
+		yield gitHubClient.get_repo(full_name_or_id)
 
 def gittyUpGitAmendGitHub(truth: SettingsPackage, nexusCitation: CitationNexus, pathFilenameCitationSSOT: Path, pathFilenameCitationDOTcffRepository: Path) -> None:
 	"""Commit and push citation file from a GitHub Actions environment.
@@ -282,11 +285,13 @@ def getGitHubRelease(nexusCitation: CitationNexus, truth: SettingsPackage) -> di
 	[2] updateCitation.pypa.compareVersions
 		Internal package reference
 
-	"""
+	"""  # noqa: DOC501
 	if not nexusCitation.repository:
 		return None
 
-	try: # NOTE latestRelease.tag_name == nexusCitation.version
+	# TODO I think my goal here is to get the information, but carry on if there is an exception. I
+	# suspect I should use contextlib instead.
+	try:  # NOTE latestRelease.tag_name == nexusCitation.version
 		if not nexusCitation.version:
 			raise FREAKOUT
 

@@ -26,6 +26,8 @@ References
 	https://packaging.pypa.io/en/stable/version.html
 
 """
+from __future__ import annotations
+
 from packaging.metadata import Metadata as PyPAMetadata
 from typing import Any, cast
 from updateCitation import CitationNexus, Z0Z_mappingFieldsURLFromPyPAMetadataToCFF
@@ -154,9 +156,9 @@ def getPyPAMetadata(packageData: dict[str, Any]) -> PyPAMetadata:
 		license_expression=licenseExpression,
 		metadata_version="2.4",
 # NOTE packaging.metadata.InvalidMetadata: 'name' is a required field
-		name=packaging.utils.canonicalize_name(packageData.get("name"), validate=True),
+		name=packaging.utils.canonicalize_name(packageData["name"], validate=True),
 		project_urls=dictionaryProjectURLs,
-		version=cast(str, packageData.get("version")),  # pyright: ignore[reportArgumentType]
+		version=cast("str", packageData.get("version")),  # pyright: ignore[reportArgumentType]
 	)
 
 	return PyPAMetadata().from_raw(metadataRaw)
