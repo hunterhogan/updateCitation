@@ -36,6 +36,7 @@ from __future__ import annotations
 from contextlib import contextmanager
 from github import GithubException
 from github.InputGitAuthor import InputGitAuthor
+from pathlib import Path
 from typing import TYPE_CHECKING
 from updateCitation import (
 	CitationNexus, comparandPrecedesComparator, compareVersions, formatDateCFF, FREAKOUT, gitUserEmailFALLBACK, Identifier, SettingsPackage)
@@ -53,7 +54,6 @@ if TYPE_CHECKING:
 	from github.GitRelease import GitRelease
 	from github.NamedUser import NamedUser as GitHubNamedUser
 	from github.Repository import Repository
-	from pathlib import Path
 	from updateCitation import GitHubReleaseData
 
 @contextmanager
@@ -244,7 +244,7 @@ def gittyUpGitAmendGitHub(truth: SettingsPackage, nexusCitation: CitationNexus, 
 		if isinstance(contentFileCitationSSOT, list):
 			raise FREAKOUT
 
-		contentCitationSSOT: str = pathFilenameCitationSSOT.read_text(encoding="utf-8")
+		contentCitationSSOT: str = Path(pathFilenameCitationSSOT).read_text(encoding="utf-8")
 		if contentFileCitationSSOT.decoded_content.decode("utf-8") != contentCitationSSOT:
 			gitHubRepository.update_file(
 				str(pathFilenameCitationSSOT)
@@ -260,7 +260,7 @@ def gittyUpGitAmendGitHub(truth: SettingsPackage, nexusCitation: CitationNexus, 
 		if isinstance(contentFileCitationDOTcffRepository, list):
 			raise FREAKOUT
 
-		contentCitationDOTcffRepository: str = pathFilenameCitationDOTcffRepository.read_text(encoding="utf-8")
+		contentCitationDOTcffRepository: str = Path(pathFilenameCitationDOTcffRepository).read_text(encoding="utf-8")
 		if contentFileCitationDOTcffRepository.decoded_content.decode("utf-8") != contentCitationDOTcffRepository:
 			gitHubRepository.update_file(
 				str(pathFilenameCitationDOTcffRepository)
