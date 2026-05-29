@@ -1,10 +1,15 @@
 from __future__ import annotations
 
+from ruamel.yaml import YAML
 from tests.conftest import standardizedEqualTo
-from typing import Any
+from typing import Any, TYPE_CHECKING
 from unittest.mock import MagicMock, patch
 from updateCitation import addGitHubRelease, addGitHubSettings, CitationNexus, SettingsPackage
 from updateCitation.github import getGitHubRelease
+import pytest
+
+if TYPE_CHECKING:
+	from pathlib import Path
 
 def test_addGitHubSettings_preservesGitUserEmail(settingsPackageTesting: SettingsPackage) -> None:
 	emailBefore = settingsPackageTesting.gitUserEmail
@@ -12,6 +17,51 @@ def test_addGitHubSettings_preservesGitUserEmail(settingsPackageTesting: Setting
 	assert updatedPackage.gitUserEmail == emailBefore, (
 		f"Expected email to remain {emailBefore}, "
 		f"but got {updatedPackage.gitUserEmail}"
+	)
+
+@pytest.mark.parametrize("environmentVariableName, tokenExpected", [
+	("GITHUB_TOKEN", "tokenFibonacci13"),
+])
+def test_addGitHubSettings_readsGitHubTokenEnvironment(
+	environmentVariableName: str,
+	tokenExpected: str,
+	monkeypatch: pytest.MonkeyPatch,
+	settingsPackageTesting: SettingsPackage,
+) -> None:
+	settingsPackageTesting.GITHUB_TOKEN = None
+	monkeypatch.setenv(environmentVariableName, tokenExpected)
+	updatedPackage = addGitHubSettings(settingsPackageTesting)
+	assert updatedPackage.GITHUB_TOKEN == tokenExpected, (
+		f"addGitHubSettings returned {updatedPackage.GITHUB_TOKEN}, expected {tokenExpected} "
+		f"from {environmentVariableName}."
+	)
+
+@pytest.mark.parametrize("pathFilenameWorkflowFixtureName", [
+	"pathFilenameWorkflowUpdateCitation",
+	"pathFilenameWorkflowUpdateCitationPackaged",
+])
+def test_updateCitationWorkflow_installsUpdateCitationAndExposesGitHubToken(
+	pathFilenameWorkflowFixtureName: str,
+	request: pytest.FixtureRequest,
+) -> None:
+	pathFilenameWorkflow: Path = request.getfixturevalue(pathFilenameWorkflowFixtureName)
+	workflowData: dict[str, Any] = YAML(typ="safe").load(pathFilenameWorkflow.read_text(encoding="utf-8"))  # pyright: ignore[reportUnknownMemberType]
+	dictionaryStepInstallRun: dict[str, Any] = next(
+		dictionaryStep
+		for dictionaryStep in workflowData["jobs"]["updateCitation"]["steps"]
+		if dictionaryStep.get("name") == "Install and run updateCitation"
+	)
+	assert dictionaryStepInstallRun["env"]["GITHUB_TOKEN"] == "${{ github.token }}", (  # noqa: S105
+		f"{pathFilenameWorkflow} did not expose github.token as GITHUB_TOKEN for updateCitation."
+	)
+	assert "pip install updateCitation" in dictionaryStepInstallRun["run"], (
+		f"{pathFilenameWorkflow} did not install updateCitation with pip."
+	)
+	assert "python -m pip install ." not in dictionaryStepInstallRun["run"], (
+		f"{pathFilenameWorkflow} installs from the local checkout instead of the reusable updateCitation package."
+	)
+	assert workflowData["permissions"]["contents"] == "write", (
+		f"{pathFilenameWorkflow} grants {workflowData['permissions']['contents']}, expected contents write."
 	)
 
 def test_getGitHubRelease_noRepository(nexusCitationTesting: CitationNexus, settingsPackageTesting: SettingsPackage) -> None:
@@ -55,10 +105,10 @@ def test_getGitHubRelease_successfulResponse(mockGitHubRepo: MagicMock, nexusCit
 	releaseData = getGitHubRelease(nexusCitationTesting, settingsPackageTesting)
 
 	assert releaseData is not None
-	assert releaseData["commit"] == "abc123"
+	assert releaseData["commit"] == "abc123"  # pyright: ignore[reportTypedDictNotRequiredAccess]
 	assert releaseData["dateDASHreleased"] == "2025-06-02"
 	assert len(releaseData["identifiers"]) == 1
-	assert releaseData["identifiers"][0]["value"] == "https://github.com/owner/repo/releases/tag/1.0.0"
+	assert releaseData["identifiers"][0]["value"] == "https://github.com/owner/repo/releases/tag/1.0.0"  # pyright: ignore[reportTypedDictNotRequiredAccess]
 
 @patch('updateCitation.github.getGitHubRelease')
 def test_addGitHubRelease_withValidReleaseData(mockGetRelease: MagicMock, nexusCitationTesting: CitationNexus, settingsPackageTesting: SettingsPackage) -> None:
