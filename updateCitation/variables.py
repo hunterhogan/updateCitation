@@ -178,7 +178,7 @@ class SettingsPackage:
 	pathFilenamePackageSSOT: pathlib.Path = pathlib.Path(pathRepository, filename_pyprojectDOTtoml)
 
 	filenameCitationDOTcff: str = 'CITATION.cff'
-	pathFilenameCitationDOTcffRepository: pathlib.Path = pathlib.Path(pathRepository, filenameCitationDOTcff)
+	pathFilenameCitationDOTcffRepository: pathlib.Path = pathlib.Path('.', filenameCitationDOTcff)
 	pathFilenameCitationSSOT: pathlib.Path = pathlib.Path(pathFilenameCitationDOTcffRepository)
 
 	Z0Z_addGitHubRelease: bool = True
