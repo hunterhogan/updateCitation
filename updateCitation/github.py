@@ -40,11 +40,11 @@ import datetime
 import github
 import github.Repository
 import os
-import subprocess
 import warnings
 
 if TYPE_CHECKING:
 	from collections.abc import Generator
+	from github.Branch import Branch
 	from pathlib import Path
 
 @contextmanager
@@ -130,18 +130,18 @@ def addGitHubSettings(truth: SettingsPackage) -> SettingsPackage:
 		with GitHubClient(truth.GITHUB_TOKEN) as gitHubClient:
 			try:
 				userGitHub = gitHubClient.get_user()
-				gitUserEmailFromGitHubUser = f"{userGitHub.id}+{userGitHub.login}@users.noreply.github.com"
+				gitUserEmailFromGitHubUser: str | None = f"{userGitHub.id}+{userGitHub.login}@users.noreply.github.com"
 			except github.GithubException:
 				gitUserEmailFromGitHubUser = None
 
-		gitHubActor = os.environ.get("GITHUB_ACTOR")
-		gitUserEmailGitHubActor = f"{gitHubActor}@users.noreply.github.com" if gitHubActor else None
+		gitHubActor: str | None = os.environ.get("GITHUB_ACTOR")
+		gitUserEmailGitHubActor: str | None = f"{gitHubActor}@users.noreply.github.com" if gitHubActor else None
 		truth.gitUserEmail = gitUserEmailFromGitHubUser or gitUserEmailGitHubActor or gitUserEmailFALLBACK
 
 	return truth
 
 @contextmanager
-def GitHubRepository(nexusCitation: CitationNexus, truth: SettingsPackage) -> Generator[github.Repository.Repository, None, None]:
+def GitHubRepository(nexusCitation: CitationNexus, truth: SettingsPackage) -> Generator[github.Repository.Repository]:
 	"""Create a GitHub repository instance as a context manager.
 
 	(AI generated docstring)
@@ -215,34 +215,58 @@ def gittyUpGitAmendGitHub(truth: SettingsPackage, nexusCitation: CitationNexus, 
 			truth, nexusCitation, truth.pathFilenameCitationSSOT,
 			truth.pathFilenameCitationDOTcffRepository)
 
-	"""
+	"""  # noqa: DOC501
 	environmentIsGitHubAction = bool(os.environ.get("GITHUB_ACTIONS") and os.environ.get("GITHUB_WORKFLOW"))
-	if not environmentIsGitHubAction or not nexusCitation.repository:
-		return
+	if environmentIsGitHubAction and nexusCitation.repository:
 
-	# TODO I don't like that this flow assumes `git` is installed and available in the environment.
-	# Can I use `GitHubRepository` instead of `subprocess`?
+		with GitHubRepository(nexusCitation, truth) as gitHubRepository:
+			branchName: str = os.environ.get("GITHUB_HEAD_REF") or os.environ.get("GITHUB_REF_NAME") or gitHubRepository.default_branch
+			branch: Branch = gitHubRepository.get_branch(branchName)
+			previousCommitMessageLines: list[str] = branch.commit.commit.message.strip().splitlines()
+			previousCommitMessage: str = previousCommitMessageLines[0].strip() if previousCommitMessageLines else ""
+			gitAuthor: github.InputGitAuthor = github.InputGitAuthor(truth.gitUserName, truth.gitUserEmail)
+			dictionaryPathsCitation: dict[str, Path] = {
+				pathFilename.resolve().relative_to(truth.pathRepository).as_posix(): pathFilename
+				for pathFilename in (pathFilenameCitationSSOT, pathFilenameCitationDOTcffRepository)
+			}
 
-	subprocess.run(["git", "config", "user.name", truth.gitUserName])
-	subprocess.run(["git", "config", "user.email", truth.gitUserEmail])
-	# Get the previous commit message
-	previousCommitResult = subprocess.run(["git", "log", "-1", "--pretty=format:%s"], capture_output=True, text=True)
-	if previousCommitResult.returncode == 0 and previousCommitResult.stdout.strip():
-		previousCommitMessage = previousCommitResult.stdout.strip()
-		# Only append if the previous message doesn't already contain citation update text
-		if "Update CITATION.cff" not in previousCommitMessage:
-			combinedCommitMessage = f"{previousCommitMessage} + Update CITATION.cff [skip ci]"
-		else:
-			combinedCommitMessage = truth.gitCommitMessage
-	else:
-		combinedCommitMessage = truth.gitCommitMessage
+			if previousCommitMessage:
+				# Only append if the previous message doesn't already contain citation update text
+				if "Update CITATION.cff" not in previousCommitMessage:
+					combinedCommitMessage: str = f"{previousCommitMessage} + Update CITATION.cff [skip ci]"
+				else:
+					combinedCommitMessage = truth.gitCommitMessage
+			else:
+				combinedCommitMessage = truth.gitCommitMessage
 
-	# Stage the citation files
-	subprocess.run(["git", "add", str(pathFilenameCitationSSOT), str(pathFilenameCitationDOTcffRepository)])
-
-	commitResult = subprocess.run(["git", "commit", "-m", combinedCommitMessage])
-	if commitResult.returncode == 0:
-		subprocess.run(["git", "push", "origin", "HEAD"])
+			for pathCitationRepository, pathFilenameCitation in dictionaryPathsCitation.items():
+				contentCitation: str = pathFilenameCitation.read_text(encoding="utf-8")
+				try:
+					contentFile = gitHubRepository.get_contents(pathCitationRepository, ref=branchName)
+				except github.GithubException as exception:
+					if exception.status != 404:
+						raise
+					gitHubRepository.create_file(
+						pathCitationRepository
+						, combinedCommitMessage
+						, contentCitation
+						, branch=branchName
+						, author=gitAuthor
+						, committer=gitAuthor
+					)
+				else:
+					if isinstance(contentFile, list):
+						raise FREAKOUT
+					if contentFile.decoded_content.decode("utf-8") != contentCitation:
+						gitHubRepository.update_file(
+							pathCitationRepository
+							, combinedCommitMessage
+							, contentCitation
+							, contentFile.sha
+							, branch=branchName
+							, author=gitAuthor
+							, committer=gitAuthor,
+						)
 
 def getGitHubRelease(nexusCitation: CitationNexus, truth: SettingsPackage) -> dict[str, Any] | None:
 	"""Retrieve the latest release information from a GitHub repository.
@@ -286,53 +310,50 @@ def getGitHubRelease(nexusCitation: CitationNexus, truth: SettingsPackage) -> di
 		Internal package reference
 
 	"""  # noqa: DOC501
-	if not nexusCitation.repository:
-		return None
+	if nexusCitation.repository:
 
-	# TODO I think my goal here is to get the information, but carry on if there is an exception. I
-	# suspect I should use contextlib instead.
-	try:  # NOTE latestRelease.tag_name == nexusCitation.version
-		if not nexusCitation.version:
-			raise FREAKOUT
+		# TODO I think my goal here is to get the information, but carry on if there is an exception. I
+		# suspect I should use contextlib instead.
+		try:  # NOTE releaseLatest.tag_name == nexusCitation.version  # noqa: PLW0717
+			if not nexusCitation.version:
+				raise FREAKOUT  # noqa: TRY301
 
-		with GitHubRepository(nexusCitation, truth) as gitHubRepository:
-			latestRelease = gitHubRepository.get_latest_release()
-			tagObject = gitHubRepository.get_git_ref(f'tags/{latestRelease.tag_name}').object
-			# TODO `commitLatestRelease` should be fixed but it's not
-			commitLatestRelease = tagObject.sha if tagObject.type == 'tag' else tagObject.sha
-			commitLatestCommit = gitHubRepository.get_commit(gitHubRepository.default_branch).sha
+			with GitHubRepository(nexusCitation, truth) as gitHubRepository:
+				releaseLatest = gitHubRepository.get_latest_release()
+				tagObject = gitHubRepository.get_git_ref(f'tags/{releaseLatest.tag_name}').object
+				commitReleaseLatest: str = gitHubRepository.get_git_tag(tagObject.sha).object.sha if tagObject.type == 'tag' else tagObject.sha
 
-		urlRelease: str = latestRelease.html_url
+			urlRelease: str = releaseLatest.html_url
 
-		dictionaryRelease: dict[str, Any] = {
-			"commit": commitLatestRelease,
-			"dateDASHreleased": latestRelease.published_at.strftime(formatDateCFF),
-			"identifiers": [{
-				"type": "url",
-				"value": urlRelease,
-				"description": f"The URL for {nexusCitation.title} {latestRelease.tag_name}."
-			}] if urlRelease else [],
-			"repositoryDASHcode": urlRelease,
-		}
-
-		if compareVersions(latestRelease.tag_name, nexusCitation.version) == -1:
-			dictionaryReleaseHypothetical: dict[str, Any] = {
-				"commit": commitLatestCommit,
-				"dateDASHreleased": datetime.datetime.now(datetime.UTC).strftime(formatDateCFF),
+			dictionaryRelease: dict[str, Any] = {
+				"commit": commitReleaseLatest,
+				"dateDASHreleased": releaseLatest.published_at.strftime(formatDateCFF),
 				"identifiers": [{
 					"type": "url",
-					"value": urlRelease.replace(latestRelease.tag_name, nexusCitation.version),
-					"description": f"The URL for {nexusCitation.title} {nexusCitation.version}."
+					"value": urlRelease,
+					"description": f"The URL for {nexusCitation.title} {releaseLatest.tag_name}."
 				}] if urlRelease else [],
-				"repositoryDASHcode": urlRelease.replace(latestRelease.tag_name, nexusCitation.version),
+				"repositoryDASHcode": urlRelease,
 			}
-			dictionaryRelease.update(dictionaryReleaseHypothetical)
 
-		return dictionaryRelease
+			if compareVersions(releaseLatest.tag_name, nexusCitation.version) == -1:
+				dictionaryReleaseHypothetical: dict[str, Any] = {
+					"dateDASHreleased": datetime.datetime.now(datetime.UTC).strftime(formatDateCFF),
+					"identifiers": [{
+						"type": "url",
+						"value": urlRelease.replace(releaseLatest.tag_name, nexusCitation.version),
+						"description": f"The URL for {nexusCitation.title} {nexusCitation.version}."
+					}] if urlRelease else [],
+					"repositoryDASHcode": urlRelease.replace(releaseLatest.tag_name, nexusCitation.version),
+				}
+				dictionaryRelease.update(dictionaryReleaseHypothetical)
 
-	except Exception as ERRORmessage:
-		warnings.warn(f"Failed to get GitHub release information. {ERRORmessage}", UserWarning, stacklevel=2)
-		return None
+			return dictionaryRelease
+
+		except Exception as ERRORmessage:
+			warnings.warn(f"Failed to get GitHub release information. {ERRORmessage}", UserWarning, stacklevel=2)
+			return None
+	return None
 
 def addGitHubRelease(nexusCitation: CitationNexus, truth: SettingsPackage) -> CitationNexus:
 	"""Populate a `CitationNexus` with GitHub release metadata.
