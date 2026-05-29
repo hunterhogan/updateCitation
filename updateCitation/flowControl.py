@@ -20,12 +20,16 @@ References
 	https://packaging.python.org/en/latest/specifications/pyproject-toml/
 
 """
-from os import PathLike
+from __future__ import annotations
+
 from pathlib import Path
-from typing import Any
+from typing import Any, TYPE_CHECKING
 from updateCitation import (
 	add_pyprojectDOTtoml, addCitation, addGitHubRelease, addGitHubSettings, addPyPAMetadata, addPyPIrelease, CitationNexus,
 	filename_pyprojectDOTtomlDEFAULT, getSettingsPackage, gittyUpGitAmendGitHub, SettingsPackage, writeCitation)
+
+if TYPE_CHECKING:
+	from os import PathLike
 
 def here(pathFilename_pyprojectDOTtoml: str | PathLike[Any] | None = None) -> None:
 	"""Run the full citation update workflow from `pyproject.toml` to CITATION.cff.
@@ -87,7 +91,7 @@ def here(pathFilename_pyprojectDOTtoml: str | PathLike[Any] | None = None) -> No
 		raise ValueError(message)
 
 	if Path(truth.pathFilenameCitationSSOT).exists():
-		pathFilenameCitationSSOT = truth.pathFilenameCitationSSOT
+		pathFilenameCitationSSOT: Path = truth.pathFilenameCitationSSOT
 	elif Path(truth.pathFilenameCitationDOTcffRepository).exists():
 		pathFilenameCitationSSOT = truth.pathFilenameCitationDOTcffRepository
 	else:

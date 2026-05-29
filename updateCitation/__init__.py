@@ -1,4 +1,3 @@
-# pyright: reportUnusedImport=none
 """Access citation metadata aggregation and CITATION.cff generation.
 
 (AI generated docstring)
@@ -44,24 +43,34 @@ References
 # isort: split
 from __future__ import annotations
 
+from updateCitation._semiotics import comparandPrecedesComparator as comparandPrecedesComparator
+
+# isort: split
+from updateCitation._theTypes import GitHubReleaseData as GitHubReleaseData
+
+# isort: split
 from updateCitation.variables import (
-	CitationNexus, CitationNexusFieldsProtected, filename_pyprojectDOTtomlDEFAULT, formatDateCFF, FREAKOUT, gitUserEmailFALLBACK,
-	mapNexusCitation2pyprojectDOTtoml, SettingsPackage, Z0Z_mappingFieldsURLFromPyPAMetadataToCFF)
+	CitationNexus as CitationNexus, CitationNexusFieldsProtected as CitationNexusFieldsProtected,
+	filename_pyprojectDOTtomlDEFAULT as filename_pyprojectDOTtomlDEFAULT, formatDateCFF as formatDateCFF, FREAKOUT as FREAKOUT,
+	gitUserEmailFALLBACK as gitUserEmailFALLBACK, Identifier as Identifier,
+	mapNexusCitation2pyprojectDOTtoml as mapNexusCitation2pyprojectDOTtoml, SettingsPackage as SettingsPackage,
+	Z0Z_mappingFieldsURLFromPyPAMetadataToCFF as Z0Z_mappingFieldsURLFromPyPAMetadataToCFF)
 
 # isort: split
-from updateCitation.pyprojectDOTtoml import add_pyprojectDOTtoml, getSettingsPackage
+from updateCitation.pyprojectDOTtoml import add_pyprojectDOTtoml as add_pyprojectDOTtoml, getSettingsPackage as getSettingsPackage
 
 # isort: split
-from updateCitation.citationFileFormat import addCitation, writeCitation
+from updateCitation.citationFileFormat import addCitation as addCitation, writeCitation as writeCitation
 
 # isort: split
-from updateCitation.pypa import addPyPAMetadata, compareVersions
+from updateCitation.pypa import addPyPAMetadata as addPyPAMetadata, compareVersions as compareVersions
 
 # isort: split
-from updateCitation.github import addGitHubRelease, addGitHubSettings, gittyUpGitAmendGitHub
+from updateCitation.github import (
+	addGitHubRelease as addGitHubRelease, addGitHubSettings as addGitHubSettings, gittyUpGitAmendGitHub as gittyUpGitAmendGitHub)
 
 # isort: split
-from updateCitation.pypi import addPyPIrelease
+from updateCitation.pypi import addPyPIrelease as addPyPIrelease
 
 # isort: split
 from updateCitation.flowControl import here as here

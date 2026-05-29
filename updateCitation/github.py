@@ -34,18 +34,25 @@ References
 from __future__ import annotations
 
 from contextlib import contextmanager
-from typing import Any, TYPE_CHECKING
-from updateCitation import CitationNexus, compareVersions, formatDateCFF, FREAKOUT, gitUserEmailFALLBACK, SettingsPackage
+from github import GithubException
+from pathlib import Path
+from typing import TYPE_CHECKING
+from updateCitation import (
+	CitationNexus, comparandPrecedesComparator, compareVersions, formatDateCFF, FREAKOUT, gitUserEmailFALLBACK, Identifier, SettingsPackage)
 import datetime
 import github
-import github.Repository
 import os
 import warnings
 
 if TYPE_CHECKING:
 	from collections.abc import Generator
+	from github.AuthenticatedUser import AuthenticatedUser as GitHubAuthenticatedUser
 	from github.Branch import Branch
-	from pathlib import Path
+	from github.GitObject import GitObject
+	from github.GitRelease import GitRelease
+	from github.NamedUser import NamedUser as GitHubNamedUser
+	from github.Repository import Repository
+	from updateCitation import GitHubReleaseData
 
 @contextmanager
 def GitHubClient(tokenAsStr: str | None) -> Generator[github.Github]:
@@ -123,15 +130,14 @@ def addGitHubSettings(truth: SettingsPackage) -> SettingsPackage:
 		Internal package reference
 
 	"""
-# TODO low priority: make "load token from environment variable" optional
 	truth.GITHUB_TOKEN = truth.GITHUB_TOKEN or os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
 
 	if not truth.gitUserEmail:
 		with GitHubClient(truth.GITHUB_TOKEN) as gitHubClient:
 			try:
-				userGitHub = gitHubClient.get_user()
+				userGitHub: GitHubAuthenticatedUser | GitHubNamedUser = gitHubClient.get_user()
 				gitUserEmailFromGitHubUser: str | None = f"{userGitHub.id}+{userGitHub.login}@users.noreply.github.com"
-			except github.GithubException:
+			except GithubException:
 				gitUserEmailFromGitHubUser = None
 
 		gitHubActor: str | None = os.environ.get("GITHUB_ACTOR")
@@ -141,7 +147,7 @@ def addGitHubSettings(truth: SettingsPackage) -> SettingsPackage:
 	return truth
 
 @contextmanager
-def GitHubRepository(nexusCitation: CitationNexus, truth: SettingsPackage) -> Generator[github.Repository.Repository]:
+def GitHubRepository(nexusCitation: CitationNexus, truth: SettingsPackage) -> Generator[Repository]:
 	"""Create a GitHub repository instance as a context manager.
 
 	(AI generated docstring)
@@ -216,17 +222,20 @@ def gittyUpGitAmendGitHub(truth: SettingsPackage, nexusCitation: CitationNexus, 
 			truth.pathFilenameCitationDOTcffRepository)
 
 	"""  # noqa: DOC501
-	environmentIsGitHubAction = bool(os.environ.get("GITHUB_ACTIONS") and os.environ.get("GITHUB_WORKFLOW"))
+	environmentIsGitHubAction: bool = bool(os.environ.get("GITHUB_ACTIONS") and os.environ.get("GITHUB_WORKFLOW"))
 	if environmentIsGitHubAction and nexusCitation.repository:
 
 		with GitHubRepository(nexusCitation, truth) as gitHubRepository:
 			branchName: str = os.environ.get("GITHUB_HEAD_REF") or os.environ.get("GITHUB_REF_NAME") or gitHubRepository.default_branch
 			branch: Branch = gitHubRepository.get_branch(branchName)
 			previousCommitMessageLines: list[str] = branch.commit.commit.message.strip().splitlines()
-			previousCommitMessage: str = previousCommitMessageLines[0].strip() if previousCommitMessageLines else ""
+			if previousCommitMessageLines:
+				previousCommitMessage: str = previousCommitMessageLines[0].strip()
+			else:
+				previousCommitMessage = ""
 			gitAuthor: github.InputGitAuthor = github.InputGitAuthor(truth.gitUserName, truth.gitUserEmail)
 			dictionaryPathsCitation: dict[str, Path] = {
-				pathFilename.resolve().relative_to(truth.pathRepository).as_posix(): pathFilename
+				Path(pathFilename).relative_to(truth.pathRepository).as_posix(): Path(pathFilename)
 				for pathFilename in (pathFilenameCitationSSOT, pathFilenameCitationDOTcffRepository)
 			}
 
@@ -265,10 +274,10 @@ def gittyUpGitAmendGitHub(truth: SettingsPackage, nexusCitation: CitationNexus, 
 							, contentFile.sha
 							, branch=branchName
 							, author=gitAuthor
-							, committer=gitAuthor,
+							, committer=gitAuthor
 						)
 
-def getGitHubRelease(nexusCitation: CitationNexus, truth: SettingsPackage) -> dict[str, Any] | None:
+def getGitHubRelease(nexusCitation: CitationNexus, truth: SettingsPackage) -> GitHubReleaseData | None:
 	"""Retrieve the latest release information from a GitHub repository.
 
 	(AI generated docstring)
@@ -319,13 +328,16 @@ def getGitHubRelease(nexusCitation: CitationNexus, truth: SettingsPackage) -> di
 				raise FREAKOUT  # noqa: TRY301
 
 			with GitHubRepository(nexusCitation, truth) as gitHubRepository:
-				releaseLatest = gitHubRepository.get_latest_release()
-				tagObject = gitHubRepository.get_git_ref(f'tags/{releaseLatest.tag_name}').object
-				commitReleaseLatest: str = gitHubRepository.get_git_tag(tagObject.sha).object.sha if tagObject.type == 'tag' else tagObject.sha
+				releaseLatest: GitRelease = gitHubRepository.get_latest_release()
+				tagObject: GitObject = gitHubRepository.get_git_ref(f'tags/{releaseLatest.tag_name}').object
+				if tagObject.type == 'tag':
+					commitReleaseLatest: str = gitHubRepository.get_git_tag(tagObject.sha).object.sha
+				else:
+					commitReleaseLatest: str = tagObject.sha
 
 			urlRelease: str = releaseLatest.html_url
 
-			dictionaryRelease: dict[str, Any] = {
+			dictionaryRelease: GitHubReleaseData = {
 				"commit": commitReleaseLatest,
 				"dateDASHreleased": releaseLatest.published_at.strftime(formatDateCFF),
 				"identifiers": [{
@@ -336,8 +348,8 @@ def getGitHubRelease(nexusCitation: CitationNexus, truth: SettingsPackage) -> di
 				"repositoryDASHcode": urlRelease,
 			}
 
-			if compareVersions(releaseLatest.tag_name, nexusCitation.version) == -1:
-				dictionaryReleaseHypothetical: dict[str, Any] = {
+			if compareVersions(releaseLatest.tag_name, nexusCitation.version) == comparandPrecedesComparator:
+				dictionaryReleaseHypothetical: GitHubReleaseData = {
 					"dateDASHreleased": datetime.datetime.now(datetime.UTC).strftime(formatDateCFF),
 					"identifiers": [{
 						"type": "url",
@@ -397,22 +409,22 @@ def addGitHubRelease(nexusCitation: CitationNexus, truth: SettingsPackage) -> Ci
 		Internal package reference
 
 	"""
-	gitHubReleaseData: dict[str, Any] | None = getGitHubRelease(nexusCitation, truth)
+	gitHubReleaseData: GitHubReleaseData | None = getGitHubRelease(nexusCitation, truth)
 
 	if gitHubReleaseData:
-		commitSherpa = gitHubReleaseData.get("commit")
+		commitSherpa: str | None = gitHubReleaseData.get("commit")
 		if commitSherpa:
 			nexusCitation.commit = commitSherpa
 
-		dateDASHreleasedSherpa = gitHubReleaseData.get("dateDASHreleased")
+		dateDASHreleasedSherpa: str | None = gitHubReleaseData.get("dateDASHreleased")
 		if dateDASHreleasedSherpa:
 			nexusCitation.dateDASHreleased = dateDASHreleasedSherpa
 
-		identifiersSherpa = gitHubReleaseData.get("identifiers")
+		identifiersSherpa: list[Identifier] | None = gitHubReleaseData.get("identifiers")
 		if identifiersSherpa:
 			nexusCitation.identifiers = identifiersSherpa
 
-		repositoryDASHcodeSherpa = gitHubReleaseData.get("repositoryDASHcode")
+		repositoryDASHcodeSherpa: str | None = gitHubReleaseData.get("repositoryDASHcode")
 		if repositoryDASHcodeSherpa:
 			nexusCitation.repositoryDASHcode = repositoryDASHcodeSherpa
 

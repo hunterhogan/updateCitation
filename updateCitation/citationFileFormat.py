@@ -31,16 +31,16 @@ from __future__ import annotations
 
 from cffconvert.cli.create_citation import create_citation
 from operator import truth
+from pathlib import Path
 from typing import Any, TYPE_CHECKING
 import attrs
-import pathlib
 import ruamel.yaml
 
 if TYPE_CHECKING:
+	from cffconvert import Citation as cffCitation
 	from updateCitation import CitationNexus
-	import cffconvert
 
-def getCitation(pathFilenameCitationSSOT: pathlib.Path) -> dict[str, Any]:
+def getCitation(pathFilenameCitationSSOT: Path) -> dict[str, Any]:
 	"""Parse a CITATION.cff file and return the raw dictionary.
 
 	(AI generated docstring)
@@ -52,7 +52,7 @@ def getCitation(pathFilenameCitationSSOT: pathlib.Path) -> dict[str, Any]:
 
 	Parameters
 	----------
-	pathFilenameCitationSSOT : pathlib.Path
+	pathFilenameCitationSSOT : Path
 		The full path to the CITATION.cff file to parse.
 
 	Returns
@@ -69,11 +69,11 @@ def getCitation(pathFilenameCitationSSOT: pathlib.Path) -> dict[str, Any]:
 
 	"""
 	# Try to converge with cffconvert when possible.
-	citationObject: cffconvert.Citation = create_citation(infile=str(pathFilenameCitationSSOT), url=None)
+	citationObject: cffCitation = create_citation(infile=str(pathFilenameCitationSSOT), url=None)
 # NOTE `._parse()` is `ruamel.yaml.YAML` loader
 	return citationObject._parse()  # noqa: SLF001
 
-def addCitation(nexusCitation: CitationNexus, pathFilenameCitationSSOT: pathlib.Path) -> CitationNexus:
+def addCitation(nexusCitation: CitationNexus, pathFilenameCitationSSOT: Path) -> CitationNexus:
 	"""Populate a `CitationNexus` with field from an existing CITATION.cff file.
 
 	(AI generated docstring)
@@ -89,7 +89,7 @@ def addCitation(nexusCitation: CitationNexus, pathFilenameCitationSSOT: pathlib.
 	----------
 	nexusCitation : CitationNexus
 		The citation object to populate.
-	pathFilenameCitationSSOT : pathlib.Path
+	pathFilenameCitationSSOT : Path
 		The full path to the CITATION.cff file to read.
 
 	Returns
@@ -132,7 +132,7 @@ def addCitation(nexusCitation: CitationNexus, pathFilenameCitationSSOT: pathlib.
 	nexusCitation.setInStone("Citation")
 	return nexusCitation
 
-def writeCitation(nexusCitation: CitationNexus, pathFilenameCitationSSOT: pathlib.Path, pathFilenameCitationDOTcffRepo: pathlib.Path | None = None) -> bool:
+def writeCitation(nexusCitation: CitationNexus, pathFilenameCitationSSOT: Path, pathFilenameCitationDOTcffRepo: Path | None = None) -> bool:
 	"""Serialize a `CitationNexus` to a validated CITATION.cff file.
 
 	(AI generated docstring)
@@ -148,9 +148,9 @@ def writeCitation(nexusCitation: CitationNexus, pathFilenameCitationSSOT: pathli
 	----------
 	nexusCitation : CitationNexus
 		The citation object to serialize.
-	pathFilenameCitationSSOT : pathlib.Path
+	pathFilenameCitationSSOT : Path
 		The full path for the primary CITATION.cff output file.
-	pathFilenameCitationDOTcffRepo : pathlib.Path | None = None
+	pathFilenameCitationDOTcffRepo : Path | None = None
 		The full path for an optional second copy of the CITATION.cff file.
 
 	Returns
@@ -196,17 +196,17 @@ def writeCitation(nexusCitation: CitationNexus, pathFilenameCitationSSOT: pathli
 	for keyName in list(dictionaryCitation.keys()):
 		dictionaryCitation[keyName.replace("DASH", "-")] = dictionaryCitation.pop(keyName)
 
-	# This function and this context manager only exist to work around the fact that `ruamel.yaml` does not support `pathlib.Path` objects.
-	def writeStream(pathFilename: pathlib.Path) -> None:
-		pathFilename = pathlib.Path(pathFilename)
+	# This function and this context manager only exist to work around the fact that `ruamel.yaml` does not support `Path` objects.
+	def writeStream(pathFilename: Path) -> None:
+		pathFilename = Path(pathFilename)
 		pathFilename.parent.mkdir(parents=True, exist_ok=True)
 		with open(pathFilename, 'w', encoding="utf-8") as pathlibIsAStealthContextManagerThatRuamelCannotDetectAndRefusesToWorkWith:  # noqa: PTH123
 			yamlWorkhorse.dump(dictionaryCitation, pathlibIsAStealthContextManagerThatRuamelCannotDetectAndRefusesToWorkWith)  # pyright: ignore[reportUnknownMemberType]
 
 	# Write the validation file because I haven't figured out how to validate it as a stream yet.
-	pathFilenameForValidation: pathlib.Path = pathlib.Path(pathFilenameCitationSSOT).with_stem('validation')
+	pathFilenameForValidation: Path = Path(pathFilenameCitationSSOT).with_stem('validation')
 	writeStream(pathFilenameForValidation)
-	citationObject: cffconvert.Citation = create_citation(infile=str(pathFilenameForValidation), url=None)
+	citationObject: cffCitation = create_citation(infile=str(pathFilenameForValidation), url=None)
 	pathFilenameForValidation.unlink()
 
 	# If the validation succeeds, write the CFF file and the CFF repo file.

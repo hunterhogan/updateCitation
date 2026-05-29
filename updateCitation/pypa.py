@@ -139,7 +139,7 @@ def getPyPAMetadata(packageData: dict[str, Any]) -> PyPAMetadata:
 	dictionaryPackageDataURLs: dict[str, str] = packageData.get("urls", {})
 	dictionaryProjectURLs: dict[str, str] = {}
 	for urlName, url in dictionaryPackageDataURLs.items():
-		urlName = urlName.lower()
+		urlName: str = urlName.lower()
 		dictionaryProjectURLs[urlName] = url
 
 # NOTE Handle polymorphic license field (str or dict) per PEP 621 / PEP 639
@@ -220,7 +220,7 @@ def addPyPAMetadata(nexusCitation: CitationNexus, tomlPackageData: dict[str, Any
 
 	if pypaMetadata.project_urls:
 		for urlTarget in projectURLTargets:
-			url = pypaMetadata.project_urls.get(urlTarget, None)
+			url: str | None = pypaMetadata.project_urls.get(urlTarget, None)
 			if url:
 				setattr(nexusCitation, Z0Z_mappingFieldsURLFromPyPAMetadataToCFF[urlTarget], url)
 
