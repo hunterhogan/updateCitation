@@ -160,6 +160,8 @@ def getPyPAMetadata(packageData: dict[str, Any]) -> PyPAMetadata:
 		project_urls=dictionaryProjectURLs,
 		version=cast("str", packageData.get("version")),  # pyright: ignore[reportArgumentType]
 	)
+	if not licenseExpression:
+		del metadataRaw["license_expression"]
 
 	return PyPAMetadata().from_raw(metadataRaw)
 

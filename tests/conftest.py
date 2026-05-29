@@ -29,14 +29,12 @@ def resetCitationNexusProtectedFields() -> None:
 	CitationNexusFieldsProtected.clear()
 
 @pytest.fixture
-def pathTmpTesting(request: pytest.FixtureRequest) -> Path:
+def pathTmpTesting(tmp_path: Path) -> Path:
 	"""'path' means directory or folder, not file."""  # noqa: DOC201
-	pathTmp = pathTmpRoot / uuid.uuid4().hex
-	pathTmp.mkdir(parents=True, exist_ok=False)
-	return pathTmp
+	return tmp_path
 
 @pytest.fixture
-def pathFilenameTmpTesting(request: pytest.FixtureRequest) -> Path:
+def pathFilenameTmpTesting(request: pytest.FixtureRequest, tmp_path: Path) -> Path:
 	"""'filename' means file; 'pathFilename' means the full path and filename."""  # noqa: DOC201
 	try:
 		extension = request.param
@@ -44,7 +42,7 @@ def pathFilenameTmpTesting(request: pytest.FixtureRequest) -> Path:
 		extension = ".txt"
 
 	uuidString = uuid.uuid4().hex
-	pathFilenameTmp = Path(pathTmpRoot, uuidString[0:-8], uuidString[-8:None] + extension)
+	pathFilenameTmp = tmp_path / uuidString[0:-8] / (uuidString[-8:None] + extension)
 	pathFilenameTmp.parent.mkdir(parents=True, exist_ok=False)
 	return pathFilenameTmp
 
@@ -61,6 +59,14 @@ def nexusCitationTesting(request: pytest.FixtureRequest) -> CitationNexus:
 @pytest.fixture
 def citationAlphaDOTcff() -> Path:
 	return pathFilenameCitationAlphaDOTcff
+
+@pytest.fixture
+def pathFilenameWorkflowUpdateCitation() -> Path:
+	return Path(".github/workflows/updateCitation.yml")
+
+@pytest.fixture
+def pathFilenameWorkflowUpdateCitationPackaged() -> Path:
+	return Path("updateCitation/updateCitation.yml")
 
 """
 Section: Pytest fixtures for testing the updateCitation package"""

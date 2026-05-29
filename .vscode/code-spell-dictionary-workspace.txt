@@ -4,7 +4,9 @@ cffconvert
 cffobj
 cffstr
 commitish
+delenv
 dists
+getfixturevalue
 gitty
 httpx
 Hversion
