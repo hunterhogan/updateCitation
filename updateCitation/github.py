@@ -35,7 +35,7 @@ from __future__ import annotations
 
 from contextlib import contextmanager
 from github import GithubException
-from pathlib import Path
+from github.InputGitAuthor import InputGitAuthor
 from typing import TYPE_CHECKING
 from updateCitation import (
 	CitationNexus, comparandPrecedesComparator, compareVersions, formatDateCFF, FREAKOUT, gitUserEmailFALLBACK, Identifier, SettingsPackage)
@@ -48,10 +48,12 @@ if TYPE_CHECKING:
 	from collections.abc import Generator
 	from github.AuthenticatedUser import AuthenticatedUser as GitHubAuthenticatedUser
 	from github.Branch import Branch
+	from github.ContentFile import ContentFile
 	from github.GitObject import GitObject
 	from github.GitRelease import GitRelease
 	from github.NamedUser import NamedUser as GitHubNamedUser
 	from github.Repository import Repository
+	from pathlib import Path
 	from updateCitation import GitHubReleaseData
 
 @contextmanager
@@ -223,59 +225,52 @@ def gittyUpGitAmendGitHub(truth: SettingsPackage, nexusCitation: CitationNexus, 
 
 	"""  # noqa: DOC501
 	environmentIsGitHubAction: bool = bool(os.environ.get("GITHUB_ACTIONS") and os.environ.get("GITHUB_WORKFLOW"))
-	if environmentIsGitHubAction and nexusCitation.repository:
+	if not environmentIsGitHubAction or not nexusCitation.repository:
+		return
 
-		with GitHubRepository(nexusCitation, truth) as gitHubRepository:
-			branchName: str = os.environ.get("GITHUB_HEAD_REF") or os.environ.get("GITHUB_REF_NAME") or gitHubRepository.default_branch
-			branch: Branch = gitHubRepository.get_branch(branchName)
-			previousCommitMessageLines: list[str] = branch.commit.commit.message.strip().splitlines()
-			if previousCommitMessageLines:
-				previousCommitMessage: str = previousCommitMessageLines[0].strip()
-			else:
-				previousCommitMessage = ""
-			gitAuthor: github.InputGitAuthor = github.InputGitAuthor(truth.gitUserName, truth.gitUserEmail)
-			dictionaryPathsCitation: dict[str, Path] = {
-				Path(pathFilename).relative_to(truth.pathRepository).as_posix(): Path(pathFilename)
-				for pathFilename in (pathFilenameCitationSSOT, pathFilenameCitationDOTcffRepository)
-			}
+	with GitHubRepository(nexusCitation, truth) as gitHubRepository:
+		branchName: str = os.environ.get("GITHUB_HEAD_REF") or os.environ.get("GITHUB_REF_NAME") or gitHubRepository.default_branch
+		branch: Branch = gitHubRepository.get_branch(branchName)
+		previousCommitMessage: str = branch.commit.commit.message.strip().splitlines()[0].strip()
+		gitAuthor: InputGitAuthor = InputGitAuthor(truth.gitUserName, truth.gitUserEmail)
 
-			if previousCommitMessage:
-				# Only append if the previous message doesn't already contain citation update text
-				if "Update CITATION.cff" not in previousCommitMessage:
-					combinedCommitMessage: str = f"{previousCommitMessage} + Update CITATION.cff [skip ci]"
-				else:
-					combinedCommitMessage = truth.gitCommitMessage
-			else:
-				combinedCommitMessage = truth.gitCommitMessage
+		# Only append if the previous message doesn't already contain citation update text
+		if "Update CITATION.cff" not in previousCommitMessage:
+			combinedCommitMessage: str = f"{previousCommitMessage} + Update CITATION.cff [skip ci]"
+		else:
+			combinedCommitMessage = truth.gitCommitMessage
 
-			for pathCitationRepository, pathFilenameCitation in dictionaryPathsCitation.items():
-				contentCitation: str = pathFilenameCitation.read_text(encoding="utf-8")
-				try:
-					contentFile = gitHubRepository.get_contents(pathCitationRepository, ref=branchName)
-				except github.GithubException as exception:
-					if exception.status != 404:
-						raise
-					gitHubRepository.create_file(
-						pathCitationRepository
-						, combinedCommitMessage
-						, contentCitation
-						, branch=branchName
-						, author=gitAuthor
-						, committer=gitAuthor
-					)
-				else:
-					if isinstance(contentFile, list):
-						raise FREAKOUT
-					if contentFile.decoded_content.decode("utf-8") != contentCitation:
-						gitHubRepository.update_file(
-							pathCitationRepository
-							, combinedCommitMessage
-							, contentCitation
-							, contentFile.sha
-							, branch=branchName
-							, author=gitAuthor
-							, committer=gitAuthor
-						)
+		contentFileCitationSSOT: list[ContentFile] | ContentFile = gitHubRepository.get_contents(str(pathFilenameCitationSSOT), ref=branchName)
+		if isinstance(contentFileCitationSSOT, list):
+			raise FREAKOUT
+
+		contentCitationSSOT: str = pathFilenameCitationSSOT.read_text(encoding="utf-8")
+		if contentFileCitationSSOT.decoded_content.decode("utf-8") != contentCitationSSOT:
+			gitHubRepository.update_file(
+				str(pathFilenameCitationSSOT)
+				, combinedCommitMessage
+				, contentCitationSSOT
+				, contentFileCitationSSOT.sha
+				, branch=branchName
+				, author=gitAuthor
+				, committer=gitAuthor
+			)
+
+		contentFileCitationDOTcffRepository: list[ContentFile] | ContentFile = gitHubRepository.get_contents(str(pathFilenameCitationDOTcffRepository), ref=branchName)
+		if isinstance(contentFileCitationDOTcffRepository, list):
+			raise FREAKOUT
+
+		contentCitationDOTcffRepository: str = pathFilenameCitationDOTcffRepository.read_text(encoding="utf-8")
+		if contentFileCitationDOTcffRepository.decoded_content.decode("utf-8") != contentCitationDOTcffRepository:
+			gitHubRepository.update_file(
+				str(pathFilenameCitationDOTcffRepository)
+				, combinedCommitMessage
+				, contentCitationDOTcffRepository
+				, contentFileCitationDOTcffRepository.sha
+				, branch=branchName
+				, author=gitAuthor
+				, committer=gitAuthor
+			)
 
 def getGitHubRelease(nexusCitation: CitationNexus, truth: SettingsPackage) -> GitHubReleaseData | None:
 	"""Retrieve the latest release information from a GitHub repository.
