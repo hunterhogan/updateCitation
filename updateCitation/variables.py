@@ -71,7 +71,7 @@ import warnings
 """
 Long term:
 	`fieldsSSOT` will be something more like, the SSOT for this field is: ____
-	`Z0Z_addGitHubRelease` will be unnecessary. The flow will cycle through the SSOTs for each field. If the SSOT for a field is GitHub, then the flow will add the GitHub release.
+	`addGitHubRelease` will be unnecessary. The flow will cycle through the SSOTs for each field. If the SSOT for a field is GitHub, then the flow will add the GitHub release.
 """
 
 # TODO think of a clever way to dynamically set the default version
@@ -138,9 +138,9 @@ class SettingsPackage:
 		The full path to the CITATION.cff file in the repository root.
 	pathFilenameCitationSSOT : pathlib.Path
 		The full path to the authoritative CITATION.cff file.
-	Z0Z_addGitHubRelease : bool = True
+	addGitHubRelease : bool = True
 		Whether to include GitHub release metadata.
-	Z0Z_addPyPIrelease : bool = True
+	addPyPIrelease : bool = True
 		Whether to include PyPI release metadata.
 	pathReferences : pathlib.Path
 		The directory path for reference citation file.
@@ -181,8 +181,8 @@ class SettingsPackage:
 	pathFilenameCitationDOTcffRepository: pathlib.Path = pathlib.Path('.', filenameCitationDOTcff)
 	pathFilenameCitationSSOT: pathlib.Path = pathlib.Path(pathFilenameCitationDOTcffRepository)
 
-	Z0Z_addGitHubRelease: bool = True
-	Z0Z_addPyPIrelease: bool = True
+	addGitHubRelease: bool = True
+	addPyPIrelease: bool = True
 
 	pathReferences: pathlib.Path = pathlib.Path(pathRepository, 'citations')
 	projectURLTargets: set[str] = {"homepage", "license", "repository"}

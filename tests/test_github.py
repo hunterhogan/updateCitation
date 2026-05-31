@@ -40,24 +40,27 @@ def test_addGitHubSettings_readsGitHubTokenEnvironment(
 	"pathFilenameWorkflowUpdateCitation",
 	"pathFilenameWorkflowUpdateCitationPackaged",
 ])
-def test_updateCitationWorkflow_installsUpdateCitationAndExposesGitHubToken(
+def test_updateCitationWorkflow_runsUpdateCitationAndExposesGitHubToken(
 	pathFilenameWorkflowFixtureName: str,
 	request: pytest.FixtureRequest,
 ) -> None:
 	pathFilenameWorkflow: Path = request.getfixturevalue(pathFilenameWorkflowFixtureName)
+	if not pathFilenameWorkflow.exists():
+		pytest.skip(f"{pathFilenameWorkflow} is not present in this checkout.")
+
 	workflowData: dict[str, Any] = YAML(typ="safe").load(pathFilenameWorkflow.read_text(encoding="utf-8"))  # pyright: ignore[reportUnknownMemberType]
-	dictionaryStepInstallRun: dict[str, Any] = next(
+	dictionaryStepRun: dict[str, Any] = next(
 		dictionaryStep
 		for dictionaryStep in workflowData["jobs"]["updateCitation"]["steps"]
-		if dictionaryStep.get("name") == "Install and run updateCitation"
+		if dictionaryStep.get("name") == "Run updateCitation"
 	)
-	assert dictionaryStepInstallRun["env"]["GITHUB_TOKEN"] == "${{ github.token }}", (  # noqa: S105
+	assert dictionaryStepRun["env"]["GITHUB_TOKEN"] == "${{ github.token }}", (  # noqa: S105
 		f"{pathFilenameWorkflow} did not expose github.token as GITHUB_TOKEN for updateCitation."
 	)
-	assert "pip install updateCitation" in dictionaryStepInstallRun["run"], (
-		f"{pathFilenameWorkflow} did not install updateCitation with pip."
+	assert dictionaryStepRun["run"].strip() == "pipx run updateCitation", (
+		f"{pathFilenameWorkflow} does not run updateCitation with pipx."
 	)
-	assert "python -m pip install ." not in dictionaryStepInstallRun["run"], (
+	assert "python -m pip install ." not in dictionaryStepRun["run"], (
 		f"{pathFilenameWorkflow} installs from the local checkout instead of the reusable updateCitation package."
 	)
 	assert workflowData["permissions"]["contents"] == "write", (

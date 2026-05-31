@@ -102,9 +102,9 @@ def here(pathFilename_pyprojectDOTtoml: str | PathLike[Any] | None = None) -> No
 	nexusCitation = addCitation(nexusCitation, pathFilenameCitationSSOT)
 	nexusCitation = addPyPAMetadata(nexusCitation, truth.tomlPackageData, truth.projectURLTargets)
 	truth = addGitHubSettings(truth)
-	if truth.Z0Z_addGitHubRelease:
+	if truth.addGitHubRelease:
 		nexusCitation = addGitHubRelease(nexusCitation, truth)
-	if truth.Z0Z_addPyPIrelease:
+	if truth.addPyPIrelease:
 		nexusCitation = addPyPIrelease(nexusCitation)
 
 	validationStatus: bool = writeCitation(nexusCitation, truth.pathFilenameCitationSSOT, truth.pathFilenameCitationDOTcffRepository)

@@ -27,7 +27,7 @@ References
 """
 from __future__ import annotations
 
-from tomllib import loads as tomllib_loads
+from tomli import loads as tomli_loads
 from typing import Any, TYPE_CHECKING
 from updateCitation import CitationNexus, mapNexusCitation2pyprojectDOTtoml, SettingsPackage
 
@@ -70,7 +70,7 @@ def getSettingsPackage(pathFilename: Path) -> SettingsPackage:
 		Internal package reference
 
 	"""
-	Z0Z_tomlSherpa: dict[str, Any] = tomllib_loads(pathFilename.read_text(encoding="utf-8"))
+	Z0Z_tomlSherpa: dict[str, Any] = tomli_loads(pathFilename.read_text(encoding="utf-8"))
 	Z0Z_SettingsPackage: dict[str, Any] = {}
 	if Z0Z_tomlSherpa.get("tool"):
 		Z0Z_SettingsPackage = Z0Z_tomlSherpa["tool"].get("updateCitation", {})
@@ -102,7 +102,7 @@ def get_pyprojectDOTtoml(truth: SettingsPackage) -> SettingsPackage:
 		https://packaging.python.org/en/latest/specifications/pyproject-toml/
 
 	"""
-	truth.tomlPackageData = tomllib_loads(truth.pathFilenamePackageSSOT.read_text(encoding="utf-8"))['project']
+	truth.tomlPackageData = tomli_loads(truth.pathFilenamePackageSSOT.read_text(encoding="utf-8"))['project']
 	return truth
 
 def add_pyprojectDOTtoml(nexusCitation: CitationNexus, truth: SettingsPackage) -> CitationNexus:
