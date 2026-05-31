@@ -240,20 +240,21 @@ def gittyUpGitAmendGitHub(truth: SettingsPackage, nexusCitation: CitationNexus, 
 		else:
 			combinedCommitMessage = truth.gitCommitMessage
 
+		inputGitTreeElements: list[github.InputGitTreeElement] = []
+
 		contentFileCitationSSOT: list[ContentFile] | ContentFile = gitHubRepository.get_contents(str(pathFilenameCitationSSOT), ref=branchName)
 		if isinstance(contentFileCitationSSOT, list):
 			raise FREAKOUT
 
 		contentCitationSSOT: str = Path(pathFilenameCitationSSOT).read_text(encoding="utf-8")
 		if contentFileCitationSSOT.decoded_content.decode("utf-8") != contentCitationSSOT:
-			gitHubRepository.update_file(
-				str(pathFilenameCitationSSOT)
-				, combinedCommitMessage
-				, contentCitationSSOT
-				, contentFileCitationSSOT.sha
-				, branch=branchName
-				, author=gitAuthor
-				, committer=gitAuthor
+			inputGitTreeElements.append(
+				github.InputGitTreeElement(
+					str(pathFilenameCitationSSOT)
+					, "100644"
+					, "blob"
+					, content=contentCitationSSOT
+				)
 			)
 
 		contentFileCitationDOTcffRepository: list[ContentFile] | ContentFile = gitHubRepository.get_contents(str(pathFilenameCitationDOTcffRepository), ref=branchName)
@@ -262,15 +263,28 @@ def gittyUpGitAmendGitHub(truth: SettingsPackage, nexusCitation: CitationNexus, 
 
 		contentCitationDOTcffRepository: str = Path(pathFilenameCitationDOTcffRepository).read_text(encoding="utf-8")
 		if contentFileCitationDOTcffRepository.decoded_content.decode("utf-8") != contentCitationDOTcffRepository:
-			gitHubRepository.update_file(
-				str(pathFilenameCitationDOTcffRepository)
-				, combinedCommitMessage
-				, contentCitationDOTcffRepository
-				, contentFileCitationDOTcffRepository.sha
-				, branch=branchName
+			inputGitTreeElements.append(
+				github.InputGitTreeElement(
+					str(pathFilenameCitationDOTcffRepository)
+					, "100644"
+					, "blob"
+					, content=contentCitationDOTcffRepository
+				)
+			)
+
+		if inputGitTreeElements:
+			gitTreeCitationFiles = gitHubRepository.create_git_tree(
+				inputGitTreeElements
+				, base_tree=branch.commit.commit.tree
+			)
+			gitCommitCitationFiles = gitHubRepository.create_git_commit(
+				combinedCommitMessage
+				, gitTreeCitationFiles
+				, [branch.commit.commit]
 				, author=gitAuthor
 				, committer=gitAuthor
 			)
+			gitHubRepository.get_git_ref(f"heads/{branchName}").edit(gitCommitCitationFiles.sha)
 
 def getGitHubRelease(nexusCitation: CitationNexus, truth: SettingsPackage) -> GitHubReleaseData | None:
 	"""Retrieve the latest release information from a GitHub repository.
