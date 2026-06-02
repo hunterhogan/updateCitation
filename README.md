@@ -1,22 +1,22 @@
 # updateCitation
 
-Automatically update `CITATION.cff` from your Python project's `pyproject.toml`, GitHub release data, and PyPI release data.
+Automatically update `CITATION.cff` from your Python project's `pyproject.toml`, GitHub release data when enabled, and PyPI release data when enabled.
 
-The easiest setup is one GitHub Actions file. You do not need to install updateCitation on your computer, and you do not need to add anything to `pyproject.toml` unless you want to change the defaults.
+This README gives `updateCitation` specific commands and settings. For the surrounding tools, follow the tool maintainers' documentation: GitHub explains how [`CITATION.cff` files appear on GitHub](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-citation-files), Git explains [Git hooks](https://git-scm.com/docs/githooks), uv explains [`uv tool`](https://docs.astral.sh/uv/guides/tools/), `pre-commit` explains [`pre-commit`](https://pre-commit.com/), and PyPA explains [`pyproject.toml`](https://packaging.python.org/en/latest/guides/writing-pyproject-toml/).
 
 ## Quick Start
 
 Choose one of these:
 
-| Goal                                                    | Best choice       | File you create                        |
-| ------------------------------------------------------- | ----------------- | -------------------------------------- |
-| GitHub updates `CITATION.cff` after you push a commit.  | GitHub Action     | `.github/workflows/updateCitation.yml` |
-| Update `CITATION.cff` on your computer before a commit. | `Git` hook        | `.git/hooks/pre-commit`                |
-| Add updateCitation to an existing `pre-commit` setup.   | `pre-commit` hook | `.pre-commit-config.yaml`              |
+| Goal                                                                  | Good fit          | File you create                        |
+| --------------------------------------------------------------------- | ----------------- | -------------------------------------- |
+| GitHub updates `CITATION.cff` after pushes to a GitHub repository.    | GitHub Action     | `.github/workflows/updateCitation.yml` |
+| One computer updates `CITATION.cff` before local commits, using uv.   | `Git` hook        | `.git/hooks/pre-commit`                |
+| A shared local hook is configured in the repository for contributors. | `pre-commit` hook | `.pre-commit-config.yaml`              |
 
 ## Option: GitHub Action
 
-This is the simplest option. It runs on GitHub after you push.
+This is usually the most portable option for a GitHub-hosted repository. The workflow file is committed to the repository, so the update runs on GitHub after pushes and collaborators do not need `updateCitation` installed on their computers. GitHub's [Actions quickstart](https://docs.github.com/en/actions/get-started/quickstart) explains GitHub Actions; the workflow below is the `updateCitation`-specific part.
 
 1. In the top level of your repository, create a folder named `.github`.
 2. Inside `.github`, create a folder named `workflows`.
@@ -47,13 +47,17 @@ jobs:
         run: pipx run updateCitation
 ```
 
-5. Commit the file and push it to GitHub.
+1. Commit the file and push it to GitHub.
 
 If the default settings work for your project, you are done. You do not need a `[tool.updateCitation]` section in `pyproject.toml`.
 
 ## Option: Run Locally Before Pushing
 
-Running locally means `updateCitation` runs on your computer before changes are sent to GitHub. You can do this with a plain `Git` hook or with `pre-commit`.
+Running locally means `updateCitation` runs on your computer before changes are sent to GitHub, GitLab, Codeberg, or another Git host. You can do this with a plain `Git` hook or with `pre-commit`.
+
+A plain `Git` hook is local to one clone on one computer. The hook file lives inside `.git`, so it is not committed or shared with collaborators. The plain hook below uses [`uv tool`](https://docs.astral.sh/uv/guides/tools/), so you need [uv](https://docs.astral.sh/uv/) installed before using it. uv's own docs cover [uv installation](https://docs.astral.sh/uv/getting-started/installation/) and the details of managing tools with `uv tool`.
+
+For a shared local setup, `pre-commit` is often the practical option. The `.pre-commit-config.yaml` file is committed to the repository, and each collaborator runs `pre-commit install` once after cloning. That makes `pre-commit` the local-hook option in this README that can be shared across users and across Git hosting services.
 
 ### Are you using `pre-commit`?
 
@@ -63,37 +67,41 @@ Look in the top directory of your repository.
 - If there is no `.pre-commit-config.yaml`, your project is probably not using `pre-commit` yet.
 - You can also run `pre-commit --version` in a terminal. If it prints a version number, the `pre-commit` program is installed on your computer.
 
-If your project already has `.pre-commit-config.yaml`, use the `pre-commit` instructions below. If not, the plain `Git` hook is usually simpler for one person.
+If your project already has `.pre-commit-config.yaml`, use the `pre-commit` instructions below. If not, the plain `Git` hook may be enough for one user on one machine.
 
 ### `Git` Hook
 
-A `Git` hook runs when you commit. This file is local to your computer and is not uploaded to GitHub.
+A `Git` hook runs when you commit. This file is local to your computer and is not uploaded to GitHub or another Git host.
 
-1. In the top directory of your repository, open the hidden `.git` folder.
-2. Inside `.git`, open the `hooks` folder.
-3. Create a file named `pre-commit`.
-4. Paste this into `.git/hooks/pre-commit`:
+1. Install `updateCitation` as a uv-managed tool:
+
+```bash
+uv tool install updateCitation
+```
+
+This installs `updateCitation` outside your project virtual environment. You do not need to add `updateCitation` to the repository's own dependencies for this plain Git hook.
+
+1. In the top directory of your repository, find or create the hidden `.git/hooks` folder, and find or create a file named `pre-commit`.
+2. Paste this into `.git/hooks/pre-commit`:
 
 ```bash
 #!/usr/bin/env bash
 set -euo pipefail
 
-pipx run updateCitation
+updateCitation
 ```
 
-This example uses `pipx` so `updateCitation` does not have to be added to your project. If you use `uv`, replace `pipx run updateCitation` with `uv run updateCitation`. If you prefer `uvx`, replace it with `uvx updateCitation`.
-
-5. On macOS or Linux, make the file executable:
+1. On macOS or Linux, make the file executable:
 
 ```bash
 chmod +x .git/hooks/pre-commit
 ```
 
-Now each `git commit` runs `updateCitation` before finalizing the commit. If `updateCitation` changes `CITATION.cff`, review the change, add it with `git add CITATION.cff`, and commit again.
+Now each `git commit` runs `updateCitation`. If `updateCitation` changes `CITATION.cff`, review the change, add the changed citation file or files with `git add`, and commit again.
 
 ### `pre-commit` Hook
 
-Use this if your project already uses `pre-commit` or if you want a shared hook that collaborators can install.
+Use this if your project already uses `pre-commit` or if you want a shared local hook that collaborators can install. The `pre-commit` documentation explains [repository-local hooks](https://pre-commit.com/#repository-local-hooks) and [`pre-commit install`](https://pre-commit.com/#pre-commit-install); the configuration below is the `updateCitation`-specific part.
 
 1. In the top directory of your repository, create a file named `.pre-commit-config.yaml`.
 2. Paste this into `.pre-commit-config.yaml`:
@@ -104,15 +112,18 @@ repos:
     hooks:
       - id: updatecitation
         name: updateCitation
-        entry: pipx run updateCitation
-        language: system
+        entry: updateCitation
+        language: python
+        additional_dependencies:
+          - updateCitation
+        files: ^$
         pass_filenames: false
         always_run: true
 ```
 
-This example uses `pipx`. If you use uv, change the `entry` line to `entry: uv run updateCitation`. If you prefer uvx, change it to `entry: uvx updateCitation`.
+This lets `pre-commit` install `updateCitation` in its own hook environment. It does not require `updateCitation` to be installed in the project's virtual environment.
 
-3. Install the hook:
+1. Install the hook:
 
 ```bash
 pre-commit install
@@ -120,71 +131,49 @@ pre-commit install
 
 Now each commit runs `updateCitation` through `pre-commit` before finalizing the commit.
 
-## Which Command Should I Use?
+### Non-GitHub Repositories
 
-All of these run the same `updateCitation` script. Use one command style and put that command in your `Git` hook or `pre-commit` hook.
+The local options are not tied to GitHub. For GitLab, Codeberg, or another Git host, disable GitHub release metadata so `updateCitation` does not try to read GitHub releases:
 
-| How you manage Python tools        | Recommended setup command                                    | Command to run `updateCitation`                       |
-| ---------------------------------- | ------------------------------------------------------------ | ----------------------------------------------------- |
-| GitHub Action only                 | No local setup                                               | `pipx run updateCitation`                             |
-| uv project                         | `uv add --dev updateCitation`                                | `uv run updateCitation`                               |
-| pip project                        | Add `updateCitation` to a developer-only optional dependency | `updateCitation` from your active virtual environment |
-| No project install, pipx available | No project change                                            | `pipx run updateCitation`                             |
-| No project install, uvx available  | No project change                                            | `uvx updateCitation`                                  |
+```toml
+[tool.updateCitation]
+addGitHubRelease = false
+```
 
-For uv-managed projects, the recommended local setup is:
+If the package is not published on PyPI, also set:
+
+```toml
+[tool.updateCitation]
+addPyPIrelease = false
+```
+
+With those settings, `updateCitation` can still use `[project]` metadata from `pyproject.toml` and the existing citation file.
+
+## Manually running `updateCitation`
+
+### Install `updateCitation` as a uv-managed tool
+
+```bash
+uv tool install updateCitation
+```
+
+### Install `updateCitation` with `pip`
+
+From your project's virtual environment:
+
+```bash
+pip install updateCitation
+```
+
+### Install `updateCitation` with `uv`
+
+Only for people who develop your project:
 
 ```bash
 uv add --dev updateCitation
 ```
 
-Then use this command in your Git hook or pre-commit hook:
-
-```bash
-uv run updateCitation
-```
-
-For pip-managed projects, add updateCitation to an optional dependency group that only developers install. In `pyproject.toml`, create or update this section:
-
-```toml
-[project.optional-dependencies]
-developer = [
-  "updateCitation",
-]
-```
-
-Then developers install that group in their virtual environment:
-
-```bash
-python -m pip install -e ".[developer]"
-```
-
-After that, the installed script is:
-
-```bash
-updateCitation
-```
-
-For a plain `Git` hook, use the script inside your virtual environment if the hook cannot find `updateCitation`. If your virtual environment folder is named `.venv`, the command is `.venv/bin/updateCitation` on macOS or Linux and `.venv/Scripts/updateCitation.exe` on Windows.
-
-At the most basic level, the local choices are:
-
-| Package command                                 | `Git` hook | `pre-commit` hook |
-| ----------------------------------------------- | ---------- | ----------------- |
-| `uv run updateCitation`                         | yes        | yes               |
-| `updateCitation` from a pip virtual environment | yes        | yes               |
-| `pipx run updateCitation`                       | yes        | yes               |
-| `uvx updateCitation`                            | yes        | yes               |
-
-## Manual Use
-
-From the top level of your repository:
-
-```bash
-pipx run updateCitation
-```
-
-If `updateCitation` is already installed in your current Python environment:
+### When `updateCitation` is installed in your current Python environment
 
 ```bash
 updateCitation
@@ -202,7 +191,7 @@ updateCitation.here()
 
 No `updateCitation` configuration is required when you are happy with the defaults.
 
-`updateCitation` reads standard project metadata from `[project]` in `pyproject.toml`. The most important fields are:
+`updateCitation` reads standard project metadata from `[project]` in `pyproject.toml`. PyPA's guide explains [writing `pyproject.toml`](https://packaging.python.org/en/latest/guides/writing-pyproject-toml/), and the PyPA specification explains why tool-specific settings belong under [the `[tool]` table](https://packaging.python.org/en/latest/specifications/pyproject-toml/#arbitrary-tool-configuration-the-tool-table). The most important `[project]` fields for `updateCitation` are:
 
 ```toml
 [project]
@@ -230,22 +219,22 @@ gitAmendFromGitHubAction = true
 
 These are the existing `[tool.updateCitation]` options:
 
-| Setting                                | Type             | Default                                         | Purpose                                                                                                                                         |
-| -------------------------------------- | ---------------- | ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `filenameCitationDOTcff`               | string           | `"CITATION.cff"`                                | Filename for the repository-root citation file.                                                                                                 |
-| `pathFilenameCitationSSOT`             | string           | same path as the repository-root `CITATION.cff` | Authoritative source citation file. Use this if your editable citation file lives somewhere like `citations/CITATION.cff`.                      |
-| `addGitHubRelease`                     | boolean          | `true`                                          | Add GitHub release metadata when available.                                                                                                     |
-| `addPyPIrelease`                       | boolean          | `true`                                          | Add a PyPI artifact URL when available. Set this to `false` for packages not published on PyPI.                                                 |
-| `projectURLTargets`                    | array of strings | `["homepage", "license", "repository"]`         | Choose which keys from `[project.urls]` are copied into `CITATION.cff`. Supported values are `homepage`, `license`, and `repository`.           |
-| `gitCommitMessage`                     | string           | `"Update citations [skip ci]"`                  | Commit message used when updateCitation commits from GitHub Actions.                                                                            |
-| `gitUserName`                          | string           | `"updateCitation"`                              | Git username used for commits from GitHub Actions.                                                                                              |
-| `gitUserEmail`                         | string           | empty string                                    | Git email used for commits. If omitted, updateCitation tries GitHub-derived noreply addresses first and then falls back to `action@github.com`. |
-| `gitAmendFromGitHubAction`             | boolean          | `true`                                          | If `true`, updateCitation commits and pushes the updated citation file when running in GitHub Actions.                                          |
-| `pathFilenameCitationDOTcffRepository` | string           | repository root `CITATION.cff` path             | Advanced full-path override for the repository-root citation file.                                                                              |
-| `pathRepository`                       | string           | current working directory                       | Advanced override for the repository root. Usually you should run updateCitation from the repository root instead.                              |
-| `filename_pyprojectDOTtoml`            | string           | `"pyproject.toml"`                              | Advanced override for the settings filename after settings are loaded.                                                                          |
-| `pathReferences`                       | string           | `citations/` under the repository root          | Accepted by the settings object, but not currently used by the main workflow.                                                                   |
-| `GITHUB_TOKEN`                         | string or `null` | `null`                                          | GitHub API token. Prefer the `GITHUB_TOKEN` environment variable instead of putting secrets in `pyproject.toml`.                                |
+| Setting                                | Type             | Default                                         | Purpose                                                                                                                                           |
+| -------------------------------------- | ---------------- | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `filenameCitationDOTcff`               | string           | `"CITATION.cff"`                                | Filename for the repository-root citation file.                                                                                                   |
+| `pathFilenameCitationSSOT`             | string           | same path as the repository-root `CITATION.cff` | Authoritative source citation file. Use this if your editable citation file lives somewhere like `citations/CITATION.cff`.                        |
+| `addGitHubRelease`                     | boolean          | `true`                                          | Add GitHub release metadata when available.                                                                                                       |
+| `addPyPIrelease`                       | boolean          | `true`                                          | Add a PyPI artifact URL when available. Set this to `false` for packages not published on PyPI.                                                   |
+| `projectURLTargets`                    | array of strings | `["homepage", "license", "repository"]`         | Choose which keys from `[project.urls]` are copied into `CITATION.cff`. Supported values are `homepage`, `license`, and `repository`.             |
+| `gitCommitMessage`                     | string           | `"Update citations [skip ci]"`                  | Commit message used when `updateCitation` commits from GitHub Actions.                                                                            |
+| `gitUserName`                          | string           | `"updateCitation"`                              | Git username used for commits from GitHub Actions.                                                                                                |
+| `gitUserEmail`                         | string           | empty string                                    | Git email used for commits. If omitted, `updateCitation` tries GitHub-derived noreply addresses first and then falls back to `action@github.com`. |
+| `gitAmendFromGitHubAction`             | boolean          | `true`                                          | If `true`, `updateCitation` commits and pushes the updated citation file when running in GitHub Actions.                                          |
+| `pathFilenameCitationDOTcffRepository` | string           | repository root `CITATION.cff` path             | Advanced full-path override for the repository-root citation file.                                                                                |
+| `pathRepository`                       | string           | current working directory                       | Advanced override for the repository root. Usually you should run `updateCitation` from the repository root instead.                              |
+| `filename_pyprojectDOTtoml`            | string           | `"pyproject.toml"`                              | Advanced override for the settings filename after settings are loaded.                                                                            |
+| `pathReferences`                       | string           | `citations/` under the repository root          | Accepted by the settings object, but not currently used by the main workflow.                                                                     |
+| `GITHUB_TOKEN`                         | string or `null` | `null`                                          | GitHub API token. Prefer the `GITHUB_TOKEN` environment variable instead of putting secrets in `pyproject.toml`.                                  |
 
 Do not set these internal fields in `[tool.updateCitation]`:
 
@@ -254,7 +243,7 @@ Do not set these internal fields in `[tool.updateCitation]`:
 
 ### Configuration Notes
 
-- `addPyPIrelease = false` prevents updateCitation from generating a new `repository-artifact` URL, but it does not delete an existing `repository-artifact` already present in your source citation file.
+- `addPyPIrelease = false` prevents `updateCitation` from generating a new `repository-artifact` URL, but it does not delete an existing `repository-artifact` already present in your source citation file.
 - `projectURLTargets` only maps `homepage`, `license`, and `repository`.
 - If you override a path-related setting such as `filenameCitationDOTcff` or `pathRepository`, also override any dependent full-path setting you rely on.
 
