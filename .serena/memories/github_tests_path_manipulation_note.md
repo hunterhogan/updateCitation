@@ -1,3 +1,0 @@
-# GitHub test/fix preference
-
-When working on `updateCitation/github.py` or its tests, do not fixate on path manipulation as the default explanation or fix. The user has clarified that previous path-manipulation changes in `updateCitation/github.py` were unnecessary for the problem at hand. Keep future changes focused on the actual behavior under test, and avoid adding or preserving tests that assert irrelevant path-shaping details unless the production code's public contract genuinely depends on them.
