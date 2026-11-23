@@ -1,4 +1,5 @@
-# path-sync copy -n shared
+# path-sync copy -n hunterhogan
+# === DO_NOT_EDIT: path-sync hunterhogan ===
 name: Update CITATION.cff
 
 on:
@@ -21,3 +22,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: pipx run updateCitation
+# === OK_EDIT: path-sync hunterhogan ===
