@@ -259,6 +259,13 @@ addPyPIrelease = false
 
 Contributions are welcome. Please feel free to submit pull requests.
 
+To run the tests, install `updateCitation` in editable mode with the `testing` [dependency group](https://packaging.python.org/en/latest/specifications/dependency-groups/) (this needs `pip` 25.1 or newer), then run `pytest` from the repository root:
+
+```bash
+pip install -e . --group testing
+pytest
+```
+
 ## Design Goals
 
 1. 100% Python.

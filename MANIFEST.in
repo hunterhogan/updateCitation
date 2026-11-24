@@ -1,0 +1,3 @@
+graft tests
+prune tests/coverage
+global-exclude __pycache__ *.py[cod]
