@@ -54,15 +54,17 @@ dependencies = [
   "tomli",
   "typing_extensions>= 4.0.0",
 ]
-optional-dependencies = { testing = [
+
+[build-system]
+requires = ["setuptools>=77.0.0"]
+build-backend = "setuptools.build_meta"
+
+[dependency-groups]
+testing = [
   "pytest",
   "pytest-cov",
   "pytest-xdist",
-] }
-
-[build-system]
-requires = ["setuptools"]
-build-backend = "setuptools.build_meta"
+]
 
 [tool.coverage]
 report = { exclude_lines = [
@@ -338,7 +340,7 @@ skip-magic-trailing-comma = true
 
 [tool.setuptools]
 package-data = { "*" = ["py.typed"] }
-packages = { find = {} }
+packages = { find = { include = ["updateCitation", "updateCitation.*"] } }
 
 # === DO_NOT_EDIT: path-sync hunterhogan ===
 [tool.tombi.format.rules]
