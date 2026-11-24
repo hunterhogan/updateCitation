@@ -61,7 +61,7 @@ build-backend = "setuptools.build_meta"
 
 [dependency-groups]
 testing = [
-  "pytest",
+  "pytest>=9.0",
   "pytest-cov",
   "pytest-xdist",
 ]
