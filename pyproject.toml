@@ -55,16 +55,16 @@ dependencies = [
   "typing_extensions>= 4.0.0",
 ]
 
-[build-system]
-requires = ["setuptools>=77.0.0"]
-build-backend = "setuptools.build_meta"
-
 [dependency-groups]
 testing = [
   "pytest>=9.0",
   "pytest-cov",
   "pytest-xdist",
 ]
+
+[build-system]
+requires = ["setuptools>=77.0.0"]
+build-backend = "setuptools.build_meta"
 
 [tool.coverage]
 report = { exclude_lines = [
@@ -104,15 +104,7 @@ use_parentheses = true
 preset = "strict"
 enabled-ignores = ["pyrefly"]
 infer-with-first-use = false
-project-excludes = [
-  "typings",
-  "typings/**/*",
-  "**/node_modules",
-  "**/__pycache__",
-  "**/.*",
-  ".venv",
-  ".vAnalysis",
-]
+project-excludes = ["typings", "typings/**/*", "**/node_modules", "**/__pycache__", "**/.*", ".v*"]
 site-packages-path = ["./typings"]
 # === OK_EDIT: path-sync hunterhogan ===
 
@@ -123,29 +115,6 @@ invalid-type-var = "warn"
 invalid-yield = "warn"
 protected-access = "warn"
 redundant-condition = "warn"
-# === OK_EDIT: path-sync hunterhogan ===
-
-# === DO_NOT_EDIT: path-sync hunterhogan ===
-[tool.pyright]
-deprecateTypingAliases = true
-disableBytesTypePromotions = true
-enableReachabilityAnalysis = true
-enableTypeIgnoreComments = false
-exclude = ["typings", "typings/**", "**/node_modules", "**/__pycache__", "**/.*", ".venv", ".vAnalysis"]
-reportConstantRedefinition = false
-reportInvalidTypeVarUse = false
-reportPrivateUsage = false
-reportReturnType = "warning"
-reportUnnecessaryIsInstance = false
-reportUnusedClass = "information"
-reportUnusedExpression = "information"
-reportUnusedFunction = "information"
-reportUnusedImport = "information"
-reportUnusedVariable = "information"
-strictDictionaryInference = true
-strictListInference = true
-strictSetInference = true
-typeCheckingMode = "strict"
 # === OK_EDIT: path-sync hunterhogan ===
 
 [tool.pytest]
@@ -161,45 +130,7 @@ line-length = 140
 # === DO_NOT_EDIT: path-sync hunterhogan ===
 [tool.ruff.lint]
 preview = true
-allowed-confusables = [
-  "–",
-  "’",
-  "′",
-  "×",
-  "−",
-  "∖",
-  "∗",
-  "∣",
-  "∨",
-  "∪",
-  "∼",
-  "⊗",
-  "ℂ",
-  "ℋ",
-  "ℒ",
-  "ℓ",
-  "ℕ",
-  "ℙ",
-  "ℚ",
-  "ℝ",
-  "ℤ",
-  "ℰ",
-  "ℱ",
-  "𝒪",
-  "𝒮",
-  "𝔼",
-  "𝕀",
-  "𝟙",
-  "α",
-  "Β",
-  "γ",
-  "ι",
-  "Κ",
-  "ν",
-  "ο",
-  "ρ",
-  "σ",
-]
+allowed-confusables = ["–", "’", "′", "×", "−", "∖", "∗", "∣", "∨", "∪", "∼", "⊗", "ℂ", "ℋ", "ℒ", "ℓ", "ℕ", "ℙ", "ℚ", "ℝ", "ℤ", "ℰ", "ℱ", "𝒪", "𝒮", "𝔼", "𝕀", "𝟙", "α", "Β", "γ", "ι", "Κ", "ν", "ο", "ρ", "σ"]
 ignore = [
   "any-type",
   "bad-quotes-inline-string",
@@ -311,18 +242,7 @@ inline-quotes = "single"
 # === DO_NOT_EDIT: path-sync hunterhogan ===
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["useless-import-alias"]
-"*test*.py" = [
-  "ARG",
-  "assert",
-  "BLE",
-  "D",
-  "docstring-missing-returns",
-  "DTZ",
-  "FBT",
-  "PT",
-  "suspicious-non-cryptographic-random-usage",
-  "TRY",
-]
+"*test*.py" = ["ARG", "assert", "BLE", "D", "docstring-missing-returns", "DTZ", "FBT", "PT", "suspicious-non-cryptographic-random-usage", "TRY"]
 # === OK_EDIT: path-sync hunterhogan ===
 
 # === DO_NOT_EDIT: path-sync hunterhogan ===
