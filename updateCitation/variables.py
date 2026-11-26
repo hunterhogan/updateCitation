@@ -65,6 +65,7 @@ from __future__ import annotations
 
 from typing import Any, Literal, TypedDict
 import attrs
+import operator
 import pathlib
 import warnings
 
@@ -130,19 +131,19 @@ class SettingsPackage:
 		The root directory of the repository.
 	filename_pyprojectDOTtoml : str = 'pyproject.toml'
 		The filename of the `pyproject.toml` configuration file.
-	pathFilenamePackageSSOT : pathlib.Path
+	pathFilenamePackageSSOT : pathlib.Path = Path(pathRepository, filename_pyprojectDOTtoml)
 		The full path to the `pyproject.toml` file.
 	filenameCitationDOTcff : str = 'CITATION.cff'
 		The filename of the CITATION.cff file.
-	pathFilenameCitationDOTcffRepository : pathlib.Path
+	pathFilenameCitationDOTcffRepository : pathlib.Path = Path(filenameCitationDOTcff)
 		The full path to the CITATION.cff file in the repository root.
-	pathFilenameCitationSSOT : pathlib.Path
+	pathFilenameCitationSSOT : pathlib.Path = pathFilenameCitationDOTcffRepository
 		The full path to the authoritative CITATION.cff file.
 	addGitHubRelease : bool = True
 		Whether to include GitHub release metadata.
 	addPyPIrelease : bool = True
 		Whether to include PyPI release metadata.
-	pathReferences : pathlib.Path
+	pathReferences : pathlib.Path = Path(pathRepository, 'citations')
 		The directory path for reference citation file.
 	projectURLTargets : set[str] = {'homepage', 'license', 'repository'}
 		The set of PyPA project URL key name to extract.
@@ -173,18 +174,34 @@ class SettingsPackage:
 		https://packaging.python.org/en/latest/specifications/pyproject-toml/
 
 	"""
-	pathRepository: pathlib.Path = pathlib.Path.cwd()
+	pathRepository: pathlib.Path = attrs.field(default=pathlib.Path.cwd(), converter=pathlib.Path)
 	filename_pyprojectDOTtoml: str = filename_pyprojectDOTtomlDEFAULT
-	pathFilenamePackageSSOT: pathlib.Path = pathlib.Path(pathRepository, filename_pyprojectDOTtoml)
+
+	def _makePathFilenamePackageSSOT(self) -> pathlib.Path:
+		return pathlib.Path(self.pathRepository, self.filename_pyprojectDOTtoml)
+
+	pathFilenamePackageSSOT: pathlib.Path = attrs.field(
+		default=attrs.Factory(_makePathFilenamePackageSSOT, takes_self=True), converter=pathlib.Path)
 
 	filenameCitationDOTcff: str = 'CITATION.cff'
-	pathFilenameCitationDOTcffRepository: pathlib.Path = pathlib.Path('.', filenameCitationDOTcff)
-	pathFilenameCitationSSOT: pathlib.Path = pathlib.Path(pathFilenameCitationDOTcffRepository)
+
+	def _makePathFilenameCitationDOTcffRepository(self) -> pathlib.Path:
+		return pathlib.Path(self.filenameCitationDOTcff)
+
+	pathFilenameCitationDOTcffRepository: pathlib.Path = attrs.field(
+		default=attrs.Factory(_makePathFilenameCitationDOTcffRepository, takes_self=True), converter=pathlib.Path)
+
+	pathFilenameCitationSSOT: pathlib.Path = attrs.field(
+		default=attrs.Factory(operator.attrgetter('pathFilenameCitationDOTcffRepository'), takes_self=True), converter=pathlib.Path)
 
 	addGitHubRelease: bool = True
 	addPyPIrelease: bool = True
 
-	pathReferences: pathlib.Path = pathlib.Path(pathRepository, 'citations')
+	def _makePathReferences(self) -> pathlib.Path:
+		return pathlib.Path(self.pathRepository, 'citations')
+
+	pathReferences: pathlib.Path = attrs.field(default=attrs.Factory(_makePathReferences, takes_self=True), converter=pathlib.Path)
+
 	projectURLTargets: set[str] = {"homepage", "license", "repository"}
 
 	gitCommitMessage: str = "Update citations [skip ci]"

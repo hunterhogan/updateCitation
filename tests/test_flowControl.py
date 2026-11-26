@@ -1,3 +1,37 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+from updateCitation import here
+import pytest
+
+if TYPE_CHECKING:
+	from pathlib import Path
+
+@pytest.mark.parametrize(("pathWorkingDirectory", "expected"), [
+	pytest.param(
+		(pyprojectOffline := '[project]\nname = "packageAlpha"\nversion = "0.1.0"\nauthors = [{name = "Ada Lovelace"}]\n\n'
+			'[tool.updateCitation]\naddGitHubRelease = false\naddPyPIrelease = false\ngitAmendFromGitHubAction = false\n'
+			'gitUserEmail = "test@example.com"\n')
+		, ("CITATION.cff", "pyproject.toml")
+		, id="settingsDefault"),
+	pytest.param(
+		pyprojectOffline + 'pathFilenameCitationSSOT = "citations/CITATION.cff"\n'
+		, ("CITATION.cff", "citations", "citations/CITATION.cff", "pyproject.toml")
+		, id="citationSSOTSubdirectory"),
+	pytest.param(
+		pyprojectOffline + 'filenameCitationDOTcff = "OTHER.cff"\n'
+		, ("OTHER.cff", "pyproject.toml")
+		, id="filenameCitationOther"),
+], indirect=["pathWorkingDirectory"])
+def test_here(pathWorkingDirectory: Path, expected: tuple[str, ...]) -> None:
+	"""Expected file state comes from the README's `[tool.updateCitation]` table.
+
+	`pathFilenameCitationSSOT` names the authoritative citation file, `filenameCitationDOTcff` names the repository-root
+	citation file, and `here` writes both, starting from a repository that has neither.
+	"""
+	here()
+	assert {*pathWorkingDirectory.rglob("*")} == {*map(pathWorkingDirectory.joinpath, expected)}
+
 # import os
 # from updateCitation import flowControl
 # import pathlib

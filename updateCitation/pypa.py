@@ -154,6 +154,7 @@ def getPyPAMetadata(packageData: dict[str, Any]) -> PyPAMetadata:
 	metadataRaw = packaging.metadata.RawMetadata(
 		keywords=packageData.get("keywords", []),
 		license_expression=licenseExpression,
+		# TODO This looks like a hardcoded value.
 		metadata_version="2.4",
 # NOTE packaging.metadata.InvalidMetadata: 'name' is a required field
 		name=packaging.utils.canonicalize_name(packageData["name"], validate=True),

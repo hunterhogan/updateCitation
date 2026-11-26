@@ -47,6 +47,13 @@ def pathFilenameTmpTesting(request: pytest.FixtureRequest, tmp_path: Path) -> Pa
 	return pathFilenameTmp
 
 @pytest.fixture
+def pathWorkingDirectory(request: pytest.FixtureRequest, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+	"""Return the working directory, whose only file is a `pyproject.toml` holding `request.param`."""
+	(tmp_path / filename_pyprojectDOTtomlDEFAULT).write_text(request.param, encoding="utf-8")
+	monkeypatch.chdir(tmp_path)
+	return tmp_path
+
+@pytest.fixture
 def nexusCitationTesting(request: pytest.FixtureRequest) -> CitationNexus:
 	"""Return a CitationNexus object with the specified attributes."""  # noqa: DOC201
 	try:
